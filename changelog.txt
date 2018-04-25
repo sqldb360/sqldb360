@@ -1,0 +1,202 @@
+Changelog
+=========
+
+v1802
+=====
+1. Modify dcli command on 0b to expect a possible OS user other than oracle
+2. Top SQL as per diverse metrics
+PRO Metrics
+PRO ~~~~~~~~~~~~~~~~~~~
+PRO elapsed_time_delta
+PRO cpu_time_delta
+PRO iowait_delta
+PRO apwait_delta
+PRO ccwait_delta
+PRO parse_calls_delta
+PRO executions_delta
+PRO fetches_delta
+PRO loads_delta
+PRO invalidations_delta
+PRO version_count
+PRO sharable_mem
+PRO rows_processed_delta
+PRO buffer_gets_delta
+PRO disk_reads_delta
+
+
+v1801 (2018-01-15)
+=====
+1. Remove SQLT references
+2. Use GV$ instead of V$ for flashback views on "2d. Backup and Recovery"
+3. Fix ORA-01476: divisor is equal to zero, on "3e.NNN. CPU Time Percent for Instance"
+4. Exclude GSMADMIN_INTERNAL from "2.b.NNN. Segments in Reserved Tablespaces"
+5. Add "Last DDL by date" and "Last DDL by pdb and date" to "2a Database Administration"
+6. New edb360_config_dbid configuration parameter allows to execute eDB360 for a dbid on AWR other than v$database.dbid
+7. Added "Statistics Gathering History Report" for 12c (DBMS_STATS.REPORT_STATS_OPERATIONS) under "3c. Cost-based Optimizer (CBO) Statistics"
+8. Report "2b.NNN. Tables with excessive wasted space" considers now partitioned tables
+9. New report "2b.NNN. Tables with actual size greater than estimated" is added for 12c
+10. Added SGA Allocation (x$ksmssinfo) under "4a. System Global Area (SGA) Statistics History"
+11. Added "OS Load and CPU Subscription Threshold" charts under "3e. Operating System (OS) Statistics History"
+12. Added db_unique_name to 0c alert log copy section
+13. New parameter edb360_output_directory allows to create zip and most staging files into a directory other than "."
+14. Added Tablespace Usage Metrics (CDB_TABLESPACE_USAGE_METRICS) under "2b Storage"
+15. Added configuration parameters to optionally add host_name suffix to haxis in all charts
+16. Added "Open Cursors Count per Session" under "2.a Database Administration"
+17. Added "Session Cursor Cache Misses per Session" under "2.a Database Administration"
+18. Added "Session Cursor Cache (total and hits)" under "5.d System Statistics per Snap Interval"
+19. Added "Cached Cursors List per Session" under "2.a Database Administration"
+
+v1715 (2017-07-28)
+=====
+1. Moved the Report Auto Tuning Task from 3d to 3b
+2. Added DBA_CDB_RSRC_PLAN_DIRECTIVES, DBA_CDB_RSRC_PLANS and DBA_PDB_SAVED_STATES
+3. Added DBA_AUTOTASK_JOB_HISTORY, DBA_ADVISOR_PARAMETERS, DBA_ADVISOR_EXECUTION_TYPES, DBA_ADVISOR_TASKS and DBA_ADVISOR_EXECUTIONS
+4. Query on DBA_SQL_PLAN_DIRECTIVES is using now base tables taking out the embedded function call from view
+5. Added DBA_AUTOTASK_TASK
+6. Added few scheduler and auto task CDB views
+7. Added Processes Memory Aggregate
+8. Connecting to respective PDB for planx.sql and SQLd360.sql
+9. Added configuration parameters skip_ash_validation and skip_esp_and_escp
+10. Added PDB_SPFILE$ to 1a for 12c
+11. Remove WHERE clause on DBA_OBJ_AUDIT_OPTS query (1c)
+12. SQLd360 is now executed considering PDB of the SQL
+13. Fixed a bug where eDB360 would not include any AWR report if dates from and to where set to same value
+
+v1714 (2017-06-11)
+=====
+1. Fix 6c on 12c where when executed from CDB it shows duplicate rows per SQL_ID on 6c Top SQL
+2. Added new configuration parameter edb360_conf_incl_source with default of 'Y'
+3. Added Sections 6m and 6n "Top PDBs" for 12c (shown only when executed from CDB$ROOT)
+4. Display NOT_A_SIEBEL_DB and NOT_A_PSFT_DB instead of siebel_schema and psft_schema
+5. edb360_conf_incl_ash_analy_rpt, edb360_conf_incl_addm_rpt and edb360_conf_incl_ash_rpt default to N
+6. Reduce edb360_conf_top_sql from 48 to 16
+7. Reduce edb360_conf_top_cur from 4 to 2
+8. Reduce edb360_conf_top_sig from 4 to 2
+9. Reduce edb360_conf_planx_top from 48 to 16
+10. Reduce edb360_conf_sqld360_top from 16 to 8
+11. Create set of parameters to regulate how many reports to create on each max category, med and min
+
+v1713 (2017-05-03)
+=====
+1. New logo
+2. New CSS with white as background
+3. Added "Files Count per Disk Group" and "Data and Temp Files Count per Disk Group" under 2c
+4. Added PDBS info into 1a "System Under Observation"
+5. Split Exadata efficiency chart on 5e from one into four
+
+v1712 (2017-04-16)
+=====
+1. eAdam 3.0 and 2.0 are now fully functional
+
+v1711 (2017-04-10)
+=====
+1. eDB360 repository contains now 222 tables up from 26
+2. eAdam 3.0 is enabled as a new repository for eDB360 with 22 tables
+3. Disabled META360
+
+v1710 (2017-04-03)
+=====
+1. Cleanup of section 3e Operating System (OS) Statistics History
+
+v1709 (2017-03-27)
+=====
+1. Added Performance Hub active report
+2. Added 2nd method to create repository under extt subdirectory
+
+v1708 (2017-03-25)
+=====
+1. Individual sections and some columns can be executed passing 2nd parameter: @edb360 T 7a
+2. Added "SQL in logon storms" under section 3h
+3. Added "SQL executed row-by-row" under section 3h
+4. ASH from eAdam for top 16 SQL_ID (as per SQLd360 list) + top 12 SNAP_ID (as per AWR MAX from 7a)
+5. Present totals line using of COMPUTE in some reports on section 2b
+6. RMAN section includes now Blocks with Corruption or Nonlogged
+7. Added Load Profile (Per Sec, Per Txn and Count) as per DBA_HIST_SYSMETRIC_SUMMARY
+8. Added abstract: Memory is accounted as power of two (binary) while storage and network traffic as power of ten (decimal)
+9. Added new section 4i with Waits Count v.s. Average Latency for top 24 Wait Events
+10. Fixing "ORA-01476: divisor is equal to zero" on planx at DBA_HIST_SQLSTAT
+11. Added AWR DIFF reports for RAC and per instance. Regulated by edb360_conf_incl_addm_rpt
+12. Added the ASH Analytics active report for 12c. Regulated by edb360_conf_incl_ash_analy_rpt
+13. Database name can be part of the main filename (off by default). Regulated by edb360_conf_incl_dbname_file
+14. At completion, main edb360 zip file can now by moved to a location other than SQL*Plus working directory. Regulated by edb360_move_directory
+15. Added report on Database and Schema Triggers in column 3h. This can be used to see LOGON triggers
+16. Implement q'[text]' format in all scripts for improved readability
+
+v1707 (2017-03-06)
+=====
+1. fixing planx failing due to SQL*Plus crash
+2. custom config files are removed the sql suffix
+
+v1706 (2017-02-19)
+=====
+1. edb360 supports now an optional repository
+
+v1705 (2017-02-15)
+=====
+1. Improve performance on 2.a "Libraries calling DBMS_STATS"
+
+v1704 (2017-02-09)
+=====
+1. Added Archived Log list
+2. Tables and their indexes larger than 1 GB include now segments count
+
+v1703 (2017-02-07)
+=====
+1. Added 4 queries from berx into sections 1b and 2b
+2. Modify 6f query on modules and actions to remove duplicates as per request from Davod Kurtz
+3. List of SQL statements on 7b now consider >, < , " on GV$SQL
+4. Rename columns on planx to avoid #### on SQLd360
+5. Bar charts increased area for lengend at the bottom
+
+v1702 (2017-01-13)
+=====
+1. Update Redundant Indexes(2) as per changes from david Kurtz
+2. Section 7a now generates reports when AWR retention is less than 10 days. v1701.2 had introduced a new bug where retention less than 10 days would not produce any AWR/ADDM/ASH report
+3. Added new section 4h Average Latency for Top 24 Wait Events
+4. Fix 5a, 5b and 5c section where the number of AAS is incorrect due to bug from v1622: (GREATEST(CAST(MAX(sample_time) AS DATE) - CAST(LAG(MAX(sample_time)) OVER (ORDER BY snap_id) AS DATE), 1) * 24 * 3600)
+
+
+v1701 (2017-01-02)
+=====
+1. Increase font and chart size on edb360 and sqld360 to improve readability
+2. AWR/ADDM/ASH reports add two more: max31 and max7. These two include a range that covers all the individual reports. So they are almost as large as 7 days and 31 days. There are cases where we can to see the big picture.
+3. New reports on 3h: Sessions, Processes and Parallel Max Servers - Time Series
+4. Added some columns to planx for DBA_HIST_SQLSTAT and similar views. Condition such columns to database version so we get more than the maximum common denominator
+5. List of libraries which include DBMS_STATS shows not only the line where DBMS_STATS is referenced, but a few lines afterwards
+6. Top timed events is promoted to use bar char instead of pie chart
+
+v1622 (2016-12-27)
+=====
+1. Active Session History (ASH) - Top Signature includes now min and max SQL_ID
+2. Granularity from hourly to per snap on all columns
+3. Haxis shows now cores, threads and hosts
+4. Adding num_rows and blocks to tables cached, on keep and on recycle (section 2a)
+5. Adding seconds average and median to 3h. JDBC Idle connections for more than N hours and to JDBC Idle connections per JVM and Program
+6. Pie charts include now percent on legend. Affects column 6 and section 5c
+7. Added memory configuration at the bottom of 1a
+8. Pie charts have now a hole
+9. Skip SQL that would error on 10g
+10. Refresh of sections 4f and 4g to include all waits and not just I/O waits
+11. Database name can now be shown on index page as per edb360_conf_incl_dbname_index
+12. Removed CBO Hints on 3 queries from David Kurtz on section 2b as per request from Luis Calvo
+13. Added a 2nd version of redundant index as per request from David Kurtz
+14. Removed PGA memory freed back to OS from 4b PGA stats
+15. Added v$process and v$process_memory to 3h
+
+v1621 (2016-12-03)
+=====
+1. Added Auto Tune Report
+2. Added SQL Plan Directives
+3. Enhanced AWR ASH pre-check
+4. Added "All other Timed Clases" to 6a ASH bar char
+5. Readme filename is now unique (for multi-threaded executions)
+6. Add min sql_id to 2a SQL using Literals or many children (by COUNT) (GV$SQL)
+7. Get alert log from diagnostic_dest on 12c
+
+v1620 (2016-11-23)
+=====
+1. SQLd360 stops executing when it consumed all the time allocated by eDB360 (the *next* SQL ID will be ignored, the current one is let to complete)
+2. All queries on dba_hist_active_sesss_history are now decorated with hints to use FTS and HJ. This to provide more consistent and predictable execution times when ASH is not getting purged and stats are not up to date.
+3. Added awr_ash_pre_check.sql and verify_stats_wr_sys.sql scripts. If eDB360 is expected to take more than 8 hours the execution stops and waits for conformation to proceed.
+4. SQL Trace is back on for eDB360 so we get a tkprof for the execution of eDB360 itself. 
+

@@ -1,0 +1,7 @@
+DEF sqld360_conf_incl_sqlmon  ='N' 
+DEF sqld360_conf_incl_ash_hist='N' 
+DEF sqld360_conf_incl_eadam   ='N' 
+DEF sqld360_conf_incl_rawash  ='N'  
+DEF sqld360_conf_incl_stats_h ='N'
+DEF sqld360_conf_incl_metadata='N'
+DEF sqld360_conf_incl_sta     ='N'
