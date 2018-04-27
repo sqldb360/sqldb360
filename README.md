@@ -1,25 +1,21 @@
-# sqldb360 v1801 (2018-01-15) by Carlos Sierra and Mauro Pagano
+# sqldb360
 
 sqldb360 is a "free to use" tool to perform an initial assessment of an Oracle database. 
 
 
-****************************************************************************************
 
 ## Steps
 
 
-****************************************************************************************
 
 ## Notes
 
-   
-****************************************************************************************
+
 
 ## Troubleshooting
 
 
 
-****************************************************************************************
    
   sqldb360 - An Oracle Database 360-degree View
   Copyright (C) 2018  Carlos Sierra and Mauro Pagano
@@ -36,5 +32,3 @@ sqldb360 is a "free to use" tool to perform an initial assessment of an Oracle d
 
   You should have received a copy of the GNU General Public License
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-****************************************************************************************
