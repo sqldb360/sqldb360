@@ -1,5 +1,5 @@
-edb360 v1801 (2018-01-15) by Carlos Sierra
-~~~~~~~~~~~~
+sqldb360 v1801 (2018-01-15) by Carlos Sierra and Mauro Pagano
+
 edb360 is a "free to use" tool to perform an initial assessment of an Oracle database. 
 
 eDB360 works on Oracle 10g to 12c databases. 
@@ -27,7 +27,7 @@ on a system directory with at least 1 GB of free space.
 ****************************************************************************************
 
 Steps
-~~~~~
+
 1. Unzip edb360-master.zip, navigate to the root edb360-master directory, and connect as 
    DBA, or any user with access to the Data Dictionary:
 
@@ -73,7 +73,7 @@ Steps
 ****************************************************************************************
 
 Notes
-~~~~~
+
 1. If you need to execute edb360 against all databases in host use then run_db360.sh:
 
    $ unzip edb360-master.zip
@@ -115,7 +115,7 @@ Notes
 ****************************************************************************************
 
 Troubleshooting
-~~~~~~~~~~~~~~~
+
 edb360 takes up to 24 hours to execute on a large database. On smaller ones or on Exadata
 it may take a few hours or less. In rare cases it may require even more than 24 hrs.
 
@@ -136,8 +136,8 @@ Steps:
 
 ****************************************************************************************
    
-    edb360 - An Oracle Database 360-degree View
-    Copyright (C) 2017  Carlos Sierra
+    sqldb360 - An Oracle Database 360-degree View
+    Copyright (C) 2018  Carlos Sierra and Mauro Pagano
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
