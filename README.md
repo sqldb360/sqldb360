@@ -15,7 +15,7 @@ sqldb360 is a "free to use" tool to perform an initial assessment of an Oracle d
 ## Troubleshooting
 
 
-
+## License
    
   sqldb360 - An Oracle Database 360-degree View
   Copyright (C) 2018  Carlos Sierra and Mauro Pagano
