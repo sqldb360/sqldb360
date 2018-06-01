@@ -880,4 +880,5 @@ HOS zip -mj &&edb360_zip_filename. escp_output_&&esp_host_name_short._&&esp_coll
 HOS zip -mj &&edb360_zip_filename. 00000_readme_first_&&my_sid..txt >> &&edb360_log3..txt
 HOS zip -j &&edb360_zip_filename. js/sorttable.js >> &&edb360_log3..txt
 HOS zip -j &&edb360_zip_filename. js/edb360_img.jpg >> &&edb360_log3..txt
+HOS zip -j &&edb360_zip_filename. js/database.jpg >> &&edb360_log3..txt
 HOS zip -j &&edb360_zip_filename. js/edb360_favicon.ico >> &&edb360_log3..txt

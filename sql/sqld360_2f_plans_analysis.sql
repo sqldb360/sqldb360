@@ -611,8 +611,8 @@ BEGIN
     put(q'[SELECT 0 snap_id,                                                    ]');
     put(q'[       TO_CHAR(end_time, ''YYYY-MM-DD HH24:MI'') begin_time,         ]'); 
     put(q'[       TO_CHAR(end_time, ''YYYY-MM-DD HH24:MI'') end_time,           ]');
-    put(q'[       pga_allocated_min,                                            ]');
-    put(q'[       temp_space_allocated_min,                                     ]');
+    put(q'[       NVL(pga_allocated_min,0) pga_allocated_min,                   ]');
+    put(q'[       NVL(temp_space_allocated_min,0) temp_space_allocated_min,     ]');
     put(q'[       0 dummy_03,                                                   ]');
     put(q'[       0 dummy_04,                                                   ]');
     put(q'[       0 dummy_05,                                                   ]');
@@ -749,8 +749,8 @@ BEGIN
     put(q'[SELECT 0 snap_id,                                                       ]');
     put(q'[       TO_CHAR(end_time, ''YYYY-MM-DD HH24:MI'') begin_time,            ]'); 
     put(q'[       TO_CHAR(end_time, ''YYYY-MM-DD HH24:MI'') end_time,              ]');
-    put(q'[       read_io_requests_min,                                            ]');
-    put(q'[       write_io_requests_min,                                           ]');
+    put(q'[       NVL(read_io_requests_min,0)  read_io_requests_min,               ]');
+    put(q'[       NVL(write_io_requests_min,0)  write_io_requests_min,             ]');
     put(q'[       0 dummy_03,                                                      ]');
     put(q'[       0 dummy_04,                                                      ]');
     put(q'[       0 dummy_05,                                                      ]');

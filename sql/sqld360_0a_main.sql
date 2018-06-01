@@ -12,7 +12,7 @@ PRO <td class="c">3/&&max_col_number.</td>
 PRO <td class="c">4/&&max_col_number.</td>
 PRO <td class="c">5/&&max_col_number.</td>
 PRO </tr><tr class="main"><td>
-PRO &&sqld360_conf_tool_page.<img src="SQLd360_img.jpg" alt="SQLd360" height="201" width="313"></a>
+PRO &&sqld360_conf_tool_page.<img src="DFS.gif" alt="SQLd360" height="256" width="256"></a>
 PRO <br>
 PRO
 SPO OFF;

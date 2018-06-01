@@ -767,6 +767,7 @@ SPO OFF;
 -- zip
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/sorttable.js
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/SQLd360_img.jpg
+HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/DFS.gif
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/SQLd360_favicon.ico
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/sql-formatter.js
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/googlecode.css
