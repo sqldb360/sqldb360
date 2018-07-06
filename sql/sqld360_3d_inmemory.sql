@@ -33,6 +33,31 @@ END;
 /
 @@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
 
+DEF title = 'Automatic In-Memory Tasks';
+DEF main_table = 'DBA_INMEMORY_AIMTASKS';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */
+       *
+  FROM dba_inmemory_aimtasks
+ ORDER BY task_id 
+]';
+END;
+/
+@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+
+DEF title = 'Automatic In-Memory Task Details';
+DEF main_table = 'DBA_INMEMORY_AIMTASKDETAILS';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */
+       *
+  FROM dba_inmemory_aimtaskdetails
+ ORDER BY task_id, object_owner, object_name, subobject_name 
+]';
+END;
+/
+@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
 
 
 DEF title = 'In-Memory Segments';
