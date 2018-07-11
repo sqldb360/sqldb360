@@ -948,6 +948,93 @@ END;
 /
 @@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
 
+REM DMK 25.6.2018
+DEF title = 'Unindexed Partition Key Columns';
+DEF main_table = '&&dva_view_prefix.PART_KEY_COLUMNS';
+column table_owner heading 'Table|Owner'
+column table_name  heading 'Table Name'
+column index_owner heading 'Index|Owner'
+column index_name  heading 'Index Name'
+column index_type  heading 'Index Type'
+column column_list heading 'Index Column List'
+column part_level  heading 'Partition|Level'
+column locality    heading 'Locality'
+column partitioning_type    heading 'Partition|Type'
+column partition_count      heading 'Partition|Count'
+column part_column_position heading 'Part|Col|Pos' 
+column part_column_name     heading 'Partitioning|Column Name'
+BEGIN
+  :sql_text := q'[
+with k as (
+select 	k.*, 'Partition' part_level
+from 	all_part_key_columns k
+union all
+select 	k.*, 'Subpartition' 
+from 	all_subpart_key_columns k
+)
+SELECT  /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+	i.table_owner, i.table_name
+, 	i.owner index_owner
+, 	i.index_name
+, 	i.index_type
+,	'Partition' part_level
+,	p.locality
+,	p.partitioning_type 
+,	p.partition_count
+, 	k.column_position part_column_position
+,	k.column_name part_column_name
+,	(	SELECT  LISTAGG(NVL(ie.extension,ic.column_name),',') WITHIN GROUP (ORDER BY ic.column_position)
+		FROM	&&dva_object_prefix.ind_columns ic
+			LEFT OUTER JOIN &&dva_object_prefix.stat_extensions ie
+			ON ie.owner = ic.table_owner
+			AND ie.table_name = ic.table_name
+			AND ie.extension_name = ic.column_name
+		where	i.owner = ic.index_owner
+		and 	i.index_name = ic.index_name
+		and	i.table_owner = ic.table_owner
+		and	i.table_name = ic.table_name
+	) column_list
+from	&&dva_object_prefix.indexes i
+,	&&dva_object_prefix.part_indexes p
+,	k
+where	i.table_owner NOT IN &&exclusion_list.
+AND 	i.table_owner NOT IN &&exclusion_list2.
+and	i.index_type NOT IN('LOB')
+AND     k.owner = i.owner
+and	k.name = i.index_name
+and 	k.object_type = 'INDEX'
+and	i.partitioned = 'YES'
+and	p.owner = i.owner
+and	p.index_name = i.index_name
+and	p.table_name = i.table_name
+and not exists (
+	select 'x'
+	from 	&&dva_object_prefix.ind_columns ic
+	where	i.owner = ic.index_owner
+	and 	i.index_name = ic.index_name
+	and	i.table_owner = ic.table_owner
+	and	i.table_name = ic.table_name
+	and	ic.column_name = k.column_name)
+order by 1,2,3,4,5,6
+]';
+END;
+/
+
+@@edb360_9a_pre_one.sql
+column table_owner clear
+column table_name  clear
+column index_owner clear
+column index_name  clear
+column index_type  clear
+column column_list clear
+column part_level  clear
+column locality    clear
+column partitioning_type    clear
+column partition_count      clear
+column part_column_position clear
+column part_column_name     clear
+
+
 DEF title = 'Subpartitions set for Compression';
 DEF main_table = '&&dva_view_prefix.TAB_SUBPARTITIONS';
 BEGIN
