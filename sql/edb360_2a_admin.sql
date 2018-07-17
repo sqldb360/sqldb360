@@ -967,10 +967,10 @@ BEGIN
   :sql_text := q'[
 with k as (
 select 	k.*, 'Partition' part_level
-from 	all_part_key_columns k
+from 	&&dva_object_prefix.part_key_columns k
 union all
 select 	k.*, 'Subpartition' 
-from 	all_subpart_key_columns k
+from 	&&dva_object_prefix.subpart_key_columns k
 )
 SELECT  /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 	i.table_owner, i.table_name
