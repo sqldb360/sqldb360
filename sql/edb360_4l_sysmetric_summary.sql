@@ -73,14 +73,6 @@ END;
 /
 
 DEF skip_lch = '';
-DEF title = 'Active Parallel Sessions';
-DEF vaxis = 'Sessions';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
 DEF title = 'Active Serial Sessions';
 DEF vaxis = 'Sessions';
 DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
@@ -267,62 +259,6 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
 DEF skip_lch = '';
 DEF title = 'Parse Failure Count Per Sec';
 DEF vaxis = 'Parses Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'PX downgraded 1 to 25% Per Sec';
-DEF vaxis = 'PX Operations Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'PX downgraded 25 to 50% Per Sec';
-DEF vaxis = 'PX Operations Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'PX downgraded 50 to 75% Per Sec';
-DEF vaxis = 'PX Operations Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'PX downgraded 75 to 99% Per Sec';
-DEF vaxis = 'PX Operations Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'PX downgraded to serial Per Sec';
-DEF vaxis = 'PX Operations Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'PX operations not downgraded Per Sec';
-DEF vaxis = 'PX Operations Per Second';
-DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
-DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
-DEF title = 'Queries parallelized Per Sec';
-DEF vaxis = 'Queries Per Second';
 DEF abstract = '"&&title." with unit of "&&vaxis.", based on 1-minute samples. Max value is within each hour.<br />'
 DEF foot = 'Max values represent the peak of the metric within each hour and among the 60 samples on it. Each sample represents in turn an average within a 1-minute interval.'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
