@@ -111,8 +111,18 @@ PRO
 PRO -- List of binds from history
 PRO /*
 BEGIN
-  FOR i IN (SELECT DISTINCT snap_id FROM dba_hist_sqlstat WHERE sql_id = '&&sqld360_sqlid.' AND bind_data IS NOT NULL ORDER BY 1) LOOP
-    DBMS_OUTPUT.PUT_LINE('--SNAP_ID: '||i.snap_id);
+  FOR i IN (SELECT DISTINCT snap_id --DMK 3/8/18 added execution statistics
+		, sum(elapsed_time_delta)/1e6  elapsed_time
+		, sum(executions_delta) executions
+		, ROUND(sum(elapsed_time_delta)/1e6/NULLIF(sum(executions_delta),0),6) avg_elapsed_time
+            FROM dba_hist_sqlstat WHERE sql_id = '&&sqld360_sqlid.' AND bind_data IS NOT NULL 
+            GROUP BY snap_id
+            ORDER BY 1
+   ) LOOP
+    DBMS_OUTPUT.PUT_LINE('--SNAP_ID: '||i.snap_id
+		||' Elapsed Time: '||i.ElapseD_time
+		||' Executions: '||i.executions
+		||' Avg Elapsed Time: '||i.avg_ElapseD_time);
     FOR j IN (SELECT 'EXEC '||
                       CASE WHEN REGEXP_INSTR(SUBSTR(b.name,1,2),'[[:digit:]]') > 0 THEN ':b'||SUBSTR(b.name,2) ELSE b.name END||
                       ' := ' ||
