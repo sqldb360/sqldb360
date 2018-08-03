@@ -1,6 +1,11 @@
 Changelog
 =========
 
+v1803
+=====
+1. Consolidation of Parallel metrics into section 4
+2. Parallel Downgrade Perc added 
+
 v1802
 =====
 1. Modify dcli command on 0b to expect a possible OS user other than oracle

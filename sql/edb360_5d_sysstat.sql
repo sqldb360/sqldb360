@@ -753,46 +753,6 @@ EXEC :sql_text := REPLACE(:sql_text, 'dummy_04', '"'||SUBSTR('&&tit_04.',1,30)||
 @@edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = 'Parallel Operations';
-DEF vaxis = 'Counts';
-DEF tit_01 = 'DDL statements parallelized';
-DEF tit_02 = 'DFO trees parallelized';
-DEF tit_03 = 'DML statements parallelized';
-DEF tit_04 = 'Parallel operations downgraded 1 to 25 pct';
-DEF tit_05 = 'Parallel operations downgraded 25 to 50 pct';
-DEF tit_06 = 'Parallel operations downgraded 50 to 75 pct';
-DEF tit_07 = 'Parallel operations downgraded 75 to 99 pct';
-DEF tit_08 = 'Parallel operations downgraded to serial';
-DEF tit_09 = 'Parallel operations not downgraded';
-DEF tit_10 = 'queries parallelized';
-DEF tit_11 = '';
-DEF tit_12 = '';
-DEF tit_13 = '';
-DEF tit_14 = '';
-DEF tit_15 = '';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@stat_name_01@', '&&tit_01.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_02@', '&&tit_02.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_03@', '&&tit_03.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_04@', '&&tit_04.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_05@', '&&tit_05.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_06@', '&&tit_06.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_07@', '&&tit_07.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_08@', '&&tit_08.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_09@', '&&tit_09.');
-EXEC :sql_text := REPLACE(:sql_text, '@stat_name_10@', '&&tit_10.');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_01', '"'||SUBSTR('&&tit_01.',1,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_02', '"'||SUBSTR('&&tit_02.',1,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_03', '"'||SUBSTR('&&tit_03.',1,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_04', '"'||SUBSTR('&&tit_04.',21,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_05', '"'||SUBSTR('&&tit_05.',21,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_06', '"'||SUBSTR('&&tit_06.',21,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_07', '"'||SUBSTR('&&tit_07.',21,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_08', '"'||SUBSTR('&&tit_08.',21,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_09', '"'||SUBSTR('&&tit_09.',21,30)||'"');
-EXEC :sql_text := REPLACE(:sql_text, 'dummy_10', '"'||SUBSTR('&&tit_10.',1,30)||'"');
-@@edb360_9a_pre_one.sql
-
-DEF skip_lch = '';
 DEF title = 'Physical Reads Blocks';
 DEF vaxis = 'Blocks';
 DEF tit_01 = 'physical read flash cache hits';
