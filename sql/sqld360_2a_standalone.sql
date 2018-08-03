@@ -120,9 +120,9 @@ BEGIN
             ORDER BY 1
    ) LOOP
     DBMS_OUTPUT.PUT_LINE('--SNAP_ID: '||i.snap_id
-		||' Elapsed Time: '||i.ElapseD_time
+		||' Elapsed Time: '||i.Elapsed_time
 		||' Executions: '||i.executions
-		||' Avg Elapsed Time: '||i.avg_ElapseD_time);
+		||' Avg Elapsed Time: '||i.avg_Elapsed_time);
     FOR j IN (SELECT 'EXEC '||
                       CASE WHEN REGEXP_INSTR(SUBSTR(b.name,1,2),'[[:digit:]]') > 0 THEN ':b'||SUBSTR(b.name,2) ELSE b.name END||
                       ' := ' ||
