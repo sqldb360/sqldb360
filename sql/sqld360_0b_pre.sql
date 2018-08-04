@@ -337,25 +337,42 @@ SELECT SUBSTR(sql_text,1,100) sqld360_sqltxt, CASE WHEN command_type = 2 THEN 'Y
 VAR sqld360_fullsql CLOB;
 EXEC :sqld360_fullsql := NULL;
 
+--DMK 3/8/2018 enhanced to put :b into bind variables like in bind variable listing
+DECLARE
+  l_fullsql CLOB;
+  l_pos INTEGER;
 BEGIN
- -- if available from AWR then grab it from there
- BEGIN
-   SELECT sql_text
-     INTO :sqld360_fullsql
-     FROM dba_hist_sqltext
-    WHERE sql_id = '&&sqld360_sqlid.';
- EXCEPTION WHEN NO_DATA_FOUND THEN NULL; -- this is intentional, will try next block
- END;
+  BEGIN
+    -- if available from AWR then grab it from there
+    BEGIN
+      SELECT sql_text
+      INTO l_fullsql
+      FROM dba_hist_sqltext
+      WHERE sql_id = '&&sqld360_sqlid.';
+    EXCEPTION WHEN NO_DATA_FOUND THEN NULL; -- this is intentional, will try next block
+    END;
 
-  IF :sqld360_fullsql IS NULL THEN
-   SELECT sql_fulltext
-     INTO :sqld360_fullsql
-     FROM gv$sql
-    WHERE sql_id = '&&sqld360_sqlid.'
+    IF l_fullsql IS NULL THEN
+      SELECT sql_fulltext
+      INTO l_fullsql
+      FROM gv$sql
+      WHERE sql_id = '&&sqld360_sqlid.'
       AND sql_fulltext IS NOT NULL
       AND ROWNUM = 1;
-  END IF;
+    END IF;
+  END;
 
+  WHILE TRUE LOOP
+    l_pos := NVL(REGEXP_INSTR(l_fullsql,'\:[0-9]+'),0);
+    dbms_output.put_line(l_pos);
+    EXIT WHEN NOT l_pos > 0;
+    l_fullsql := SUBSTR(l_fullsql,1,l_pos)||'b'||SUBSTR(l_fullsql,l_pos+1);
+  END LOOP;
+
+  SELECT l_fullsql
+  INTO   :sqld360_fullsql
+  FROM   DUAL;
+  dbms_output.put_line(:sqld360_fullsql);
 END;
 /
 
