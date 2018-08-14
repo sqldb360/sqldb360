@@ -469,11 +469,11 @@ WITH cell_config AS (
 )
 SELECT
     cellname cv_cellname
-  , CAST(extract(xmltype(confval), '/cli-output/iormplan/objective/text()') AS VARCHAR2(20)) objective
-  , CAST(extract(xmltype(confval), '/cli-output/iormplan/status/text()')    AS VARCHAR2(15)) status
-  , CAST(extract(xmltype(confval), '/cli-output/iormplan/name/text()')      AS VARCHAR2(30)) interdb_plan
-  , CAST(extract(xmltype(confval), '/cli-output/iormplan/catPlan/text()')   AS VARCHAR2(30)) cat_plan
-  , CAST(extract(xmltype(confval), '/cli-output/iormplan/dbPlan/text()')    AS VARCHAR2(30)) db_plan
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/iormplan/objective/text()') AS VARCHAR2(20)) objective
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/iormplan/status/text()')    AS VARCHAR2(15)) status
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/iormplan/name/text()')      AS VARCHAR2(30)) interdb_plan
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/iormplan/catPlan/text()')   AS VARCHAR2(30)) cat_plan
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/iormplan/dbPlan/text()')    AS VARCHAR2(30)) db_plan
 FROM 
     cell_config
 ORDER BY
@@ -617,13 +617,13 @@ BEGIN
 -- http://blog.tanelpoder.com
 SELECT
     cellname cv_cell_path
-  , CAST(extract(xmltype(confval), '/cli-output/cell/name/text()') AS VARCHAR2(20))  cv_cellname
-  , CAST(extract(xmltype(confval), '/cli-output/cell/releaseVersion/text()') AS VARCHAR2(20))  cv_cellVersion 
-  , CAST(extract(xmltype(confval), '/cli-output/cell/flashCacheMode/text()') AS VARCHAR2(20))  cv_flashcachemode
-  , CAST(extract(xmltype(confval), '/cli-output/cell/cpuCount/text()')       AS VARCHAR2(10))  cpu_count
-  , CAST(extract(xmltype(confval), '/cli-output/cell/upTime/text()')         AS VARCHAR2(20))  uptime
-  , CAST(extract(xmltype(confval), '/cli-output/cell/kernelVersion/text()')  AS VARCHAR2(30))  kernel_version
-  , CAST(extract(xmltype(confval), '/cli-output/cell/makeModel/text()')      AS VARCHAR2(50))  make_model
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/name/text()') AS VARCHAR2(20))  cv_cellname
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/releaseVersion/text()') AS VARCHAR2(20))  cv_cellVersion 
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/flashCacheMode/text()') AS VARCHAR2(20))  cv_flashcachemode
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/cpuCount/text()')       AS VARCHAR2(10))  cpu_count
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/upTime/text()')         AS VARCHAR2(20))  uptime
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/kernelVersion/text()')  AS VARCHAR2(30))  kernel_version
+  , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/makeModel/text()')      AS VARCHAR2(50))  make_model
 FROM 
     &&v_object_prefix.cell_config  -- gv isn't needed, all cells should be visible in all instances
 WHERE 
@@ -652,98 +652,98 @@ BEGIN
 WITH pd AS (
     SELECT /*+ MATERIALIZE */
         c.cellname,
-        CAST(extractvalue(value(v),'/physicaldisk/name/text()') AS VARCHAR2(100) ) name,
-        CAST(extractvalue(value(v),'/physicaldisk/diskType/text()') AS VARCHAR2(100) ) disktype,
-        CAST(extractvalue(value(v),'/physicaldisk/luns/text()') AS VARCHAR2(100) ) luns,
-        CAST(extractvalue(value(v),'/physicaldisk/makeModel/text()') AS VARCHAR2(100) ) makemodel,
-        CAST(extractvalue(value(v),'/physicaldisk/physicalFirmware/text()') AS VARCHAR2(100) ) physicalfirmware,
-        CAST(extractvalue(value(v),'/physicaldisk/physicalInsertTime/text()') AS VARCHAR2(100) ) physicalinserttime,
-        CAST(extractvalue(value(v),'/physicaldisk/physicalSerial/text()') AS VARCHAR2(100) ) physicalserial,
-        CAST(extractvalue(value(v),'/physicaldisk/physicalSize/text()') AS VARCHAR2(100) ) physicalsize,
-        CAST(extractvalue(value(v),'/physicaldisk/slotNumber/text()') AS VARCHAR2(100) ) slotnumber,
-        CAST(extractvalue(value(v),'/physicaldisk/status/text()') AS VARCHAR2(100) ) status,
-        CAST(extractvalue(value(v),'/physicaldisk/id/text()') AS VARCHAR2(100) ) id,
-        CAST(extractvalue(value(v),'/physicaldisk/key_500/text()') AS VARCHAR2(100) ) key_500,
-        CAST(extractvalue(value(v),'/physicaldisk/predfailStatus/text()') AS VARCHAR2(100) ) predfailstatus,
-        CAST(extractvalue(value(v),'/physicaldisk/poorPerfStatus/text()') AS VARCHAR2(100) ) poorperfstatus,
-        CAST(extractvalue(value(v),'/physicaldisk/wtCachingStatus/text()') AS VARCHAR2(100) ) wtcachingstatus,
-        CAST(extractvalue(value(v),'/physicaldisk/peerFailStatus/text()') AS VARCHAR2(100) ) peerfailstatus,
-        CAST(extractvalue(value(v),'/physicaldisk/criticalStatus/text()') AS VARCHAR2(100) ) criticalstatus,
-        CAST(extractvalue(value(v),'/physicaldisk/errCmdTimeoutCount/text()') AS VARCHAR2(100) ) errcmdtimeoutcount,
-        CAST(extractvalue(value(v),'/physicaldisk/errHardReadCount/text()') AS VARCHAR2(100) ) errhardreadcount,
-        CAST(extractvalue(value(v),'/physicaldisk/errHardWriteCount/text()') AS VARCHAR2(100) ) errhardwritecount,
-        CAST(extractvalue(value(v),'/physicaldisk/errMediaCount/text()') AS VARCHAR2(100) ) errmediacount,
-        CAST(extractvalue(value(v),'/physicaldisk/errOtherCount/text()') AS VARCHAR2(100) ) errothercount,
-        CAST(extractvalue(value(v),'/physicaldisk/errSeekCount/text()') AS VARCHAR2(100) ) errseekcount,
-        CAST(extractvalue(value(v),'/physicaldisk/sectorRemapCount/text()') AS VARCHAR2(100) ) sectorremapcount
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/name/text()') AS VARCHAR2(100) ) name,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/diskType/text()') AS VARCHAR2(100) ) disktype,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/luns/text()') AS VARCHAR2(100) ) luns,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/makeModel/text()') AS VARCHAR2(100) ) makemodel,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/physicalFirmware/text()') AS VARCHAR2(100) ) physicalfirmware,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/physicalInsertTime/text()') AS VARCHAR2(100) ) physicalinserttime,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/physicalSerial/text()') AS VARCHAR2(100) ) physicalserial,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/physicalSize/text()') AS VARCHAR2(100) ) physicalsize,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/slotNumber/text()') AS VARCHAR2(100) ) slotnumber,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/status/text()') AS VARCHAR2(100) ) status,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/id/text()') AS VARCHAR2(100) ) id,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/key_500/text()') AS VARCHAR2(100) ) key_500,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/predfailStatus/text()') AS VARCHAR2(100) ) predfailstatus,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/poorPerfStatus/text()') AS VARCHAR2(100) ) poorperfstatus,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/wtCachingStatus/text()') AS VARCHAR2(100) ) wtcachingstatus,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/peerFailStatus/text()') AS VARCHAR2(100) ) peerfailstatus,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/criticalStatus/text()') AS VARCHAR2(100) ) criticalstatus,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/errCmdTimeoutCount/text()') AS VARCHAR2(100) ) errcmdtimeoutcount,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/errHardReadCount/text()') AS VARCHAR2(100) ) errhardreadcount,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/errHardWriteCount/text()') AS VARCHAR2(100) ) errhardwritecount,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/errMediaCount/text()') AS VARCHAR2(100) ) errmediacount,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/errOtherCount/text()') AS VARCHAR2(100) ) errothercount,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/errSeekCount/text()') AS VARCHAR2(100) ) errseekcount,
+        CAST(EXTRACTVALUE(VALUE(v),'/physicaldisk/sectorRemapCount/text()') AS VARCHAR2(100) ) sectorremapcount
     FROM
         &&v_object_prefix.cell_config c,
-        TABLE ( xmlsequence(extract(xmltype(c.confval),'/cli-output/physicaldisk') ) ) v  -- gv isn't needed, all cells should be visible in all instances
+        TABLE (XMLSEQUENCE(EXTRACT(XMLTYPE(c.confval),'/cli-output/physicaldisk') ) ) v  -- gv isn't needed, all cells should be visible in all instances
     WHERE
         c.conftype = 'PHYSICALDISKS'
 ),cd AS (
     SELECT /*+ MATERIALIZE */
         c.cellname,
-        CAST(extractvalue(value(v),'/celldisk/name/text()') AS VARCHAR2(100) ) name,
-        CAST(extractvalue(value(v),'/celldisk/comment        /text()') AS VARCHAR2(100) ) disk_comment,
-        CAST(extractvalue(value(v),'/celldisk/creationTime   /text()') AS VARCHAR2(100) ) creationtime,
-        CAST(extractvalue(value(v),'/celldisk/deviceName     /text()') AS VARCHAR2(100) ) devicename,
-        CAST(extractvalue(value(v),'/celldisk/devicePartition/text()') AS VARCHAR2(100) ) devicepartition,
-        CAST(extractvalue(value(v),'/celldisk/diskType       /text()') AS VARCHAR2(100) ) disktype,
-        CAST(extractvalue(value(v),'/celldisk/errorCount     /text()') AS VARCHAR2(100) ) errorcount,
-        CAST(extractvalue(value(v),'/celldisk/freeSpace      /text()') AS VARCHAR2(100) ) freespace,
-        CAST(extractvalue(value(v),'/celldisk/id             /text()') AS VARCHAR2(100) ) id,
-        CAST(extractvalue(value(v),'/celldisk/interleaving   /text()') AS VARCHAR2(100) ) interleaving,
-        CAST(extractvalue(value(v),'/celldisk/lun            /text()') AS VARCHAR2(100) ) lun,
-        CAST(extractvalue(value(v),'/celldisk/physicalDisk   /text()') AS VARCHAR2(100) ) physicaldisk,
-        CAST(extractvalue(value(v),'/celldisk/size           /text()') AS VARCHAR2(100) ) disk_size,
-        CAST(extractvalue(value(v),'/celldisk/status         /text()') AS VARCHAR2(100) ) status
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/name/text()') AS VARCHAR2(100) ) name,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/comment        /text()') AS VARCHAR2(100) ) disk_comment,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/creationTime   /text()') AS VARCHAR2(100) ) creationtime,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/deviceName     /text()') AS VARCHAR2(100) ) devicename,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/devicePartition/text()') AS VARCHAR2(100) ) devicepartition,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/diskType       /text()') AS VARCHAR2(100) ) disktype,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/errorCount     /text()') AS VARCHAR2(100) ) errorcount,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/freeSpace      /text()') AS VARCHAR2(100) ) freespace,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/id             /text()') AS VARCHAR2(100) ) id,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/interleaving   /text()') AS VARCHAR2(100) ) interleaving,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/lun            /text()') AS VARCHAR2(100) ) lun,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/physicalDisk   /text()') AS VARCHAR2(100) ) physicaldisk,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/size           /text()') AS VARCHAR2(100) ) disk_size,
+        CAST(EXTRACTVALUE(VALUE(v),'/celldisk/status         /text()') AS VARCHAR2(100) ) status
     FROM
         &&v_object_prefix.cell_config c,
-        TABLE ( xmlsequence(extract(xmltype(c.confval),'/cli-output/celldisk') ) ) v  -- gv isn't needed, all cells should be visible in all instances
+        TABLE (XMLSEQUENCE(EXTRACT(XMLTYPE(c.confval),'/cli-output/celldisk') ) ) v  -- gv isn't needed, all cells should be visible in all instances
     WHERE
         c.conftype = 'CELLDISKS'
 ),gd AS (
     SELECT /*+ MATERIALIZE */
         c.cellname,
-        CAST(extractvalue(value(v),'/griddisk/name/text()') AS VARCHAR2(100) ) name,
-        CAST(extractvalue(value(v),'/griddisk/asmDiskgroupName/text()') AS VARCHAR2(100) ) asmdiskgroupname,
-        CAST(extractvalue(value(v),'/griddisk/asmDiskName     /text()') AS VARCHAR2(100) ) asmdiskname,
-        CAST(extractvalue(value(v),'/griddisk/asmFailGroupName/text()') AS VARCHAR2(100) ) asmfailgroupname,
-        CAST(extractvalue(value(v),'/griddisk/availableTo     /text()') AS VARCHAR2(100) ) availableto,
-        CAST(extractvalue(value(v),'/griddisk/cachingPolicy   /text()') AS VARCHAR2(100) ) cachingpolicy,
-        CAST(extractvalue(value(v),'/griddisk/cellDisk        /text()') AS VARCHAR2(100) ) celldisk,
-        CAST(extractvalue(value(v),'/griddisk/comment         /text()') AS VARCHAR2(100) ) disk_comment,
-        CAST(extractvalue(value(v),'/griddisk/creationTime    /text()') AS VARCHAR2(100) ) creationtime,
-        CAST(extractvalue(value(v),'/griddisk/diskType        /text()') AS VARCHAR2(100) ) disktype,
-        CAST(extractvalue(value(v),'/griddisk/errorCount      /text()') AS VARCHAR2(100) ) errorcount,
-        CAST(extractvalue(value(v),'/griddisk/id              /text()') AS VARCHAR2(100) ) id,
-        CAST(extractvalue(value(v),'/griddisk/offset          /text()') AS VARCHAR2(100) ) offset,
-        CAST(extractvalue(value(v),'/griddisk/size            /text()') AS VARCHAR2(100) ) disk_size,
-        CAST(extractvalue(value(v),'/griddisk/status          /text()') AS VARCHAR2(100) ) status,
-        CAST(extractvalue(value(v),'/griddisk/cachedBy        /text()') AS VARCHAR2(100) ) cachedby
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/name/text()') AS VARCHAR2(100) ) name,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/asmDiskgroupName/text()') AS VARCHAR2(100) ) asmdiskgroupname,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/asmDiskName     /text()') AS VARCHAR2(100) ) asmdiskname,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/asmFailGroupName/text()') AS VARCHAR2(100) ) asmfailgroupname,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/availableTo     /text()') AS VARCHAR2(100) ) availableto,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/cachingPolicy   /text()') AS VARCHAR2(100) ) cachingpolicy,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/cellDisk        /text()') AS VARCHAR2(100) ) celldisk,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/comment         /text()') AS VARCHAR2(100) ) disk_comment,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/creationTime    /text()') AS VARCHAR2(100) ) creationtime,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/diskType        /text()') AS VARCHAR2(100) ) disktype,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/errorCount      /text()') AS VARCHAR2(100) ) errorcount,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/id              /text()') AS VARCHAR2(100) ) id,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/offset          /text()') AS VARCHAR2(100) ) offset,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/size            /text()') AS VARCHAR2(100) ) disk_size,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/status          /text()') AS VARCHAR2(100) ) status,
+        CAST(EXTRACTVALUE(VALUE(v),'/griddisk/cachedBy        /text()') AS VARCHAR2(100) ) cachedby
     FROM
         &&v_object_prefix.cell_config c,
-        TABLE ( xmlsequence(extract(xmltype(c.confval),'/cli-output/griddisk') ) ) v  -- gv isn't needed, all cells should be visible in all instances
+        TABLE (XMLSEQUENCE(EXTRACT(XMLTYPE(c.confval),'/cli-output/griddisk') ) ) v  -- gv isn't needed, all cells should be visible in all instances
     WHERE
         c.conftype = 'GRIDDISKS'
 ),lun AS (
     SELECT /*+ MATERIALIZE */
         c.cellname,
-        CAST(extractvalue(value(v),'/lun/cellDisk         /text()') AS VARCHAR2(100) ) celldisk,
-        CAST(extractvalue(value(v),'/lun/deviceName       /text()') AS VARCHAR2(100) ) devicename,
-        CAST(extractvalue(value(v),'/lun/diskType         /text()') AS VARCHAR2(100) ) disktype,
-        CAST(extractvalue(value(v),'/lun/id               /text()') AS VARCHAR2(100) ) id,
-        CAST(extractvalue(value(v),'/lun/isSystemLun      /text()') AS VARCHAR2(100) ) issystemlun,
-        CAST(extractvalue(value(v),'/lun/lunAutoCreate    /text()') AS VARCHAR2(100) ) lunautocreate,
-        CAST(extractvalue(value(v),'/lun/lunSize          /text()') AS VARCHAR2(100) ) lunsize,
-        CAST(extractvalue(value(v),'/lun/physicalDrives   /text()') AS VARCHAR2(100) ) physicaldrives,
-        CAST(extractvalue(value(v),'/lun/raidLevel        /text()') AS VARCHAR2(100) ) raidlevel,
-        CAST(extractvalue(value(v),'/lun/lunWriteCacheMode/text()') AS VARCHAR2(100) ) lunwritecachemode,
-        CAST(extractvalue(value(v),'/lun/status           /text()') AS VARCHAR2(100) ) status
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/cellDisk         /text()') AS VARCHAR2(100) ) celldisk,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/deviceName       /text()') AS VARCHAR2(100) ) devicename,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/diskType         /text()') AS VARCHAR2(100) ) disktype,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/id               /text()') AS VARCHAR2(100) ) id,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/isSystemLun      /text()') AS VARCHAR2(100) ) issystemlun,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/lunAutoCreate    /text()') AS VARCHAR2(100) ) lunautocreate,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/lunSize          /text()') AS VARCHAR2(100) ) lunsize,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/physicalDrives   /text()') AS VARCHAR2(100) ) physicaldrives,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/raidLevel        /text()') AS VARCHAR2(100) ) raidlevel,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/lunWriteCacheMode/text()') AS VARCHAR2(100) ) lunwritecachemode,
+        CAST(EXTRACTVALUE(VALUE(v),'/lun/status           /text()') AS VARCHAR2(100) ) status
     FROM
         &&v_object_prefix.cell_config c,
-        TABLE ( xmlsequence(extract(xmltype(c.confval),'/cli-output/lun') ) ) v  -- gv isn't needed, all cells should be visible in all instances
+        TABLE (XMLSEQUENCE(EXTRACT(XMLTYPE(c.confval),'/cli-output/lun') ) ) v  -- gv isn't needed, all cells should be visible in all instances
     WHERE
         c.conftype = 'LUNS'
 ),ad AS (
