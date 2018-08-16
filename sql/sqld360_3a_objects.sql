@@ -403,7 +403,7 @@ END;
 
 REM DMK 11.7.2018
 DEF title = 'Unindexed Partition Key Columns';
-DEF main_table = '&&dva_view_prefix.PART_KEY_COLUMNS';
+DEF main_table = 'DBA_PART_KEY_COLUMNS';
 column table_owner heading 'Table|Owner'
 column table_name  heading 'Table Name'
 column index_owner heading 'Index|Owner'

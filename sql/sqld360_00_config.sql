@@ -105,11 +105,9 @@ DEF sqld360_conf_awr_timescale = 's';
 
 /**************************** not recommended to modify *********************************/
 
-DEF sqld360_conf_tool_page = '<a href="http://www.enkitec.com/products/sqld360" target="_blank">';
 DEF sqld360_conf_tool_page = '<a href="http://mauro-pagano.com/2015/02/16/sqld360-sql-diagnostics-collection-made-faster/" target="_blank">';
-DEF sqld360_conf_all_pages_icon = '<a href="http://www.enkitec.com/products/sqld360" target="_blank"><img src="SQLd360_img.jpg" alt="SQLd360" height="33" width="52"></a>';
 DEF sqld360_conf_all_pages_icon = '<a href="http://mauro-pagano.com/2015/02/16/sqld360-sql-diagnostics-collection-made-faster/" target="_blank"><img src="SQLd360_img.jpg" alt="SQLd360" height="33" width="52"></a>';
-DEF sqld360_conf_all_pages_logo = '<img src="SQLd360_all_pages_logo.jpg" alt="Enkitec now part of Accenture" width="117" height="29">';
+DEF sqld360_conf_all_pages_logo = '<img src="SQLd360_all_pages_logo.jpg" width="117" height="29">';
 DEF sqld360_conf_all_pages_logo = '';
 DEF sqld360_conf_google_charts = '<script type="text/javascript" src="https://www.google.com/jsapi"></script>';
 
