@@ -207,16 +207,27 @@ DEF title = 'Unusable Indexes';
 DEF main_table = '&&dva_view_prefix.INDEXES';
 BEGIN
   :sql_text := q'[
--- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
+-- incarnation from health_check_4.4 (Jon Adams and Jack Agustin) Expanded by Abel Macias
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
+       index_owner,index_name, 'SUBPARTITIONED' INDEX_TYPE ,partition_name,subpartition_name
+  FROM &&dva_object_prefix.ind_subpartitions
+ WHERE status = 'UNUSABLE'
+   AND index_owner NOT IN &&exclusion_list.
+   AND index_owner NOT IN &&exclusion_list2.
+UNION ALL
+SELECT index_owner,index_name,'PARTITIONED',partition_name,null
+  FROM &&dva_object_prefix.ind_partitions
+ WHERE status = 'UNUSABLE'
+   AND index_owner NOT IN &&exclusion_list.
+   AND index_owner NOT IN &&exclusion_list2.
+UNION ALL
+SELECT owner,index_name,index_type,null,null   
   FROM &&dva_object_prefix.indexes
  WHERE status = 'UNUSABLE'
    AND owner NOT IN &&exclusion_list.
    AND owner NOT IN &&exclusion_list2.
  ORDER BY
-       owner,
-       index_name
+       1,2,4,5
 ]';
 END;
 /
