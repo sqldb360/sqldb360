@@ -227,7 +227,7 @@ SELECT owner,index_name,index_type,null,null
    AND owner NOT IN &&exclusion_list.
    AND owner NOT IN &&exclusion_list2.
  ORDER BY
-       1,2,4,5
+       1,2,4 nulls first,5 nulls first
 ]';
 END;
 /

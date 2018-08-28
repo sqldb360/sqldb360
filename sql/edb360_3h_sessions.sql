@@ -277,7 +277,7 @@ END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF title = 'Most executed SQL - Time Series';
+DEF title = 'Most executed SQL';
 DEF main_table = '&&awr_hist_prefix.SQLSTAT';
 BEGIN
   :sql_text := q'[
@@ -391,7 +391,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE ROWNUM < 16
 /
 
-DEF title = 'Most executed SQL - Time Series - Time Series';
+DEF title = 'Most executed SQL - Time Series';
 DEF main_table = '&&awr_hist_prefix.SQLSTAT';
 DEF skip_lch = '';
 DEF chartype = 'AreaChart';
