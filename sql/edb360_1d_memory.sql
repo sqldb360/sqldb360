@@ -170,14 +170,53 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'SQL Workarea Histogram';
-DEF main_table = '&&gv_view_prefix.SQL_WORKAREA_HISTOGRAM';
+DEF main_table = '&&AWR_HIST_PREFIX.SQL_WORKAREA_HSTGRM';
 BEGIN
   :sql_text := q'[
--- requested by Dimas Chbane
+-- requested by Dimas Chbane, expanded by Abel Macias
+-- replaced V dollar view with historic
+WITH 
+totals AS (
+  SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
+         /* &&section_id..&&report_sequence. */
+        &&skip_11g_column.&&skip_10g_column.con_id,
+        INSTANCE_NUMBER,
+        LOW_OPTIMAL_SIZE lnum, 
+        HIGH_OPTIMAL_SIZE+1 hnum,
+        SUM(OPTIMAL_EXECUTIONS) optimal ,    
+        SUM(ONEPASS_EXECUTIONS) onepass ,    
+        SUM(MULTIPASSES_EXECUTIONS) multipasses,
+        SUM(TOTAL_EXECUTIONS) totex
+   FROM &&AWR_HIST_PREFIX.SQL_WORKAREA_HSTGRM
+  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+    AND dbid = &&edb360_dbid.
+  GROUP BY 
+        &&skip_11g_column.&&skip_10g_column.con_id,
+        INSTANCE_NUMBER,
+        LOW_OPTIMAL_SIZE,
+        HIGH_OPTIMAL_SIZE
+    )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&gv_object_prefix.sql_workarea_histogram
-
+  &&skip_11g_column.&&skip_10g_column.con_id,
+  INSTANCE_NUMBER,
+  (case when lnum between 1024           and 1024*1024-1                then to_char(round(lnum /1024),'9999') ||' Kb'
+        when lnum between 1024*1024      and 1024*1024*1024-1           then to_char(round(lnum /1024/1024),'9999') ||' Mb'
+        when lnum between 1024*1024*1024 and 1024*1024*1024*1024-1      then to_char(round(lnum /1024/1024/1024),'9999') ||' Gb'
+        when lnum between 1024*1024*1024 and 1024*1024*1024*1024*1024-1 then to_char(round(lnum /1024/1024/1024/1024),'9999') ||' Tb'
+   else to_char(lnum) end) LOW_OPTIMAL_SIZE,
+  (case when hnum between 1024           and 1024*1024-1                then to_char(round(hnum /1024),'9999') ||' Kb'
+        when hnum between 1024*1024      and 1024*1024*1024-1           then to_char(round(hnum /1024/1024),'9999') ||' Mb'
+        when hnum between 1024*1024*1024 and 1024*1024*1024*1024-1      then to_char(round(hnum /1024/1024/1024),'9999') ||' Gb'
+        when hnum between 1024*1024*1024 and 1024*1024*1024*1024*1024-1 then to_char(round(hnum /1024/1024/1024/1024),'9999') ||' Tb'
+   else to_char(hnum) end) HIGH_OPTIMAL_SIZE,
+  optimal OPTIMAL_EXECUTIONS,    
+  onepass ONEPASS_EXECUTIONS,    
+  multipasses MULTIPASSES_EXECUTIONS,
+  totex TOTAL_EXECUTIONS
+FROM totals
+ORDER BY &&skip_11g_column.&&skip_10g_column.con_id,
+         INSTANCE_NUMBER,
+         lnum
 ]';
 END;
 /

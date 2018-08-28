@@ -277,7 +277,7 @@ END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF title = 'SQL executed row-by-row';
+DEF title = 'Most executed SQL';
 DEF main_table = '&&awr_hist_prefix.SQLSTAT';
 BEGIN
   :sql_text := q'[
@@ -316,9 +316,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
  GROUP BY
        &&skip_11g_column.&&skip_10g_column.con_id,
        sql_id
- ORDER BY
-       SUM(executions_delta) DESC
 )
+SELECT * FROM (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.sql_id,
        s.executions,
@@ -350,7 +349,9 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE t.sql_id(+) = s.sql_id 
    AND t.dbid(+) = &&edb360_dbid.
    &&skip_11g_column.&&skip_10g_column.AND t.con_id(+) = s.con_id
-   AND ROWNUM < 101 
+  ORDER BY s.executions DESC 
+ )
+   WHERE ROWNUM < 101 
 ]';
 END;
 /
@@ -390,7 +391,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE ROWNUM < 16
 /
 
-DEF title = 'SQL executed row-by-row - Time Series';
+DEF title = 'Most executed SQL - Time Series';
 DEF main_table = '&&awr_hist_prefix.SQLSTAT';
 DEF skip_lch = '';
 DEF chartype = 'AreaChart';
@@ -458,6 +459,88 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        t.snap_id
  ORDER BY
        t.snap_id
+]';
+END;
+/
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF title = 'SQL executed row-by-row';
+DEF main_table = '&&awr_hist_prefix.SQLSTAT';
+BEGIN
+  :sql_text := q'[
+WITH 
+totals AS (
+SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
+       /* &&section_id..&&report_sequence. */
+       &&skip_11g_column.&&skip_10g_column.con_id,
+       sql_id,
+       SUM(executions_delta) executions,
+       SUM(rows_processed_delta) rows_processed,
+       SUM(parse_calls_delta) parses,
+       SUM(fetches_delta) fetches,
+       SUM(buffer_gets_delta) buffer_gets,
+       SUM(disk_reads_delta) disk_reads,
+       SUM(direct_writes_delta) direct_writes,
+       ROUND(SUM(elapsed_time_delta)/1e6) elapsed_secs,
+       ROUND(SUM(cpu_time_delta)/1e6) cpu_secs,
+       ROUND(SUM(iowait_delta)/1e6) io_secs,
+       ROUND(SUM(clwait_delta)/1e6) clust_secs,
+       ROUND(SUM(apwait_delta)/1e6) appl_secs,
+       ROUND(SUM(ccwait_delta)/1e6) conc_secs,
+       ROUND(SUM(plsexec_time_delta)/1e6) pls_exec_secs,
+       ROUND(SUM(javexec_time_delta)/1e6) java_secs,
+       COUNT(DISTINCT plan_hash_value) plans,
+       ROUND(AVG(optimizer_cost)) avg_cost,
+       COUNT(DISTINCT module) modules,       
+       MIN(module) min_module,
+       MAX(module) max_module,
+       COUNT(DISTINCT action) actions,       
+       MIN(action) min_action,
+       MAX(action) max_action       
+  FROM &&awr_object_prefix.sqlstat
+ WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+ GROUP BY
+       &&skip_11g_column.&&skip_10g_column.con_id,
+       sql_id
+)
+SELECT * FROM (
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       s.sql_id,
+       s.executions,
+       s.rows_processed,
+       ROUND(s.rows_processed/s.executions, 3) rows_per_exec,
+       s.parses,
+       s.fetches,
+       s.buffer_gets,
+       s.disk_reads,
+       s.direct_writes,
+       s.elapsed_secs,
+       s.cpu_secs,
+       s.io_secs,
+       s.clust_secs,
+       s.appl_secs,
+       s.conc_secs,
+       s.pls_exec_secs,
+       s.java_secs,
+       s.plans,
+       s.avg_cost,
+       s.modules,       
+       s.min_module,
+       s.max_module,
+       s.actions,       
+       s.min_action,
+       s.max_action,       
+       DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
+  FROM totals s, &&awr_object_prefix.sqltext t
+ WHERE t.sql_id(+) = s.sql_id 
+   AND t.dbid(+) = &&edb360_dbid.
+   AND s.executions>1
+   AND (s.rows_processed/greatest(s.executions,1))<2
+   &&skip_11g_column.&&skip_10g_column.AND t.con_id(+) = s.con_id
+   ORDER BY s.executions DESC
+   )
+WHERE ROWNUM < 101 
 ]';
 END;
 /
