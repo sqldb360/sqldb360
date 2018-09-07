@@ -166,9 +166,9 @@ DECLARE
             )
             SELECT rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
-                   &&skip_12c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
                    sql_id,
                    db_time_hrs, -- not null means Top as per DB time
                    cpu_time_hrs, -- not null means Top as per DB time
@@ -185,9 +185,9 @@ DECLARE
              UNION ALL
             SELECT sql_rank rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ns.con_id) pdb_name,
-                   &&skip_12c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
                    sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
@@ -205,9 +205,9 @@ DECLARE
              UNION ALL
             SELECT rn rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
-                   &&skip_12c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
                    sample_sql_id sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
