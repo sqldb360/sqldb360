@@ -232,6 +232,11 @@ SELECT '--' skip_12r101 FROM v$instance WHERE version LIKE '12.1.0.1%';
 DEF skip_12r1 = '';
 COL skip_12r1 NEW_V skip_12r1;
 SELECT '--' skip_12r1 FROM v$instance WHERE version LIKE '12.1.%';
+DEF skip_18c = '';
+COL skip_18c NEW_V skip_18c;
+SELECT '--' skip_18c FROM v$instance WHERE version LIKE '18.%';
+--
+
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A3;
