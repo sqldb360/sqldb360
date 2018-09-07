@@ -465,6 +465,11 @@ DEF skip_12c_script = '';
 COL skip_12c_script NEW_V skip_12c_script;
 SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &&v_object_prefix.instance WHERE version LIKE '12%';
 --
+DEF skip_18c_column = '';
+COL skip_18c_column NEW_V skip_18c_column;
+DEF skip_18c_script = '';
+COL skip_18c_script NEW_V skip_18c_script;
+SELECT ' -- skip 18c ' skip_18c_column, ' echo skip 18c ' skip_18c_script FROM &&v_object_prefix.instance WHERE version LIKE '18%';
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A6;
