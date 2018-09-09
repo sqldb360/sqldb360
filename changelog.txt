@@ -1,7 +1,7 @@
 Changelog
 =========
 
-v1802
+v182
 =====
 1. Modify dcli command on 0b to expect a possible OS user other than oracle
 2. Top SQL as per diverse metrics
@@ -31,7 +31,7 @@ PRO disk_reads_delta
 9. Corrected Top-N query in SQL in logon storm and excluded PX slaves and Jobs
 10. Other minor bugs corrected (no significant user impact)
 
-v1801 (2018-01-15)
+v181 (2018-01-15) -- latest eDB360 / SQLd360 release before merge
 =====
 1. Remove SQLT references
 2. Use GV$ instead of V$ for flashback views on "2d. Backup and Recovery"

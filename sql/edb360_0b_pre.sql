@@ -1,5 +1,5 @@
-DEF edb360_vYYNN = 'v181';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2018-06-07)';
+DEF edb360_vYYNN = 'v182';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2018-09-09)';
 DEF edb360_copyright = ' (c) 2018';
 
 SET TERM OFF;
@@ -51,7 +51,7 @@ SELECT startup_time, dbid, instance_number, COUNT(*) snaps,
 /
 
 COL history_days NEW_V history_days;
--- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range. 
+-- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range.
 SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(begin_interval_time) AS DATE)), GREATEST(31, TO_NUMBER(NVL(TRIM('&&edb360_conf_days.'), '31'))))) history_days FROM &&awr_object_prefix.snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&edb360_dbid.;
 SELECT TO_CHAR(TO_DATE('&&edb360_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&edb360_conf_date_from.', 'YYYY-MM-DD') + 1) history_days FROM DUAL WHERE '&&edb360_conf_date_from.' != 'YYYY-MM-DD' AND '&&edb360_conf_date_to.' != 'YYYY-MM-DD';
 SELECT '0' history_days FROM DUAL WHERE NVL(TRIM('&&diagnostics_pack.'), 'N') = 'N';
@@ -101,7 +101,7 @@ BEGIN
       :edb360_sections := ','||LOWER(TRIM('&&custom_config_filename.'))||','; -- second parameter becomes potential section list
     ELSE
       :edb360_sections := NULL; -- 2nd parameter was indeed a custom config file
-    END IF;      
+    END IF;
   ELSE -- an actual selection of sections was passed on config parameter
     :edb360_sections := LOWER(TRIM('&&edb360_sections.'));
   END IF;
@@ -378,7 +378,7 @@ COL db_vers_ofe NEW_V db_vers_ofe;
 SELECT TRIM('.' FROM TRIM('0' FROM version)) db_vers_ofe FROM &&v_object_prefix.instance;
 ALTER SESSION SET optimizer_features_enable = '&&db_vers_ofe.';
 -- to work around bug 12672969
-ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false; 
+ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false;
 -- workaround Siebel
 ALTER SESSION SET optimizer_index_cost_adj = 100;
 --ALTER SESSION SET optimizer_dynamic_sampling = 2;
@@ -416,7 +416,7 @@ END;
 /
 -- esp collection. note: skip if executing for one section
 @&&skip_diagnostics.&&skip_extras.&&skip_esp_and_escp.sql/esp_master.sql
-SET TERM OFF; 
+SET TERM OFF;
 
 -- nls (2nd time as esp may change them)
 ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ".,";
@@ -497,7 +497,7 @@ SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)),1)) avg_thread_count FROM &&gv_object
 COL cpu_load_threshold NEW_V cpu_load_threshold FOR A6;
 SELECT TO_CHAR(CASE ROUND(AVG(TO_NUMBER(cpus.value))/AVG(TO_NUMBER(cores.value))) WHEN 2 THEN 1.4 * AVG(TO_NUMBER(cores.value)) WHEN 8 THEN 4 * AVG(TO_NUMBER(cores.value)) ELSE 2 * AVG(TO_NUMBER(cores.value)) END) cpu_load_threshold
   FROM &&gv_object_prefix.osstat cores, &&gv_object_prefix.osstat cpus
- WHERE cores.stat_name = 'NUM_CPU_CORES' 
+ WHERE cores.stat_name = 'NUM_CPU_CORES'
    AND cpus.stat_name = 'NUM_CPUS'
 /
 
@@ -754,28 +754,28 @@ COL skip_sqlmon_exec NEW_V skip_sqlmon_exec;
 COL edb360_sql_text_100 NEW_V edb360_sql_text_100;
 DEF exact_matching_signature = '';
 DEF force_matching_signature = '';
--- this gives you two level of “indirection”, aka it goes into PL/SQL that dumps a script that is later on executed 
+-- this gives you two level of “indirection”, aka it goes into PL/SQL that dumps a script that is later on executed
 -- I use this for bar charts on edb360
 DEF wait_class_colors = " CASE wait_class WHEN 'ON CPU' THEN '34CF27' WHEN 'Scheduler' THEN '9FFA9D' WHEN 'User I/O' THEN '0252D7' WHEN 'System I/O' THEN '1E96DD' ";
 DEF wait_class_colors2 = " WHEN 'Concurrency' THEN '871C12' WHEN 'Application' THEN 'C42A05' WHEN 'Commit' THEN 'EA6A05' WHEN 'Configuration' THEN '594611'  ";
 DEF wait_class_colors3 = " WHEN 'Administrative' THEN '75763E'  WHEN 'Network' THEN '989779' WHEN 'Other' THEN 'F571A0' ";
 DEF wait_class_colors4 = " WHEN 'Cluster' THEN 'CEC3B5' WHEN 'Queueing' THEN 'C6BAA5' ELSE '000000' END ";
 --
-COL series_01 NEW_V series_01; 
-COL series_02 NEW_V series_02; 
-COL series_03 NEW_V series_03; 
-COL series_04 NEW_V series_04; 
-COL series_05 NEW_V series_05; 
-COL series_06 NEW_V series_06; 
-COL series_07 NEW_V series_07; 
-COL series_08 NEW_V series_08; 
-COL series_09 NEW_V series_09; 
-COL series_10 NEW_V series_10; 
-COL series_11 NEW_V series_11; 
-COL series_12 NEW_V series_12; 
-COL series_13 NEW_V series_13; 
-COL series_14 NEW_V series_14; 
-COL series_15 NEW_V series_15; 
+COL series_01 NEW_V series_01;
+COL series_02 NEW_V series_02;
+COL series_03 NEW_V series_03;
+COL series_04 NEW_V series_04;
+COL series_05 NEW_V series_05;
+COL series_06 NEW_V series_06;
+COL series_07 NEW_V series_07;
+COL series_08 NEW_V series_08;
+COL series_09 NEW_V series_09;
+COL series_10 NEW_V series_10;
+COL series_11 NEW_V series_11;
+COL series_12 NEW_V series_12;
+COL series_13 NEW_V series_13;
+COL series_14 NEW_V series_14;
+COL series_15 NEW_V series_15;
 DEF series_01 = ''
 DEF series_02 = ''
 DEF series_03 = ''
@@ -801,22 +801,22 @@ SELECT value||DECODE(INSTR(value, '/'), 0, '\', '/') edb360_udump_path FROM &&v_
 COL edb360_spid NEW_V edb360_spid FOR A5;
 SELECT TO_CHAR(spid) edb360_spid FROM &&v_dollar.session s, &&v_dollar.process p WHERE s.sid = SYS_CONTEXT('USERENV', 'SID') AND p.addr = s.paddr;
 
-SET TERM OFF; 
-SET HEA ON; 
-SET LIN 32767; 
-SET NEWP NONE; 
-SET PAGES &&def_max_rows.; 
+SET TERM OFF;
+SET HEA ON;
+SET LIN 32767;
+SET NEWP NONE;
+SET PAGES &&def_max_rows.;
 SET TAB OFF;
-SET LONG 32000000; 
-SET LONGC 2000; 
-SET WRA ON; 
-SET TRIMS ON; 
-SET TRIM ON; 
-SET TI OFF; 
-SET TIMI OFF; 
-SET NUM 20; 
-SET SQLBL ON; 
-SET BLO .; 
+SET LONG 32000000;
+SET LONGC 2000;
+SET WRA ON;
+SET TRIMS ON;
+SET TRIM ON;
+SET TI OFF;
+SET TIMI OFF;
+SET NUM 20;
+SET SQLBL ON;
+SET BLO .;
 SET RECSEP OFF;
 PRO
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -832,7 +832,7 @@ PRO begin log
 PRO
 SELECT 'Tool Execution Hours so far: '||ROUND((DBMS_UTILITY.GET_TIME - :edb360_main_time0) / 100 / 3600, 3) tool_exec_hours FROM DUAL
 /
-HOS ps -ef 
+HOS ps -ef
 DEF;
 PRO Parameters
 COL sid FOR A40;

@@ -11,7 +11,7 @@ SQLdb360 is made of two independent tools, eDB360 (database-wide analysis) and S
    - Both tools will prompt for the license available on the target database.
      - [T | D | N] For Tuning, Diagnostics or None
    - Both tools accept an optimal configuration file
-   - SQLd360 requires the SQL ID of interest to be provided   
+   - SQLd360 requires the SQL ID of interest to be provided
 4. Copy output zip to client (PC or Mac), unzip and open in browser file 00001_*_index.html
 
 ## Notes
@@ -24,18 +24,18 @@ SQLdb360 is made of two independent tools, eDB360 (database-wide analysis) and S
 ## Troubleshooting
 
 edb360 takes up to 24 hours to execute on a large database. On smaller ones or on Exadata it may take a few hours or less. In rare cases it may require even more than 24 hrs.
-By default, eDB360 executes a pre-check and asks for confirmation in case the execution is estimated to take more than 8 hours. 
+By default, eDB360 executes a pre-check and asks for confirmation in case the execution is estimated to take more than 8 hours.
 Multiple options are available to speed up large executions, for details refer to https://carlos-sierra.net/2017/04/10/edb360-meets-eadam-3-0-when-two-heads-are-better-than-one/
 
 SQLd360 is generally faster, given the reduced scope, and as such no pre-check is executed.
 
 ## Contacts
 
-For questions, feedbacks or issues please contact sqldb360@gmail.com 
+For questions, feedbacks or issues please contact sqldb360@gmail.com
 
 ## License
-   
-  SQLdb360 - An open-source tool to diagnose Oracle Databases and SQL 
+
+  SQLdb360 - An open-source tool to diagnose Oracle Databases and SQL
   statements - originally developed by Carlos Sierra and Mauro Pagano.
 
   This program is free software: you can redistribute it and/or modify
