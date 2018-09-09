@@ -1019,7 +1019,7 @@ BEGIN
     put(q'[SELECT cpu_or_event,                                                                                                                               ]');
     put(q'[       num_samples,                                                                                                                                ]');
     put(q'[       &&wait_class_colors.&&wait_class_colors2.&&wait_class_colors3.&&wait_class_colors4. style,                                                  ]');
-    put(q'[       cpu_or_event||'' - Number of samples: ''||num_samples||'' (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
+    put(q'[       cpu_or_event||'' - ''||num_samples||'' Samples (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
     put(q'[  FROM (SELECT object_node cpu_or_event, other_tag wait_class,                                                                                     ]');
     put(q'[               count(*) num_samples                                                                                                                ]');
     put(q'[          FROM plan_table                                                                                                                          ]');
@@ -1045,7 +1045,7 @@ BEGIN
     put(q'[SELECT data_object,                                                                                                                                                              ]');
     put(q'[       num_samples,                                                                                                                                                              ]');
     put(q'[       NULL style,                                                                                                                                                               ]');
-    put(q'[       data_object||'' - Number of samples: ''||num_samples||'' (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip                                ]');
+    put(q'[       data_object||'' - ''||num_samples||'' Samples (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip                                ]');
     put(q'[  FROM (SELECT data.obj#||                                                                                                                                                       ]');
     put(q'[               CASE WHEN data.obj# = 0 THEN ''UNDO''                                                                                                                             ]');
     put(q'[                    ELSE (SELECT TRIM(''.'' FROM '' ''||o.owner||''.''||o.object_name||''.''||o.subobject_name) FROM dba_objects o WHERE o.object_id = data.obj# AND ROWNUM = 1) ]');
@@ -1077,7 +1077,7 @@ BEGIN
     put(q'[SELECT operation,                                                                                                                               ]');
     put(q'[       num_samples,                                                                                                                             ]');
     put(q'[       NULL style,                                                                                                                              ]');
-    put(q'[       operation||'' - Number of samples: ''||num_samples||'' (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
+    put(q'[       operation||'' - ''||num_samples||'' Samples (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
     put(q'[  FROM (SELECT id||'' - ''||operation||'' ''||options operation,                                                                                ]');
     put(q'[               count(*) num_samples                                                                                                             ]');
     put(q'[          FROM plan_table                                                                                                                       ]');
@@ -1103,7 +1103,7 @@ BEGIN
     put(q'[SELECT step_event,                                                                                                                                                            ]');
     put(q'[       num_samples,                                                                                                                                                           ]');
     put(q'[       &&wait_class_colors.&&wait_class_colors2.&&wait_class_colors3.&&wait_class_colors4. style,                                                                             ]');
-    put(q'[       step_event||'' - Number of samples: ''||num_samples||'' (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip                              ]');
+    put(q'[       step_event||'' - ''||num_samples||'' Samples (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip                              ]');
     put(q'[  FROM (SELECT data.step||'' ''||CASE WHEN data.obj# = 0 THEN ''UNDO''                                                                                                        ]');
     put(q'[                 ELSE (SELECT TRIM(''.'' FROM '' ''||o.owner||''.''||o.object_name||''.''||o.subobject_name) FROM dba_objects o WHERE o.object_id = data.obj# AND ROWNUM = 1) ]');
     put(q'[               END||'' / ''||data.event  step_event,                                                                                                                          ]');
@@ -1977,7 +1977,7 @@ BEGIN
        put(q'[SELECT step_event,                                                                                                                               ]');
        put(q'[       num_samples,                                                                                                                              ]');
        put(q'[       &&wait_class_colors.&&wait_class_colors2.&&wait_class_colors3.&&wait_class_colors4. style,                                                ]');
-       put(q'[       step_event||'' - Number of samples: ''||num_samples||'' (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
+       put(q'[       step_event||'' - ''||num_samples||'' Samples (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
        put(q'[  FROM (SELECT data.step||'' ''||CASE WHEN data.obj# = 0 THEN ''UNDO''                                                                           ]');
        put(q'[                    ELSE (SELECT TRIM(''.'' FROM '' ''||o.owner||''.''||o.object_name||''.''||o.subobject_name) FROM dba_objects o WHERE o.object_id = data.obj# AND ROWNUM = 1) ]');
        put(q'[               END||'' / ''||data.event  step_event,                                                                                             ]');
@@ -2280,7 +2280,7 @@ BEGIN
        put('SELECT data.qcpx_process,');
        put('       data.num_samples,');
        put('       NULL style,');
-       put('       data.qcpx_process||'''' - Number of samples: ''''||data.num_samples||'''' (''''||TRUNC(100*RATIO_TO_REPORT(data.num_samples) OVER (),2)||''''%)'''' tooltip ');
+       put('       data.qcpx_process||'''' - ''''||data.num_samples||'''' Samples (''''||TRUNC(100*RATIO_TO_REPORT(data.num_samples) OVER (),2)||''''%)'''' tooltip ');
        put('  FROM (SELECT NVL2(TO_NUMBER(SUBSTR(partition_stop,INSTR(partition_stop,'''','''',1,3)+1,INSTR(partition_stop,'''','''',1,4)-INSTR(partition_stop,'''','''',1,3)-1)), ''''PX Proc - '''', ''''QC - '''')||position||''''.''''||cpu_cost||''''.''''||io_cost  qcpx_process, ');
        put('               count(*) num_samples');
        put('          FROM plan_table');
@@ -2899,7 +2899,7 @@ BEGIN
        put(q'[SELECT step_event,                                                                                                                               ]');
        put(q'[       num_samples,                                                                                                                              ]');
        put(q'[       &&wait_class_colors.&&wait_class_colors2.&&wait_class_colors3.&&wait_class_colors4. style,                                                ]');
-       put(q'[       step_event||'' - Number of samples: ''||num_samples||'' (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
+       put(q'[       step_event||'' - ''||num_samples||'' Samples (''||TRUNC(100*RATIO_TO_REPORT(num_samples) OVER (),2)||''% of DB Time)'' tooltip ]');
        put(q'[  FROM (SELECT data.step||'' ''||CASE WHEN data.obj# = 0 THEN ''UNDO''                                                                           ]');
        put(q'[                    ELSE (SELECT TRIM(''.'' FROM '' ''||o.owner||''.''||o.object_name||''.''||o.subobject_name) FROM dba_objects o WHERE o.object_id = data.obj# AND ROWNUM = 1) ]');
        put(q'[               END||'' / ''||data.event  step_event,                                                                                             ]');
@@ -3199,7 +3199,7 @@ BEGIN
        put('SELECT data.qcpx_process,');
        put('       data.num_samples,');
        put('       NULL style,');
-       put('       data.qcpx_process||'''' - Number of samples: ''''||data.num_samples||'''' (''''||TRUNC(100*RATIO_TO_REPORT(data.num_samples) OVER (),2)||''''%)'''' tooltip ');
+       put('       data.qcpx_process||'''' - ''''||data.num_samples||'''' Samples (''''||TRUNC(100*RATIO_TO_REPORT(data.num_samples) OVER (),2)||''''%)'''' tooltip ');
        put('  FROM (SELECT NVL2(TO_NUMBER(SUBSTR(partition_stop,INSTR(partition_stop,'''','''',1,3)+1,INSTR(partition_stop,'''','''',1,4)-INSTR(partition_stop,'''','''',1,3)-1)), ''''PX Proc - '''', ''''QC - '''')||position||''''.''''||cpu_cost||''''.''''||io_cost  qcpx_process, ');
        put('               count(*) num_samples');
        put('          FROM plan_table');
