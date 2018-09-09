@@ -465,6 +465,12 @@ DEF skip_12c_script = '';
 COL skip_12c_script NEW_V skip_12c_script;
 SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &&v_object_prefix.instance WHERE version LIKE '12%';
 --
+DEF skip_12r2_column = '';
+COL skip_12r2_column NEW_V skip_12r2_column;
+DEF skip_12r2_script = '';
+COL skip_12r2_script NEW_V skip_12r2_script;
+SELECT ' -- skip 12cR2 ' skip_12r2_column, ' echo skip 12cR2 ' skip_12r2_script FROM &&v_object_prefix.instance WHERE version LIKE '12.2%';
+--
 DEF skip_18c_column = '';
 COL skip_18c_column NEW_V skip_18c_column;
 DEF skip_18c_script = '';
@@ -748,8 +754,8 @@ COL skip_sqlmon_exec NEW_V skip_sqlmon_exec;
 COL edb360_sql_text_100 NEW_V edb360_sql_text_100;
 DEF exact_matching_signature = '';
 DEF force_matching_signature = '';
-—- this gives you two level of “indirection”, aka it goes into PL/SQL that dumps a script that is later on executed 
-—- I use this for bar charts on edb360
+-- this gives you two level of “indirection”, aka it goes into PL/SQL that dumps a script that is later on executed 
+-- I use this for bar charts on edb360
 DEF wait_class_colors = " CASE wait_class WHEN 'ON CPU' THEN '34CF27' WHEN 'Scheduler' THEN '9FFA9D' WHEN 'User I/O' THEN '0252D7' WHEN 'System I/O' THEN '1E96DD' ";
 DEF wait_class_colors2 = " WHEN 'Concurrency' THEN '871C12' WHEN 'Application' THEN 'C42A05' WHEN 'Commit' THEN 'EA6A05' WHEN 'Configuration' THEN '594611'  ";
 DEF wait_class_colors3 = " WHEN 'Administrative' THEN '75763E'  WHEN 'Network' THEN '989779' WHEN 'Other' THEN 'F571A0' ";

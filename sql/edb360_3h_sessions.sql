@@ -119,6 +119,7 @@ END;
 
 DEF title = 'SQL in logon storms';
 DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+-- Exclude PX slave sessions and Jobs
 BEGIN
   :sql_text := q'[
 WITH 
@@ -139,6 +140,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        COUNT(DISTINCT h.snap_id||'.'||h.instance_number||'.'||h.session_id||'.'||h.session_serial#) sessions
   FROM &&awr_object_prefix.active_sess_history h
  WHERE h.session_type = 'FOREGROUND'
+   AND h.program not like '%(J%' 
+   AND h.qc_session_id is null 
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
  GROUP BY
@@ -147,24 +150,26 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
  ORDER BY
        COUNT(DISTINCT h.snap_id||'.'||h.instance_number||'.'||h.session_id||'.'||h.session_serial#) DESC
 )
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       s.sessions,
-       s.sql_id,
-       s.programs,
-       s.min_program,
-       s.max_program,
-       s.modules,
-       s.min_module,
-       s.max_module,
-       s.actions,
-       s.min_action,
-       s.max_action,
-       DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
-  FROM ash s, &&awr_object_prefix.sqltext t
- WHERE t.sql_id(+) = s.sql_id 
-   AND t.dbid(+) = &&edb360_dbid.
-   &&skip_11g_column.&&skip_10g_column.AND t.con_id(+) = s.con_id
-   AND ROWNUM < 101
+SELECT * from (
+  SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+         s.sessions,
+         s.sql_id,
+         s.programs,
+         s.min_program,
+         s.max_program,
+         s.modules,
+         s.min_module,
+         s.max_module,
+         s.actions,
+         s.min_action,
+         s.max_action,
+         DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
+    FROM ash s, &&awr_object_prefix.sqltext t
+   WHERE t.sql_id(+) = s.sql_id 
+     AND t.dbid(+) = &&edb360_dbid.
+     &&skip_11g_column.&&skip_10g_column.AND t.con_id(+) = s.con_id
+ )
+  WHERE ROWNUM < 101
 ]';
 END;
 /
