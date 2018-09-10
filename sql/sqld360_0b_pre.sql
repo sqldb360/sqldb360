@@ -1,7 +1,7 @@
 --WHENEVER SQLERROR EXIT SQL.SQLCODE;
-SET TERM ON; 
-SET VER OFF; 
-SET FEED OFF; 
+SET TERM ON;
+SET VER OFF;
+SET FEED OFF;
 SET ECHO OFF;
 SET TIM OFF;
 SET TIMI OFF;
@@ -9,13 +9,13 @@ CL COL;
 COL row_num FOR 9999999 HEA '#' PRI;
 
 -- version
-DEF sqld360_vYYNN = 'v181';
-DEF sqld360_vrsn = '&&sqld360_vYYNN. (2018-06-07)';
+DEF sqld360_vYYNN = 'v182';
+DEF sqld360_vrsn = '&&sqld360_vYYNN. (2018-09-09)';
 DEF sqld360_prefix = 'sqld360';
 
 -- parameters
 PRO
-PRO Parameter 1: 
+PRO Parameter 1:
 PRO SQL_ID of the SQL to be extracted (required)
 PRO
 COL sqld360_sqlid new_V sqld360_sqlid FOR A15;
@@ -27,7 +27,7 @@ DECLARE
 BEGIN
   SELECT LENGTH(TRANSLATE('&&sqld360_sqlid.',
                    'abcdefghijklmnopqrstuvwxyz0123456789ABCDEFGHJKLMNOPQRSTUVWXYZ-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?',
-                   'abcdefghijklmnopqrstuvwxyz0123456789')) 
+                   'abcdefghijklmnopqrstuvwxyz0123456789'))
     INTO sqlid_length
     FROM DUAL;
 
@@ -41,16 +41,16 @@ WHENEVER SQLERROR CONTINUE;
 
 --set a bind too
 VAR sqld360_sqlid VARCHAR2(13);
-BEGIN 
+BEGIN
   :sqld360_sqlid := '&&sqld360_sqlid.';
 END;
 /
 
 
-BEGIN  
-  -- if standalone execution then need to insert metadata   
+BEGIN
+  -- if standalone execution then need to insert metadata
   IF '&&from_edb360.' = '' THEN
-    -- no need to clean, it's a GTT 
+    -- no need to clean, it's a GTT
        -- false, user might execute twice in a row in the same session
     DELETE plan_table WHERE remarks = '&&sqld360_sqlid.' AND statement_id IN ('SQLD360_SQLID', 'SQLD360_ASH_LOAD');
     -- column options set to 1 is safe here, if no diagnostics then ASH is not extracted at all anyway
@@ -59,11 +59,11 @@ BEGIN
     INSERT INTO plan_table (statement_id, timestamp, operation, options) VALUES ('SQLD360_ASH_LOAD',sysdate, NULL, '&&sqld360_sqlid.');
   END IF;
 END;
-/  
-  
+/
+
 
 PRO
-PRO Parameter 2: 
+PRO Parameter 2:
 PRO If your Database is licensed to use the Oracle Tuning pack please enter T.
 PRO If you have a license for Diagnostics pack but not for Tuning pack, enter D.
 PRO Be aware value N reduces the output content substantially. Avoid N if possible.
@@ -102,7 +102,7 @@ END;
 
 PRO
 PRO Parameter 3:
-PRO Name of an optional custom configuration file executed right after 
+PRO Name of an optional custom configuration file executed right after
 PRO sql/sqld360_00_config.sql. If such file name is provided, then corresponding file
 PRO should exist under sqld360-master/sql. Filename is case sensitivive and its existence
 PRO is not validated. Example: custom_config_01.sql
@@ -141,7 +141,7 @@ SELECT LPAD(ORA_HASH(SYS_CONTEXT('USERENV', 'SERVER_HOST'),999999),6,'6') host_h
 COL connect_instance_number NEW_V connect_instance_number;
 SELECT TO_CHAR(instance_number) connect_instance_number FROM v$instance;
 
--- get instance name 
+-- get instance name
 COL connect_instance_name NEW_V connect_instance_name;
 SELECT TO_CHAR(instance_name) connect_instance_name FROM v$instance;
 
@@ -166,7 +166,7 @@ COL sqld360_db_block_size NEW_V sqld360_db_block_size;
 SELECT TRIM(TO_NUMBER(value)) sqld360_db_block_size FROM v$system_parameter2 WHERE name = 'db_block_size';
 
 COL history_days NEW_V history_days;
--- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range. 
+-- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range.
 SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(begin_interval_time) AS DATE)),  TO_NUMBER(NVL('&&sqld360_fromedb360_days.', '&&sqld360_conf_days.')))) history_days FROM dba_hist_snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&sqld360_dbid.;
 SELECT TO_CHAR(TO_DATE('&&sqld360_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&sqld360_conf_date_from.', 'YYYY-MM-DD') + 1) history_days FROM DUAL WHERE '&&sqld360_conf_date_from.' != 'YYYY-MM-DD' AND '&&sqld360_conf_date_to.' != 'YYYY-MM-DD';
 SELECT '0' history_days FROM DUAL WHERE NVL(TRIM('&&diagnostics_pack.'), 'N') = 'N';
@@ -232,6 +232,11 @@ SELECT '--' skip_12r101 FROM v$instance WHERE version LIKE '12.1.0.1%';
 DEF skip_12r1 = '';
 COL skip_12r1 NEW_V skip_12r1;
 SELECT '--' skip_12r1 FROM v$instance WHERE version LIKE '12.1.%';
+DEF skip_18c = '';
+COL skip_18c NEW_V skip_18c;
+SELECT '--' skip_18c FROM v$instance WHERE version LIKE '18.%';
+--
+
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A3;
@@ -302,7 +307,7 @@ COL psft_tools_rel NEW_V psft_tools_rel;
 SELECT owner psft_schema FROM dba_tab_columns WHERE table_name = 'PSSTATUS' AND column_name = 'TOOLSREL' AND data_type = 'VARCHAR2' AND ROWNUM = 1;
 SELECT toolsrel psft_tools_rel FROM &&psft_schema..psstatus WHERE ROWNUM = 1;
 
--- local or remote exec (local will be --) 
+-- local or remote exec (local will be --)
 COL sqld360_remote_exec NEW_V sqld360_remote_exec FOR A20;
 COL sqld360_local_exec NEW_V sqld360_local_exec FOR A20;
 SELECT '--' sqld360_remote_exec FROM dual;
@@ -429,7 +434,7 @@ SELECT DBMS_SQLTUNE.SQLTEXT_TO_SIGNATURE(:sqld360_fullsql,0) exact_matching_sign
 /
 
 COL skip_force_match NEW_V skip_force_match
-SELECT CASE WHEN '&&exact_matching_signature.' = '&&force_matching_signature.' THEN '--' END skip_force_match 
+SELECT CASE WHEN '&&exact_matching_signature.' = '&&force_matching_signature.' THEN '--' END skip_force_match
   FROM DUAL
 /
 
@@ -506,15 +511,15 @@ COL sqld360_skip_lowhigh NEW_V sqld360_skip_lowhigh;
 SELECT CASE '&&sqld360_conf_translate_lowhigh.' WHEN 'N' THEN '--' END sqld360_skip_lowhigh FROM DUAL;
 
 COL sqld360_has_plsql NEW_V sqld360_has_plsql;
-SELECT CASE WHEN SUM(has_plsql) = 0 THEN '--' ELSE NULL END sqld360_has_plsql 
+SELECT CASE WHEN SUM(has_plsql) = 0 THEN '--' ELSE NULL END sqld360_has_plsql
   FROM (SELECT COUNT(*) has_plsql
           FROM gv$sql
-         WHERE sql_id = '&&sqld360_sqlid.' 
-           AND plsql_exec_time <> 0 
-        UNION ALL 
-        SELECT COUNT(*) 
+         WHERE sql_id = '&&sqld360_sqlid.'
+           AND plsql_exec_time <> 0
+        UNION ALL
+        SELECT COUNT(*)
           FROM dba_hist_sqlstat
-         WHERE sql_id = '&&sqld360_sqlid.' 
+         WHERE sql_id = '&&sqld360_sqlid.'
            AND plsexec_time_delta <> 0);
 
 -- this is to avoid the whole observation block to error if the user can't just read stats_h because of grants
@@ -699,9 +704,9 @@ ALTER SESSION SET NLS_TIMESTAMP_TZ_FORMAT = 'YYYY-MM-DD/HH24:MI:SS.FF TZH:TZM';
 ALTER SESSION SET NLS_SORT = 'BINARY';
 ALTER SESSION SET NLS_COMP = 'BINARY';
 -- to work around bug 12672969
-ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false; 
+ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false;
 -- to work around bug 19567916
-ALTER SESSION SET "_optimizer_aggr_groupby_elim"=false; 
+ALTER SESSION SET "_optimizer_aggr_groupby_elim"=false;
 -- workaround bug 21150273
 ALTER SESSION SET "_optimizer_dsdir_usage_control"=0;
 ALTER SESSION SET "_sql_plan_directive_mgmt_control" = 0;
@@ -731,7 +736,7 @@ ALTER SESSION SET MAX_DUMP_FILE_SIZE = '1G';
 ALTER SESSION SET TRACEFILE_IDENTIFIER = "&&sqld360_tracefile_identifier.";
 --ALTER SESSION SET STATISTICS_LEVEL = 'ALL';
 
--- keep tracing level as-is in eDB360 in case this is a "nested" execution 
+-- keep tracing level as-is in eDB360 in case this is a "nested" execution
 BEGIN
  IF TO_NUMBER('&&sqld360_sqltrace_level.') > 0 AND '&&from_edb360.' IS NULL THEN
    EXECUTE IMMEDIATE 'ALTER SESSION SET EVENTS ''10046 TRACE NAME CONTEXT FOREVER, LEVEL &&sqld360_sqltrace_level.''';
@@ -739,23 +744,23 @@ BEGIN
 END;
 /
 
-SET TERM OFF; 
-SET HEA ON; 
-SET LIN 32767; 
-SET NEWP NONE; 
-SET PAGES &&def_max_rows.; 
-SET LONG 32000; 
-SET LONGC 2000; 
-SET WRA ON; 
-SET TRIMS ON; 
-SET TRIM ON; 
-SET TI OFF; 
-SET TIMI OFF; 
+SET TERM OFF;
+SET HEA ON;
+SET LIN 32767;
+SET NEWP NONE;
+SET PAGES &&def_max_rows.;
+SET LONG 32000;
+SET LONGC 2000;
+SET WRA ON;
+SET TRIMS ON;
+SET TRIM ON;
+SET TI OFF;
+SET TIMI OFF;
 -- because of bug 26163790
---SET ARRAY 999; 
-SET NUM 20; 
-SET SQLBL ON; 
-SET BLO .; 
+--SET ARRAY 999;
+SET NUM 20;
+SET SQLBL ON;
+SET BLO .;
 SET RECSEP OFF;
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~

@@ -38,6 +38,10 @@ COL edb360_bypass NEW_V edb360_bypass;
 SELECT ' echo timeout ' edb360_bypass FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  >  :edb360_max_seconds
 /
 
+-- to avoid in 12cR2 and 18c ORA-32034: unsupported use of WITH clause
+def sq_fact_sql_sample_hints="inline" 
+def &&skip_12r2_column.&&skip_18c_column. sq_fact_sql_sample_hints="&&sq_fact_hints."
+
 COL hh_mm_ss NEW_V hh_mm_ss NOPRI FOR A8;
 SET VER OFF FEED OFF SERVEROUT ON HEAD OFF PAGES 50000 LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF;
 SPO &&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql;
@@ -45,7 +49,7 @@ DECLARE
   l_count NUMBER := 0;
   CURSOR sql_cur IS
               WITH ranked_sql AS (
-            SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
                    /* &&section_id..&&report_sequence. */
                    &&skip_11g_column.&&skip_10g_column.con_id,
                    dbid,
@@ -68,7 +72,7 @@ DECLARE
             HAVING COUNT(*) > 60 -- >10min
             ),
             top_sql AS (
-            SELECT /*+ &&sq_fact_hints. &&section_id..&&report_sequence. */
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
                    &&skip_11g_column.&&skip_10g_column.r.con_id,
                    r.sql_id,
                    TRIM(TO_CHAR(ROUND(r.db_time_hrs, 2), '99990.00')) db_time_hrs,
@@ -91,7 +95,7 @@ DECLARE
                AND h.sql_id(+) = r.sql_id
             ),
             not_shared AS (
-            SELECT /*+ &&sq_fact_hints. &&section_id..&&report_sequence. */
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
                    &&skip_11g_column.&&skip_10g_column.con_id,
                    sql_id, COUNT(*) child_cursors,
                    RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS sql_rank
@@ -103,7 +107,7 @@ DECLARE
             HAVING COUNT(*) > 100
             ),
             top_not_shared AS (
-            SELECT /*+ &&sq_fact_hints. &&section_id..&&report_sequence. */
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
                    DISTINCT
                    ns.sql_rank,
                    ns.child_cursors,
@@ -116,7 +120,7 @@ DECLARE
                AND ns.sql_rank <= &&edb360_conf_top_cur.
             ),
             by_signature AS (
-            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
                    /* &&section_id..&&report_sequence. */
                    &&skip_11g_column.&&skip_10g_column.h.con_id,
                    h.force_matching_signature,
@@ -146,7 +150,7 @@ DECLARE
             HAVING COUNT(*) > 60 -- >10min
             ),
             top_signature AS (
-            SELECT /*+ &&sq_fact_hints. &&section_id..&&report_sequence. */
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
                    r.rn,
                    &&skip_11g_column.&&skip_10g_column.r.con_id,
                    r.force_matching_signature,
@@ -166,9 +170,9 @@ DECLARE
             )
             SELECT rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
-                   &&skip_12c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
                    sql_id,
                    db_time_hrs, -- not null means Top as per DB time
                    cpu_time_hrs, -- not null means Top as per DB time
@@ -185,9 +189,9 @@ DECLARE
              UNION ALL
             SELECT sql_rank rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ns.con_id) pdb_name,
-                   &&skip_12c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
                    sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
@@ -205,9 +209,9 @@ DECLARE
              UNION ALL
             SELECT rn rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
-                   &&skip_12c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
                    sample_sql_id sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
@@ -426,7 +430,7 @@ BEGIN
     put_line('HOS zip -j &&edb360_zip_filename. &&edb360_log..txt >> &&edb360_log3..txt');
     put_line('HOS zip -j &&edb360_zip_filename. &&edb360_log3..txt');
     -- actual execution of sql/sqld360.sql
-    put_line('@@sql/'||CHR(38)||CHR(38)||'edb360_bypass.sqld360.sql');
+    put_line('@@'||CHR(38)||CHR(38)||'edb360_bypass.sqld360.sql');
     IF '&&db_version.' >= '12' AND '&&edb360_pdb_name.' NOT IN ('NONE', 'CDB$ROOT', 'PDB$SEED') THEN
       put_line('SPO &&edb360_log..txt APP;');
       put_line('PRO PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');

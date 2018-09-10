@@ -1,12 +1,7 @@
 Changelog
 =========
 
-v1803
-=====
-1. Consolidation of Parallel metrics into section 4
-2. Parallel Downgrade Perc added 
-
-v1802
+v182
 =====
 1. Modify dcli command on 0b to expect a possible OS user other than oracle
 2. Top SQL as per diverse metrics
@@ -27,9 +22,16 @@ PRO sharable_mem
 PRO rows_processed_delta
 PRO buffer_gets_delta
 PRO disk_reads_delta
+3. Consolidation of Parallel metrics into section 4
+4. Parallel Downgrade Perc reports added
+5. Added unindexes partitioned key columns report
+6. Modified SQL Workarea Histogram report
+7. Adjusted most executed SQL and redefined SQL executed row-by-row
+8. Fixed bugs on Top SQL driver that caused SQLd360 not to be collected
+9. Corrected Top-N query in SQL in logon storm and excluded PX slaves and Jobs
+10. Other minor bugs corrected (no significant user impact)
 
-
-v1801 (2018-01-15)
+v181 (2018-01-15) -- latest eDB360 / SQLd360 release before merge
 =====
 1. Remove SQLT references
 2. Use GV$ instead of V$ for flashback views on "2d. Backup and Recovery"
@@ -203,5 +205,5 @@ v1620 (2016-11-23)
 1. SQLd360 stops executing when it consumed all the time allocated by eDB360 (the *next* SQL ID will be ignored, the current one is let to complete)
 2. All queries on dba_hist_active_sesss_history are now decorated with hints to use FTS and HJ. This to provide more consistent and predictable execution times when ASH is not getting purged and stats are not up to date.
 3. Added awr_ash_pre_check.sql and verify_stats_wr_sys.sql scripts. If eDB360 is expected to take more than 8 hours the execution stops and waits for conformation to proceed.
-4. SQL Trace is back on for eDB360 so we get a tkprof for the execution of eDB360 itself. 
+4. SQL Trace is back on for eDB360 so we get a tkprof for the execution of eDB360 itself.
 
