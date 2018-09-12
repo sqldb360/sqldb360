@@ -1,6 +1,6 @@
 @@&&edb360_0g.tkprof.sql
 DEF section_id = '4g';
-DEF section_name = 'Latency Histogram for Top 24 Wait Events';
+DEF section_name = 'DBtime Histogram for Top 24 Wait Events';
 EXEC DBMS_APPLICATION_INFO.SET_MODULE('&&edb360_prefix.','&&section_id.');
 SPO &&edb360_main_report..html APP;
 PRO <h2>&&section_id.. &&section_name.</h2>
@@ -213,27 +213,27 @@ SELECT MIN(CASE wrank WHEN 01 THEN wait_class END) wait_class_01,
 COL recovery NEW_V recovery;
 SELECT CHR(38)||' recovery' recovery FROM DUAL;
 -- this above is to handle event "RMAN backup & recovery I/O"
-
+pwd
 DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
 DEF vbaseline = '';
 DEF chartype = 'AreaChart';
-DEF stacked = 'isStacked: true,';
+DEF stacked = 'isStacked: ''true'',';
 
-DEF tit_01 = '% < 1ms';
-DEF tit_02 = '% < 2ms';
-DEF tit_03 = '% < 4ms';
-DEF tit_04 = '% < 8ms';
-DEF tit_05 = '% < 16ms';
-DEF tit_06 = '% < 32ms';
-DEF tit_07 = '% < 64ms';
-DEF tit_08 = '% < 128ms';
-DEF tit_09 = '% < 256ms';
-DEF tit_10 = '% < 512ms';
-DEF tit_11 = '% < 1.024s';
-DEF tit_12 = '% < 2.048s';
-DEF tit_13 = '% < 4.096s';
-DEF tit_14 = '% < 8.192s';
-DEF tit_15 = '% > 8.192s';
+DEF tit_01 = '< 1ms';
+DEF tit_02 = '< 2ms';
+DEF tit_03 = '< 4ms';
+DEF tit_04 = '< 8ms';
+DEF tit_05 = '< 16ms';
+DEF tit_06 = '< 32ms';
+DEF tit_07 = '< 64ms';
+DEF tit_08 = '< 128ms';
+DEF tit_09 = '< 256ms';
+DEF tit_10 = '< 512ms';
+DEF tit_11 = '< 1.024s';
+DEF tit_12 = '< 2.048s';
+DEF tit_13 = '< 4.096s';
+DEF tit_14 = '< 8.192s';
+DEF tit_15 = '> 8.192s';
 
 BEGIN
   :sql_text_backup := q'[
@@ -277,200 +277,202 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
  WHERE s.snap_id         = h.snap_id
    AND s.dbid            = h.dbid
    AND s.instance_number = h.instance_number
-)
+),
+gendata AS ( 
 SELECT snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli < POWER(2,00) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_1_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,00) AND wait_time_milli < POWER(2,01) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_2_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,01) AND wait_time_milli < POWER(2,02) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_4_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,02) AND wait_time_milli < POWER(2,03) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_8_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,03) AND wait_time_milli < POWER(2,04) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_16_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,04) AND wait_time_milli < POWER(2,05) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_32_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,05) AND wait_time_milli < POWER(2,06) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_64_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,06) AND wait_time_milli < POWER(2,07) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_128_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,07) AND wait_time_milli < POWER(2,08) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_256_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,08) AND wait_time_milli < POWER(2,09) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_512_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,09) AND wait_time_milli < POWER(2,10) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_1024_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,10) AND wait_time_milli < POWER(2,11) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_2048_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,11) AND wait_time_milli < POWER(2,12) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_4096_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,12) AND wait_time_milli < POWER(2,13) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) less_8192_ms,
-       ROUND(100 * SUM(CASE WHEN wait_time_milli >= POWER(2,13) THEN wait_count_this_snap ELSE 0 END) / SUM(wait_count_this_snap), 1) more_8192_ms
-  FROM per_inst
- GROUP BY
-       snap_id
-HAVING SUM(wait_count_this_snap) > 0
- ORDER BY
-       snap_id
+                 ROUND((1/(1000*60))*SUM(CASE WHEN wait_time_milli  < POWER(2,00)                                   THEN wait_count_this_snap ELSE 0 END),2) less_1_ms,
+       ROUND((POWER(2,01)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,00) AND wait_time_milli < POWER(2,01) THEN wait_count_this_snap ELSE 0 END),2) less_2_ms,
+       ROUND((POWER(2,02)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,01) AND wait_time_milli < POWER(2,02) THEN wait_count_this_snap ELSE 0 END),2) less_4_ms,
+       ROUND((POWER(2,03)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,02) AND wait_time_milli < POWER(2,03) THEN wait_count_this_snap ELSE 0 END),2) less_8_ms,
+       ROUND((POWER(2,04)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,03) AND wait_time_milli < POWER(2,04) THEN wait_count_this_snap ELSE 0 END),2) less_16_ms,
+       ROUND((POWER(2,05)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,04) AND wait_time_milli < POWER(2,05) THEN wait_count_this_snap ELSE 0 END),2) less_32_ms,
+       ROUND((POWER(2,06)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,05) AND wait_time_milli < POWER(2,06) THEN wait_count_this_snap ELSE 0 END),2) less_64_ms,
+       ROUND((POWER(2,07)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,06) AND wait_time_milli < POWER(2,07) THEN wait_count_this_snap ELSE 0 END),2) less_128_ms,
+       ROUND((POWER(2,08)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,07) AND wait_time_milli < POWER(2,08) THEN wait_count_this_snap ELSE 0 END),2) less_256_ms,
+       ROUND((POWER(2,09)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,08) AND wait_time_milli < POWER(2,09) THEN wait_count_this_snap ELSE 0 END),2) less_512_ms,
+       ROUND((POWER(2,10)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,09) AND wait_time_milli < POWER(2,10) THEN wait_count_this_snap ELSE 0 END),2) less_1024_ms,
+       ROUND((POWER(2,11)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,10) AND wait_time_milli < POWER(2,11) THEN wait_count_this_snap ELSE 0 END),2) less_2048_ms,
+       ROUND((POWER(2,12)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,11) AND wait_time_milli < POWER(2,12) THEN wait_count_this_snap ELSE 0 END),2) less_4096_ms,
+       ROUND((POWER(2,13)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,12) AND wait_time_milli < POWER(2,13) THEN wait_count_this_snap ELSE 0 END),2) less_8192_ms,
+       ROUND((POWER(2,14)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,13) THEN wait_count_this_snap ELSE 0 END),2) more_8192_ms
+       FROM per_inst
+       GROUP BY
+              snap_id
+)
+SELECT * 
+  FROM gendata
+ORDER by snap_id
 ]';
 END;
 /
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_01. "&&event_name_01." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_01. "&&event_name_01." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_01. "&&event_name_01." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_01. "&&event_name_01." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_01.'') AND event_name = TRIM(''&&event_name_01.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_02. "&&event_name_02." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_02. "&&event_name_02." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_02. "&&event_name_02." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_02. "&&event_name_02." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_02.'') AND event_name = TRIM(''&&event_name_02.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_03. "&&event_name_03." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_03. "&&event_name_03." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_03. "&&event_name_03." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_03. "&&event_name_03." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_03.'') AND event_name = TRIM(''&&event_name_03.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_04. "&&event_name_04." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_04. "&&event_name_04." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_04. "&&event_name_04." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_04. "&&event_name_04." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_04.'') AND event_name = TRIM(''&&event_name_04.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_05. "&&event_name_05." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_05. "&&event_name_05." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_05. "&&event_name_05." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_05. "&&event_name_05." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_05.'') AND event_name = TRIM(''&&event_name_05.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_06. "&&event_name_06." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_06. "&&event_name_06." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_06. "&&event_name_06." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_06. "&&event_name_06." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_06.'') AND event_name = TRIM(''&&event_name_06.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_07. "&&event_name_07." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_07. "&&event_name_07." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_07. "&&event_name_07." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_07. "&&event_name_07." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_07.'') AND event_name = TRIM(''&&event_name_07.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_08. "&&event_name_08." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_08. "&&event_name_08." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_08. "&&event_name_08." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_08. "&&event_name_08." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_08.'') AND event_name = TRIM(''&&event_name_08.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_09. "&&event_name_09." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_09. "&&event_name_09." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_09. "&&event_name_09." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_09. "&&event_name_09." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_09.'') AND event_name = TRIM(''&&event_name_09.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_10. "&&event_name_10." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_10. "&&event_name_10." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_10. "&&event_name_10." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_10. "&&event_name_10." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_10.'') AND event_name = TRIM(''&&event_name_10.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_11. "&&event_name_11." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_11. "&&event_name_11." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_11. "&&event_name_11." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_11. "&&event_name_11." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_11.'') AND event_name = TRIM(''&&event_name_11.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_12. "&&event_name_12." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_12. "&&event_name_12." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_12. "&&event_name_12." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_12. "&&event_name_12." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_12.'') AND event_name = TRIM(''&&event_name_12.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_13. "&&event_name_13." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_13. "&&event_name_13." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_13. "&&event_name_13." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_13. "&&event_name_13." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_13.'') AND event_name = TRIM(''&&event_name_13.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_14. "&&event_name_14." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_14. "&&event_name_14." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_14. "&&event_name_14." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_14. "&&event_name_14." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_14.'') AND event_name = TRIM(''&&event_name_14.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_15. "&&event_name_15." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_15. "&&event_name_15." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_15. "&&event_name_15." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_15. "&&event_name_15." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_15.'') AND event_name = TRIM(''&&event_name_15.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_16. "&&event_name_16." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_16. "&&event_name_16." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_16. "&&event_name_16." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_16. "&&event_name_16." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_16.'') AND event_name = TRIM(''&&event_name_16.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_17. "&&event_name_17." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_17. "&&event_name_17." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_17. "&&event_name_17." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_17. "&&event_name_17." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_17.'') AND event_name = TRIM(''&&event_name_17.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_18. "&&event_name_18." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_18. "&&event_name_18." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_18. "&&event_name_18." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_18. "&&event_name_18." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_18.'') AND event_name = TRIM(''&&event_name_18.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_19. "&&event_name_19." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_19. "&&event_name_19." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_19. "&&event_name_19." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_19. "&&event_name_19." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_19.'') AND event_name = TRIM(''&&event_name_19.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_20. "&&event_name_20." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_20. "&&event_name_20." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_20. "&&event_name_20." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_20. "&&event_name_20." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_20.'') AND event_name = TRIM(''&&event_name_20.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_21. "&&event_name_21." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_21. "&&event_name_21." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_21. "&&event_name_21." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_21. "&&event_name_21." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_21.'') AND event_name = TRIM(''&&event_name_21.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_22. "&&event_name_22." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_22. "&&event_name_22." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_22. "&&event_name_22." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_22. "&&event_name_22." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_22.'') AND event_name = TRIM(''&&event_name_22.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_23. "&&event_name_23." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_23. "&&event_name_23." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_23. "&&event_name_23." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_23. "&&event_name_23." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_23.'') AND event_name = TRIM(''&&event_name_23.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = '&&wait_class_24. "&&event_name_24." Latency Histogram';
-DEF abstract = 'Percentage of &&wait_class_24. "&&event_name_24." Waits, taking less (or more) than N milliseconds.<br />'
-DEF vaxis = 'Histogram as Percent of Waits (stacked)';
+DEF title = '&&wait_class_24. "&&event_name_24." DBTime Histogram';
+DEF abstract = 'DBTime of &&wait_class_24. "&&event_name_24." Waits, taking less (or more) than N milliseconds.<br />'
+DEF vaxis = 'Histogram of DBTime in minutes (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = TRIM(''&&wait_class_24.'') AND event_name = TRIM(''&&event_name_24.'')');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
