@@ -11,7 +11,7 @@ DEF title = 'SGA Allocation';
 DEF main_table = 'X$KSMSSINFO';
 BEGIN
   :sql_text := q'[
-select * from x$ksmssinfo  
+select * from x$ksmssinfo
 ]';
 END;
 /
@@ -39,7 +39,7 @@ DEF tit_14 = '';
 DEF tit_15 = '';
 BEGIN
   :sql_text_backup := q'[
-WITH 
+WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
@@ -53,7 +53,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE pool WHEN 'shared pool' THEN bytes ELSE 0 END) shared_pool,
        SUM(CASE pool WHEN 'large pool' THEN bytes ELSE 0 END) large_pool,
        SUM(CASE pool WHEN 'java pool' THEN bytes ELSE 0 END) java_pool,
-       SUM(CASE pool WHEN 'streams pool' THEN bytes ELSE 0 END) streams_pool       
+       SUM(CASE pool WHEN 'streams pool' THEN bytes ELSE 0 END) streams_pool
   FROM &&awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -225,7 +225,7 @@ SELECT /*+ &&sq_fact_hints. */
        max(standard_dev) standard_dev
   FROM calc
  WHERE standard_dev>0
- GROUP BY 
+ GROUP BY
        dbid,
        name
 ),
@@ -233,7 +233,7 @@ ranked AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        ROW_NUMBER () OVER (ORDER BY standard_dev DESC) srank,
        ROUND(standard_dev / 1024 / 1024, 1) mb_std_deviation,
-       name subpool_name 
+       name subpool_name
   FROM calc2
 )
 SELECT * FROM ranked
@@ -257,7 +257,7 @@ COL subpool_10 NEW_V subpool_10;
 
 WITH
 calc AS (
-SELECT /*+ &&sq_fact_hints. */ 
+SELECT /*+ &&sq_fact_hints. */
        dbid,
        instance_number,
        name,
@@ -279,15 +279,15 @@ SELECT /*+ &&sq_fact_hints. */
        max(standard_dev) standard_dev
   FROM calc
  WHERE standard_dev>0
- GROUP BY 
+ GROUP BY
        dbid,
        name
 ),
 ranked AS (
-SELECT /*+ &&sq_fact_hints. */ 
+SELECT /*+ &&sq_fact_hints. */
        ROW_NUMBER () OVER (ORDER BY standard_dev DESC) srank,
        ROUND(standard_dev / 1024 / 1024, 1) mb_deviation,
-       name subpool_name 
+       name subpool_name
   FROM calc2
 )
 SELECT MIN(CASE srank WHEN 01 THEN subpool_name END) subpool_01,
@@ -337,7 +337,7 @@ DEF tit_15 = '';
 
 BEGIN
   :sql_text_backup := q'[
-WITH 
+WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
@@ -355,7 +355,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number
 ),
 sgastat_denorm_2 AS (
-SELECT /*+ &&sq_fact_hints. */ 
+SELECT /*+ &&sq_fact_hints. */
        h1.snap_id,
        h1.dbid,
        h1.instance_number,
@@ -385,14 +385,14 @@ SELECT /*+ &&sq_fact_hints. */
 SELECT snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
-0 dummy_01, --ROUND(SUM(CASE instance_number WHEN 1 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_01,
-0 dummy_02, --ROUND(SUM(CASE instance_number WHEN 2 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_02,
-0 dummy_03, --ROUND(SUM(CASE instance_number WHEN 3 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_03,
-0 dummy_04, --ROUND(SUM(CASE instance_number WHEN 4 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_04,
-0 dummy_05, --ROUND(SUM(CASE instance_number WHEN 5 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_05,
-0 dummy_06, --ROUND(SUM(CASE instance_number WHEN 6 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_06,
-0 dummy_07, --ROUND(SUM(CASE instance_number WHEN 7 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_07,
-0 dummy_08, --ROUND(SUM(CASE instance_number WHEN 8 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_08,
+       0 dummy_01, --ROUND(SUM(CASE instance_number WHEN 1 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_01,
+       0 dummy_02, --ROUND(SUM(CASE instance_number WHEN 2 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_02,
+       0 dummy_03, --ROUND(SUM(CASE instance_number WHEN 3 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_03,
+       0 dummy_04, --ROUND(SUM(CASE instance_number WHEN 4 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_04,
+       0 dummy_05, --ROUND(SUM(CASE instance_number WHEN 5 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_05,
+       0 dummy_06, --ROUND(SUM(CASE instance_number WHEN 6 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_06,
+       0 dummy_07, --ROUND(SUM(CASE instance_number WHEN 7 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_07,
+       0 dummy_08, --ROUND(SUM(CASE instance_number WHEN 8 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_08,
        0 dummy_09,
        0 dummy_10,
        0 dummy_11,
@@ -502,10 +502,10 @@ DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_10''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF vaxis = 'Free Memory in MBs';
 DEF skip_lch = '';
 DEF skip_all = '';
 DEF title = 'Free Memory in Shared Pool';
+DEF vaxis = 'Free Memory in MBs';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''free memory''');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -532,7 +532,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number
 ),
 sgastat_denorm_2 AS (
-SELECT /*+ &&sq_fact_hints. */ 
+SELECT /*+ &&sq_fact_hints. */
        h1.snap_id,
        h1.dbid,
        h1.subpool,
@@ -566,18 +566,18 @@ SELECT snap_id,
        ROUND(SUM(CASE subpool WHEN 'free memory' THEN allocated ELSE 0 END)/POWER(2,20), 3) free_memory,
        ROUND(SUM(CASE WHEN subpool not in ('&&subpool_01.','&&subpool_02.','&&subpool_03.','&&subpool_04.',
            '&&subpool_05.','&&subpool_06.','&&subpool_07.','&&subpool_08.','&&subpool_09.','&&subpool_10.',
-           'free memory' ) 
-       THEN allocated ELSE 0 END)/POWER(2,20), 3) others,     
+           'free memory' )
+       THEN allocated ELSE 0 END)/POWER(2,20), 3) others,
        ROUND(SUM(CASE subpool WHEN '&&subpool_01.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_01.",
-0 dummy_02, --ROUND(SUM(CASE subpool WHEN '&&subpool_02.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_02.",
-0 dummy_03, --ROUND(SUM(CASE subpool WHEN '&&subpool_03.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_03.",
-0 dummy_04, --ROUND(SUM(CASE subpool WHEN '&&subpool_04.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_04.",
-0 dummy_05, --ROUND(SUM(CASE subpool WHEN '&&subpool_05.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_05.",
-0 dummy_06, --ROUND(SUM(CASE subpool WHEN '&&subpool_06.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_06.",
-0 dummy_07, --ROUND(SUM(CASE subpool WHEN '&&subpool_07.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_07.",
-0 dummy_08, --ROUND(SUM(CASE subpool WHEN '&&subpool_08.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_08.",
-0 dummy_09, --ROUND(SUM(CASE subpool WHEN '&&subpool_09.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_09.",
-0 dummy_10, --ROUND(SUM(CASE subpool WHEN '&&subpool_10.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_10.",    
+       0 dummy_02, --ROUND(SUM(CASE subpool WHEN '&&subpool_02.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_02.",
+       0 dummy_03, --ROUND(SUM(CASE subpool WHEN '&&subpool_03.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_03.",
+       0 dummy_04, --ROUND(SUM(CASE subpool WHEN '&&subpool_04.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_04.",
+       0 dummy_05, --ROUND(SUM(CASE subpool WHEN '&&subpool_05.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_05.",
+       0 dummy_06, --ROUND(SUM(CASE subpool WHEN '&&subpool_06.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_06.",
+       0 dummy_07, --ROUND(SUM(CASE subpool WHEN '&&subpool_07.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_07.",
+       0 dummy_08, --ROUND(SUM(CASE subpool WHEN '&&subpool_08.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_08.",
+       0 dummy_09, --ROUND(SUM(CASE subpool WHEN '&&subpool_09.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_09.",
+       0 dummy_10, --ROUND(SUM(CASE subpool WHEN '&&subpool_10.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_10.",
        0 dummy_11,
        0 dummy_12,
        0 dummy_13
@@ -618,6 +618,7 @@ DEF tit_14 = '';
 DEF tit_15 = '';
 
 
+DEF vaxis = 'Memory in MBs';
 DEF chartype = 'AreaChart';
 DEF stacked = 'isStacked: ''true'',';
 DEF skip_lch = '';
