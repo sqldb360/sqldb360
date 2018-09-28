@@ -1,5 +1,5 @@
 /*****************************************************************************************
-   
+
     SQLD360 - Enkitec's Oracle SQL 360-degree View
     Copyright (C) 2015  Mauro Pagano
 
@@ -25,7 +25,7 @@ PRO SQLd360 requires the Oracle seeded PLAN_TABLE, consider dropping the one in 
 
 WHENEVER SQLERROR EXIT;
 DECLARE
- is_plan_table_in_usr_schema NUMBER; 
+ is_plan_table_in_usr_schema NUMBER;
 BEGIN
  SELECT COUNT(*)
    INTO is_plan_table_in_usr_schema
@@ -41,7 +41,7 @@ END;
 /
 WHENEVER SQLERROR CONTINUE;
 
--- The script creates a driver based on the rows inside the plan table and the according flags+days stored in column options 
+-- The script creates a driver based on the rows inside the plan table and the according flags+days stored in column options
 -- the flags right now are 3 "000" plus 3 chars for the number of days
 -- the first "bit" is for diagnostics_pack
 -- the second "bit" is for tuning_pack
@@ -53,7 +53,7 @@ COL driver_time NEW_V driver_time
 SELECT TO_CHAR(SYSDATE, 'HH24MISS') driver_time FROM DUAL;
 SPO sqld360_driver_&&driver_time..sql
 SET SERVEROUT ON FEED OFF DEF OFF TIMI OFF
-DECLARE 
+DECLARE
   num_sqlids NUMBER;
   license    VARCHAR2(1);
   num_days   NUMBER;
@@ -75,11 +75,11 @@ BEGIN
 
   -- 1708 - Extracting calling container (only in 12c)
   BEGIN
-    SELECT SYS_CONTEXT('USERENV','CON_NAME') 
+    SELECT SYS_CONTEXT('USERENV','CON_NAME')
       INTO container
-      FROM v$instance 
+      FROM v$instance
      WHERE version LIKE '12%';
-  EXCEPTION 
+  EXCEPTION
      WHEN NO_DATA_FOUND THEN container := ''; -- not in 12c
   END;
 
@@ -97,7 +97,7 @@ BEGIN
     put('DEF from_edb360=''--''');
 
     /*
-     * The following code is to handle the timeout from eDB360    
+     * The following code is to handle the timeout from eDB360
      * Column COST is "time to go" from eDB360, Cardinality is time left
      *
      * To future Mauro, this is because the SQLPlus variables gave you trouble when coming out of a SQLd360 execution
@@ -108,12 +108,12 @@ BEGIN
 
     -- this execution is from edb360, call SQLd360 several times passing the appropriare flag
     --  the DISTINCT here is to make sure we run SQLd360 once even though the SQL is top in multiple categories (e.g. signature and dbtime)
-    FOR i IN (SELECT operation, options, object_node 
-                FROM plan_table 
-               WHERE statement_id = 'SQLD360_SQLID' 
+    FOR i IN (SELECT operation, options, object_node
+                FROM plan_table
+               WHERE statement_id = 'SQLD360_SQLID'
                ORDER BY id) LOOP
 
-       -- check if need to run TCB 
+       -- check if need to run TCB
        IF SUBSTR(i.options,3,1) = 0 THEN
          put('DEF skip_tcb=''--''');
        ELSE
@@ -147,7 +147,7 @@ BEGIN
        IF i.object_node IS NOT NULL THEN
            put('ALTER SESSION SET CONTAINER='||i.object_node||';');
        END IF;
-       -- v1708 - variable to keep track of the PDB/CDB we are in so that later 
+       -- v1708 - variable to keep track of the PDB/CDB we are in so that later
        --  the code can switch back to CDB to update the right plan table with the file name
        put('DEF sqld360_container='''||container||'''');
 
@@ -165,12 +165,12 @@ BEGIN
        put('SET DEF &');
 
     END LOOP;
-      
+
   END IF;
 
 END;
 /
-SPO OFF 
+SPO OFF
 SET DEF ON TERM ON
 @sqld360_driver_&&driver_time..sql
 HOS rm sqld360_driver_&&driver_time..sql

@@ -1,5 +1,5 @@
-DEF edb360_vYYNN = 'v181';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2018-06-07)';
+DEF edb360_vYYNN = 'v182';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2018-09-09)';
 DEF edb360_copyright = ' (c) 2018';
 
 SET TERM OFF;
@@ -51,7 +51,7 @@ SELECT startup_time, dbid, instance_number, COUNT(*) snaps,
 /
 
 COL history_days NEW_V history_days;
--- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range. 
+-- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range.
 SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(begin_interval_time) AS DATE)), GREATEST(31, TO_NUMBER(NVL(TRIM('&&edb360_conf_days.'), '31'))))) history_days FROM &&awr_object_prefix.snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&edb360_dbid.;
 SELECT TO_CHAR(TO_DATE('&&edb360_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&edb360_conf_date_from.', 'YYYY-MM-DD') + 1) history_days FROM DUAL WHERE '&&edb360_conf_date_from.' != 'YYYY-MM-DD' AND '&&edb360_conf_date_to.' != 'YYYY-MM-DD';
 SELECT '0' history_days FROM DUAL WHERE NVL(TRIM('&&diagnostics_pack.'), 'N') = 'N';
@@ -101,7 +101,7 @@ BEGIN
       :edb360_sections := ','||LOWER(TRIM('&&custom_config_filename.'))||','; -- second parameter becomes potential section list
     ELSE
       :edb360_sections := NULL; -- 2nd parameter was indeed a custom config file
-    END IF;      
+    END IF;
   ELSE -- an actual selection of sections was passed on config parameter
     :edb360_sections := LOWER(TRIM('&&edb360_sections.'));
   END IF;
@@ -378,7 +378,7 @@ COL db_vers_ofe NEW_V db_vers_ofe;
 SELECT TRIM('.' FROM TRIM('0' FROM version)) db_vers_ofe FROM &&v_object_prefix.instance;
 ALTER SESSION SET optimizer_features_enable = '&&db_vers_ofe.';
 -- to work around bug 12672969
-ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false; 
+ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false;
 -- workaround Siebel
 ALTER SESSION SET optimizer_index_cost_adj = 100;
 --ALTER SESSION SET optimizer_dynamic_sampling = 2;
@@ -416,7 +416,7 @@ END;
 /
 -- esp collection. note: skip if executing for one section
 @&&skip_diagnostics.&&skip_extras.&&skip_esp_and_escp.sql/esp_master.sql
-SET TERM OFF; 
+SET TERM OFF;
 
 -- nls (2nd time as esp may change them)
 ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ".,";
@@ -435,6 +435,7 @@ COL db_version NEW_V db_version;
 SELECT version db_version FROM &&v_object_prefix.instance;
 
 -- skip
+
 DEF skip_10g_column = '';
 COL skip_10g_column NEW_V skip_10g_column;
 DEF skip_10g_script = '';
@@ -465,6 +466,17 @@ DEF skip_12c_script = '';
 COL skip_12c_script NEW_V skip_12c_script;
 SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &&v_object_prefix.instance WHERE version LIKE '12%';
 --
+DEF skip_12r2_column = '';
+COL skip_12r2_column NEW_V skip_12r2_column;
+DEF skip_12r2_script = '';
+COL skip_12r2_script NEW_V skip_12r2_script;
+SELECT ' -- skip 12cR2 ' skip_12r2_column, ' echo skip 12cR2 ' skip_12r2_script FROM &&v_object_prefix.instance WHERE version LIKE '12.2%';
+--
+DEF skip_18c_column = '';
+COL skip_18c_column NEW_V skip_18c_column;
+DEF skip_18c_script = '';
+COL skip_18c_script NEW_V skip_18c_script;
+SELECT ' -- skip 18c ' skip_18c_column, ' echo skip 18c ' skip_18c_script FROM &&v_object_prefix.instance WHERE version LIKE '18%';
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A6;
@@ -486,7 +498,7 @@ SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)),1)) avg_thread_count FROM &&gv_object
 COL cpu_load_threshold NEW_V cpu_load_threshold FOR A6;
 SELECT TO_CHAR(CASE ROUND(AVG(TO_NUMBER(cpus.value))/AVG(TO_NUMBER(cores.value))) WHEN 2 THEN 1.4 * AVG(TO_NUMBER(cores.value)) WHEN 8 THEN 4 * AVG(TO_NUMBER(cores.value)) ELSE 2 * AVG(TO_NUMBER(cores.value)) END) cpu_load_threshold
   FROM &&gv_object_prefix.osstat cores, &&gv_object_prefix.osstat cpus
- WHERE cores.stat_name = 'NUM_CPU_CORES' 
+ WHERE cores.stat_name = 'NUM_CPU_CORES'
    AND cpus.stat_name = 'NUM_CPUS'
 /
 
@@ -502,10 +514,6 @@ SELECT CASE TO_NUMBER('&&hosts_count.') WHEN 1 THEN 'cores:&&avg_core_count. thr
 COL database_block_size NEW_V database_block_size;
 SELECT TRIM(TO_NUMBER(value)) database_block_size FROM &&v_object_prefix.system_parameter2 WHERE name = 'db_block_size';
 
--- determine if rac or single instance (null means rac)
-COL is_single_instance NEW_V is_single_instance FOR A1;
-SELECT CASE COUNT(*) WHEN 1 THEN 'Y' END is_single_instance FROM &&gv_object_prefix.instance;
-
 -- snapshot ranges
 SELECT '0' history_days FROM DUAL WHERE TRIM('&&history_days.') IS NULL;
 COL tool_sysdate NEW_V tool_sysdate;
@@ -520,6 +528,53 @@ COL maximum_snap_id NEW_V maximum_snap_id;
 SELECT NVL(TO_CHAR(MAX(snap_id)), '&&minimum_snap_id.') maximum_snap_id FROM &&awr_object_prefix.snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&edb360_dbid. AND end_interval_time < TO_DATE('&&edb360_date_to.', '&&edb360_date_format.');
 SELECT '-1' maximum_snap_id FROM DUAL WHERE TRIM('&&maximum_snap_id.') IS NULL;
 
+-- Determine if rac or single instance (null means rac)
+-- and which instances were present in the history (null means instance not present).
+
+COL inst1_present NEW_V inst1_present FOR A1;
+COL inst2_present NEW_V inst2_present FOR A1;
+COL inst3_present NEW_V inst3_present FOR A1;
+COL inst4_present NEW_V inst4_present FOR A1;
+COL inst5_present NEW_V inst5_present FOR A1;
+COL inst6_present NEW_V inst6_present FOR A1;
+COL inst7_present NEW_V inst7_present FOR A1;
+COL inst8_present NEW_V inst8_present FOR A1;
+COL skip_inst1 NEW_V skip_inst1;
+COL skip_inst2 NEW_V skip_inst2;
+COL skip_inst3 NEW_V skip_inst3;
+COL skip_inst4 NEW_V skip_inst4;
+COL skip_inst5 NEW_V skip_inst5;
+COL skip_inst6 NEW_V skip_inst6;
+COL skip_inst7 NEW_V skip_inst7;
+COL skip_inst8 NEW_V skip_inst8;
+COL is_single_instance NEW_V is_single_instance FOR A1;
+
+WITH hist AS (
+SELECT DISTINCT instance_number
+  FROM &&awr_object_prefix.snapshot
+WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+)
+SELECT MAX(CASE instance_number WHEN 1 THEN '1' ELSE NULL END) inst1_present,
+       MAX(CASE instance_number WHEN 2 THEN '2' ELSE NULL END) inst2_present,
+       MAX(CASE instance_number WHEN 3 THEN '3' ELSE NULL END) inst3_present,
+       MAX(CASE instance_number WHEN 4 THEN '4' ELSE NULL END) inst4_present,
+       MAX(CASE instance_number WHEN 5 THEN '5' ELSE NULL END) inst5_present,
+       MAX(CASE instance_number WHEN 6 THEN '6' ELSE NULL END) inst6_present,
+       MAX(CASE instance_number WHEN 7 THEN '7' ELSE NULL END) inst7_present,
+       MAX(CASE instance_number WHEN 8 THEN '8' ELSE NULL END) inst8_present,     
+       (CASE COUNT(instance_number) WHEN 1 THEN 'Y' ELSE NULL END) is_single_instance
+  FROM hist;
+
+SELECT NVL2('&&inst1_present.','','-- skip inst1') skip_inst1,
+       NVL2('&&inst2_present.','','-- skip inst2') skip_inst2,
+       NVL2('&&inst3_present.','','-- skip inst3') skip_inst3,
+       NVL2('&&inst4_present.','','-- skip inst4') skip_inst4,
+       NVL2('&&inst5_present.','','-- skip inst5') skip_inst5,
+       NVL2('&&inst6_present.','','-- skip inst6') skip_inst6,
+       NVL2('&&inst7_present.','','-- skip inst7') skip_inst7,
+       NVL2('&&inst8_present.','','-- skip inst8') skip_inst8
+  FROM DUAL;
 -- eAdam
 DEF edb360_eadam_snaps = '-666';
 
@@ -743,28 +798,28 @@ COL skip_sqlmon_exec NEW_V skip_sqlmon_exec;
 COL edb360_sql_text_100 NEW_V edb360_sql_text_100;
 DEF exact_matching_signature = '';
 DEF force_matching_signature = '';
-—- this gives you two level of “indirection”, aka it goes into PL/SQL that dumps a script that is later on executed 
-—- I use this for bar charts on edb360
+-- this gives you two level of “indirection”, aka it goes into PL/SQL that dumps a script that is later on executed
+-- I use this for bar charts on edb360
 DEF wait_class_colors = " CASE wait_class WHEN 'ON CPU' THEN '34CF27' WHEN 'Scheduler' THEN '9FFA9D' WHEN 'User I/O' THEN '0252D7' WHEN 'System I/O' THEN '1E96DD' ";
 DEF wait_class_colors2 = " WHEN 'Concurrency' THEN '871C12' WHEN 'Application' THEN 'C42A05' WHEN 'Commit' THEN 'EA6A05' WHEN 'Configuration' THEN '594611'  ";
 DEF wait_class_colors3 = " WHEN 'Administrative' THEN '75763E'  WHEN 'Network' THEN '989779' WHEN 'Other' THEN 'F571A0' ";
 DEF wait_class_colors4 = " WHEN 'Cluster' THEN 'CEC3B5' WHEN 'Queueing' THEN 'C6BAA5' ELSE '000000' END ";
 --
-COL series_01 NEW_V series_01; 
-COL series_02 NEW_V series_02; 
-COL series_03 NEW_V series_03; 
-COL series_04 NEW_V series_04; 
-COL series_05 NEW_V series_05; 
-COL series_06 NEW_V series_06; 
-COL series_07 NEW_V series_07; 
-COL series_08 NEW_V series_08; 
-COL series_09 NEW_V series_09; 
-COL series_10 NEW_V series_10; 
-COL series_11 NEW_V series_11; 
-COL series_12 NEW_V series_12; 
-COL series_13 NEW_V series_13; 
-COL series_14 NEW_V series_14; 
-COL series_15 NEW_V series_15; 
+COL series_01 NEW_V series_01;
+COL series_02 NEW_V series_02;
+COL series_03 NEW_V series_03;
+COL series_04 NEW_V series_04;
+COL series_05 NEW_V series_05;
+COL series_06 NEW_V series_06;
+COL series_07 NEW_V series_07;
+COL series_08 NEW_V series_08;
+COL series_09 NEW_V series_09;
+COL series_10 NEW_V series_10;
+COL series_11 NEW_V series_11;
+COL series_12 NEW_V series_12;
+COL series_13 NEW_V series_13;
+COL series_14 NEW_V series_14;
+COL series_15 NEW_V series_15;
 DEF series_01 = ''
 DEF series_02 = ''
 DEF series_03 = ''
@@ -790,22 +845,22 @@ SELECT value||DECODE(INSTR(value, '/'), 0, '\', '/') edb360_udump_path FROM &&v_
 COL edb360_spid NEW_V edb360_spid FOR A5;
 SELECT TO_CHAR(spid) edb360_spid FROM &&v_dollar.session s, &&v_dollar.process p WHERE s.sid = SYS_CONTEXT('USERENV', 'SID') AND p.addr = s.paddr;
 
-SET TERM OFF; 
-SET HEA ON; 
-SET LIN 32767; 
-SET NEWP NONE; 
-SET PAGES &&def_max_rows.; 
+SET TERM OFF;
+SET HEA ON;
+SET LIN 32767;
+SET NEWP NONE;
+SET PAGES &&def_max_rows.;
 SET TAB OFF;
-SET LONG 32000000; 
-SET LONGC 2000; 
-SET WRA ON; 
-SET TRIMS ON; 
-SET TRIM ON; 
-SET TI OFF; 
-SET TIMI OFF; 
-SET NUM 20; 
-SET SQLBL ON; 
-SET BLO .; 
+SET LONG 32000000;
+SET LONGC 2000;
+SET WRA ON;
+SET TRIMS ON;
+SET TRIM ON;
+SET TI OFF;
+SET TIMI OFF;
+SET NUM 20;
+SET SQLBL ON;
+SET BLO .;
 SET RECSEP OFF;
 PRO
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -821,7 +876,7 @@ PRO begin log
 PRO
 SELECT 'Tool Execution Hours so far: '||ROUND((DBMS_UTILITY.GET_TIME - :edb360_main_time0) / 100 / 3600, 3) tool_exec_hours FROM DUAL
 /
-HOS ps -ef 
+HOS ps -ef
 DEF;
 PRO Parameters
 COL sid FOR A40;
