@@ -425,7 +425,7 @@ PRO 1. If stats are outdated, use edb360-master/sql/gather_stats_wr_sys.sql.
 PRO 2. If last DDL is old, proceed to manually split partition ASH.
 PRO 3. If ASH size is over 2 GB, purge ASH.
 PRO 4. If retention days are over 31, consider reducing to 31.
-PRO 5. If spanshots intervals are more frequent than 1hr, consider setting them to 1hr.
+PRO 5. If snapshots intervals are more frequent than 1hr, consider setting them to 1hr.
 PRO
 PRO References:
 PRO WRH$_ACTIVE_SESSION_HISTORY Does Not Get Purged Based Upon the Retention Policy (Doc ID 387914.1)
