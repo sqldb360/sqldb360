@@ -38,13 +38,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ranked AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        RANK () OVER (ORDER BY wait_time_milli_total DESC) wrank,
-<<<<<<< Updated upstream
        ROUND(wait_time_milli_total / 1000 / 3600, 1) hours_waited,
        wait_class, 
-=======
-       ROUND(wait_time_milli_total / 100 / 3600, 1) hours_waited,
-       wait_class,
->>>>>>> Stashed changes
        event_name
   FROM events
 )
@@ -159,13 +154,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ranked AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        RANK () OVER (ORDER BY wait_time_milli_total DESC) wrank,
-<<<<<<< Updated upstream
        ROUND(wait_time_milli_total / 1000 / 3600, 1) hours_waited,
        wait_class, 
-=======
-       ROUND(wait_time_milli_total / 100 / 3600, 1) hours_waited,
-       wait_class,
->>>>>>> Stashed changes
        event_name
   FROM events
 )
@@ -294,7 +284,6 @@ gendata AS (
 SELECT snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
-<<<<<<< Updated upstream
        ROUND((1/(24*60*60*1000*MIN(time_range)))*SUM(CASE WHEN wait_time_milli  < POWER(2,00)                                   THEN wait_time_milli_total ELSE 0 END),2) less_1_ms,
        ROUND((1/(24*60*60*1000*MIN(time_range)))*SUM(CASE WHEN wait_time_milli >= POWER(2,00) AND wait_time_milli < POWER(2,01) THEN wait_time_milli_total ELSE 0 END),2) less_2_ms,
        ROUND((1/(24*60*60*1000*MIN(time_range)))*SUM(CASE WHEN wait_time_milli >= POWER(2,01) AND wait_time_milli < POWER(2,02) THEN wait_time_milli_total ELSE 0 END),2) less_4_ms,
@@ -313,26 +302,6 @@ SELECT snap_id,
        FROM per_snap
        GROUP BY
               snap_id
-=======
-       ROUND((          1/(1000*60))*SUM(CASE WHEN wait_time_milli  < POWER(2,00)                                   THEN wait_count_this_snap ELSE 0 END),2) less_1_ms,
-       ROUND((POWER(2,01)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,00) AND wait_time_milli < POWER(2,01) THEN wait_count_this_snap ELSE 0 END),2) less_2_ms,
-       ROUND((POWER(2,02)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,01) AND wait_time_milli < POWER(2,02) THEN wait_count_this_snap ELSE 0 END),2) less_4_ms,
-       ROUND((POWER(2,03)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,02) AND wait_time_milli < POWER(2,03) THEN wait_count_this_snap ELSE 0 END),2) less_8_ms,
-       ROUND((POWER(2,04)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,03) AND wait_time_milli < POWER(2,04) THEN wait_count_this_snap ELSE 0 END),2) less_16_ms,
-       ROUND((POWER(2,05)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,04) AND wait_time_milli < POWER(2,05) THEN wait_count_this_snap ELSE 0 END),2) less_32_ms,
-       ROUND((POWER(2,06)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,05) AND wait_time_milli < POWER(2,06) THEN wait_count_this_snap ELSE 0 END),2) less_64_ms,
-       ROUND((POWER(2,07)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,06) AND wait_time_milli < POWER(2,07) THEN wait_count_this_snap ELSE 0 END),2) less_128_ms,
-       ROUND((POWER(2,08)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,07) AND wait_time_milli < POWER(2,08) THEN wait_count_this_snap ELSE 0 END),2) less_256_ms,
-       ROUND((POWER(2,09)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,08) AND wait_time_milli < POWER(2,09) THEN wait_count_this_snap ELSE 0 END),2) less_512_ms,
-       ROUND((POWER(2,10)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,09) AND wait_time_milli < POWER(2,10) THEN wait_count_this_snap ELSE 0 END),2) less_1024_ms,
-       ROUND((POWER(2,11)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,10) AND wait_time_milli < POWER(2,11) THEN wait_count_this_snap ELSE 0 END),2) less_2048_ms,
-       ROUND((POWER(2,12)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,11) AND wait_time_milli < POWER(2,12) THEN wait_count_this_snap ELSE 0 END),2) less_4096_ms,
-       ROUND((POWER(2,13)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,12) AND wait_time_milli < POWER(2,13) THEN wait_count_this_snap ELSE 0 END),2) less_8192_ms,
-       ROUND((POWER(2,14)/(1000*60))*SUM(CASE WHEN wait_time_milli >= POWER(2,13) THEN wait_count_this_snap ELSE 0 END),2) more_8192_ms
-  FROM per_inst
- GROUP BY
-       snap_id
->>>>>>> Stashed changes
 )
 SELECT *
   FROM gendata
