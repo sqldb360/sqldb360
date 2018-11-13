@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v183
+=====
+1. Modified report in 4f and 4g to express values in AAS, this allows to compare latencies with load
+2. Added new reports under section 3h
+3. Added new reports for subpool breakdown in SGA
+4. Several minor adjustments and stability improvements
+
+
 v182
 =====
 1. Modify dcli command on 0b to expect a possible OS user other than oracle
