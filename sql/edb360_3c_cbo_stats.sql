@@ -489,6 +489,39 @@ q'[,sp.subp_count, sp.subp_intervals
 END;
 /
 @@edb360_9a_pre_one.sql
+column owner clear
+column table_name clear
+column autolist clear
+column autolist_Subpartition clear
+column interval_Subpartition clear
+column partitioning_type     clear
+column Subpartitioning_type  clear
+column part_column_list      clear
+column Subp_column_list      clear
+column part_num_rows         clear
+column Subp_num_rows         clear
+column part_blocks           clear
+column Subp_blocks           clear
+column part_tablespaces      clear
+column Subp_tablespaces      clear
+column part_segments_created        clear
+column Subp_segments_created        clear
+column part_compression_enabled     clear
+column Subp_compression_enabled     clear
+column part_compressfor_basic       clear
+column Subp_compressfor_basic       clear
+column part_compressfor_queryhigh   clear
+column Subp_compressfor_queryhigh   clear
+column part_compressfor_querylow    clear
+column Subp_compressfor_querylow    clear
+column part_compressfor_archivehigh clear
+column Subp_compressfor_archivehigh clear
+column part_compressfor_archivelow  clear
+column Subp_compressfor_archivelow  clear
+column part_intervals clear
+column Subp_intervals clear
+column part_count     clear
+column Subp_count     clear
 
 
 
@@ -572,7 +605,20 @@ ORDER BY c.owner, c.table_name, c.column_id, c.column_name
 END;
 /
 @@edb360_9a_pre_one.sql
-
+column column_id          clear
+column column_name        clear
+column num_distinct       clear
+column sample_size        clear
+column num_nulls          clear
+column partitioning_level clear
+column partitioning_type  clear
+column column_position    clear
+column EQUALITY_PREDS     clear
+column EQUIJOIN_PREDS     clear
+column NONEQUIJOIN_PREDS  clear
+column RANGE_PREDS        clear
+column LIKE_PREDS         clear
+column NULL_PREDS         clear
 
 
 

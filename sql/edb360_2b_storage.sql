@@ -770,6 +770,23 @@ ORDER BY 1,2,3,4
 END;
 /
 @@edb360_9a_pre_one.sql
+column blocks             clear
+column num_rows           clear
+column ranking            clear
+column column_id          clear
+column column_name        clear
+column partitioning_level clear
+column partitioning_type  clear
+column column_position    clear
+column num_distinct       clear
+column sample_size        clear
+column num_nulls          clear
+column EQUALITY_PREDS     clear
+column EQUIJOIN_PREDS     clear
+column NONEQUIJOIN_PREDS  clear
+column RANGE_PREDS        clear
+column LIKE_PREDS         clear
+column NULL_PREDS         clear
 
 
 DEF title = 'Tables with one extent and no rows';
