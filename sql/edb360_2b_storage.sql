@@ -670,6 +670,125 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+REM dmk 15.11.2018 added report
+column blocks             heading 'Blocks'
+column num_rows           heading 'Number|of Rows'
+column ranking            heading 'Rank'
+column column_id          heading 'Column|ID'
+column column_name        heading 'Column|Name'
+column partitioning_level heading 'Partitioning|Level'
+column partitioning_type  heading 'Partitioning|Type'
+column column_position    heading 'Partitioning|Key Column|Position'
+column num_distinct       heading 'Distinct|Values'
+column sample_size        heading 'Sample|Size'
+column num_nulls          heading 'Number|of Nulls'
+column EQUALITY_PREDS     heading 'Equality|Predicates'
+column EQUIJOIN_PREDS     heading 'EquiJoin|Predicates'
+column NONEQUIJOIN_PREDS  heading 'NonEquiJoin|Predicates'
+column RANGE_PREDS        heading 'Range|Predicates'
+column LIKE_PREDS         heading 'Like|Predicates'
+column NULL_PREDS         heading 'NULL|Predicates'
+
+DEF title = 'Column Usage of 100 Largest Tables';
+DEF main_table = '&&dva_view_prefix.TABLES';
+
+BEGIN
+  :sql_text := q'[
+WITH k as (
+SELECT owner, name, column_position, column_name
+,      'Partition' partitioning_level
+FROM   &&dva_view_prefix.part_key_columns
+WHERE  object_type = 'TABLE'
+AND    owner NOT IN &&exclusion_list.
+AND    owner NOT IN &&exclusion_list.
+UNION ALL
+SELECT owner, name, column_position, column_name
+,      'Subpartition'
+FROM   &&dva_view_prefix.subpart_key_columns
+WHERE  object_type = 'TABLE'
+AND    owner NOT IN &&exclusion_list.
+AND    owner NOT IN &&exclusion_list.
+), c AS (
+SELECT c.owner, c.table_name
+,      c.column_id, c.column_name, c.num_distinct, c.num_nulls
+,      u.EQUALITY_PREDS
+,      u.EQUIJOIN_PREDS
+,      u.NONEQUIJOIN_PREDS
+,      u.RANGE_PREDS
+,      u.LIKE_PREDS
+,      u.NULL_PREDS
+,      u.TIMESTAMP
+FROM   &&dva_view_prefix.objects o
+,      &&dva_view_prefix.tab_columns c
+,      sys.col_usage$ u
+WHERE  o.object_type = 'TABLE'
+AND    o.owner = c.owner
+AND    o.object_name = c.table_name
+AND    u.obj# = o.object_id
+AND    u.intcol# = c.column_id
+AND    o.owner NOT IN &&exclusion_list.
+AND    o.owner NOT IN &&exclusion_list2.
+), x as (
+SELECT dense_rank() over (order by t.blocks desc, t.owner, t.table_name) ranking
+,      t.owner, t.table_name
+,      c.column_id, c.column_name
+,      k.partitioning_level
+,      CASE WHEN k.partitioning_level = 'Partition'    THEN    p.partitioning_type
+            WHEN k.partitioning_level = 'Subpartition' THEN p.subpartitioning_type
+            WHEN p.table_name IS NULL                  THEN 'None'
+       END as partitioning_type
+,      k.column_position
+,      t.blocks, t.num_rows
+,      c.num_distinct, c.num_nulls
+,      c.EQUALITY_PREDS
+,      c.EQUIJOIN_PREDS
+,      c.NONEQUIJOIN_PREDS
+,      c.RANGE_PREDS
+,      c.LIKE_PREDS
+,      c.NULL_PREDS
+,      c.TIMESTAMP
+FROM   &&dva_view_prefix.tables t
+  LEFT OUTER JOIN &&dva_view_prefix.part_tables p
+    ON p.owner = t.owner
+   AND p.table_name = t.table_name
+  LEFT OUTER JOIN c
+    ON c.owner = t.owner
+   AND c.table_name = t.table_name
+  LEFT OUTER JOIN k 
+    ON k.owner = c.owner
+   AND k.name = c.table_name
+   AND k.column_name = c.column_name
+WHERE  t.blocks>0
+AND    t.owner NOT IN &&exclusion_list.
+AND    t.owner NOT IN &&exclusion_list.
+)
+select x.*
+from x
+where ranking <= 100
+ORDER BY 1,2,3,4
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+column blocks             clear
+column num_rows           clear
+column ranking            clear
+column column_id          clear
+column column_name        clear
+column partitioning_level clear
+column partitioning_type  clear
+column column_position    clear
+column num_distinct       clear
+column sample_size        clear
+column num_nulls          clear
+column EQUALITY_PREDS     clear
+column EQUIJOIN_PREDS     clear
+column NONEQUIJOIN_PREDS  clear
+column RANGE_PREDS        clear
+column LIKE_PREDS         clear
+column NULL_PREDS         clear
+
+
 DEF title = 'Tables with one extent and no rows';
 DEF main_table = '&&dva_view_prefix.SEGMENTS';
 BEGIN
