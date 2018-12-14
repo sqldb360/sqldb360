@@ -1,4 +1,4 @@
-﻿DEF edb360_vYYNN = 'v182';
+DEF edb360_vYYNN = 'v182';
 DEF edb360_vrsn = '&&edb360_vYYNN. (2018-09-09)';
 DEF edb360_copyright = ' (c) 2018';
 
