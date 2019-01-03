@@ -33,6 +33,9 @@ DEF edb360_conf_work_day_to = '6';
 -- maximum time in hours to allow edb360 to execute (default 24 hrs)
 DEF edb360_conf_max_hours = '24';
 
+-- Charts width in pixels (px) or %
+DEF edb360_chart_width = '809px'
+
 -- include database name on index page (default N)
 DEF edb360_conf_incl_dbname_index = 'N';
 
