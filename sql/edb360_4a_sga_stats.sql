@@ -127,12 +127,11 @@ END;
 /
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'SGA Statistics for Cluster';
 DEF abstract = '&&abstract_uom.';
 DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'SGA Statistics for Instance 1';

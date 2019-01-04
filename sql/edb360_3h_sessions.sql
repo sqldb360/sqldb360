@@ -1137,65 +1137,48 @@ DEF tit_12 = '';
 DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
-DEF skip_all = '&&is_single_instance.';
 EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@resource_name@', 'processes');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '''@instance_number@''', 'r.instance_number');
-@@&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'Processes Time Series for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'Processes Time Series for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'Processes Time Series for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'Processes Time Series for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'Processes Time Series for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'Processes Time Series for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'Processes Time Series for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'Processes Time Series for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF chartype = 'LineChart';
@@ -1220,66 +1203,50 @@ DEF tit_12 = '';
 DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
-DEF skip_all = '&&is_single_instance.';
 EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@resource_name@', 'sessions');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '''@instance_number@''', 'r.instance_number');
-@@&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'Sessions Time Series for Instance 1';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'Sessions Time Series for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'Sessions Time Series for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'Sessions Time Series for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'Sessions Time Series for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'Sessions Time Series for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'Sessions Time Series for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
+
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'Sessions Time Series for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 SPO &&edb360_main_report..html APP;
