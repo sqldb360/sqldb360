@@ -246,10 +246,6 @@ SELECT ROUND(AVG(TO_NUMBER(value))) avg_cpu_count FROM gv$system_parameter2 WHER
 COL sum_cpu_count NEW_V sum_cpu_count FOR A3;
 SELECT SUM(TO_NUMBER(value)) sum_cpu_count FROM gv$system_parameter2 WHERE name = 'cpu_count';
 
--- determine if rac or single instance (null means rac)
-COL is_single_instance NEW_V is_single_instance FOR A1;
-SELECT CASE COUNT(*) WHEN 1 THEN 'Y' END is_single_instance FROM gv$instance;
-
 -- timestamp on filename
 COL sqld360_file_time NEW_V sqld360_file_time FOR A20;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD_HH24MI') sqld360_file_time FROM DUAL;
@@ -281,6 +277,54 @@ SELECT TO_NUMBER(TRUNC(VALUE/1000,3)) sqld360_ashsample FROM v$parameter2 WHERE 
 -- Formula is really simple, adjust the _ash_sampling_interval to seconds and multiply by _ash_disk_filter_ratio
 COL sqld360_ashtimevalue NEW_V sqld360_ashtimevalue
 SELECT TO_NUMBER(TRUNC(&&sqld360_ashsample.*&&sqld360_ashdiskfilter.,3)) sqld360_ashtimevalue FROM DUAL;
+
+-- Determine if rac or single instance (null means rac)
+-- and which instances were present in the history (null means instance not present).
+
+COL inst1_present NEW_V inst1_present FOR A1;
+COL inst2_present NEW_V inst2_present FOR A1;
+COL inst3_present NEW_V inst3_present FOR A1;
+COL inst4_present NEW_V inst4_present FOR A1;
+COL inst5_present NEW_V inst5_present FOR A1;
+COL inst6_present NEW_V inst6_present FOR A1;
+COL inst7_present NEW_V inst7_present FOR A1;
+COL inst8_present NEW_V inst8_present FOR A1;
+COL skip_inst1 NEW_V skip_inst1;
+COL skip_inst2 NEW_V skip_inst2;
+COL skip_inst3 NEW_V skip_inst3;
+COL skip_inst4 NEW_V skip_inst4;
+COL skip_inst5 NEW_V skip_inst5;
+COL skip_inst6 NEW_V skip_inst6;
+COL skip_inst7 NEW_V skip_inst7;
+COL skip_inst8 NEW_V skip_inst8;
+COL is_single_instance NEW_V is_single_instance FOR A1;
+
+WITH hist AS (
+SELECT DISTINCT instance_number
+  FROM &&awr_object_prefix.snapshot
+WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+)
+SELECT MAX(CASE instance_number WHEN 1 THEN '1' ELSE NULL END) inst1_present,
+       MAX(CASE instance_number WHEN 2 THEN '2' ELSE NULL END) inst2_present,
+       MAX(CASE instance_number WHEN 3 THEN '3' ELSE NULL END) inst3_present,
+       MAX(CASE instance_number WHEN 4 THEN '4' ELSE NULL END) inst4_present,
+       MAX(CASE instance_number WHEN 5 THEN '5' ELSE NULL END) inst5_present,
+       MAX(CASE instance_number WHEN 6 THEN '6' ELSE NULL END) inst6_present,
+       MAX(CASE instance_number WHEN 7 THEN '7' ELSE NULL END) inst7_present,
+       MAX(CASE instance_number WHEN 8 THEN '8' ELSE NULL END) inst8_present,     
+       (CASE COUNT(instance_number) WHEN 1 THEN 'Y' ELSE NULL END) is_single_instance
+  FROM hist;
+
+SELECT NVL2('&&inst1_present.','','-- skip inst1') skip_inst1,
+       NVL2('&&inst2_present.','','-- skip inst2') skip_inst2,
+       NVL2('&&inst3_present.','','-- skip inst3') skip_inst3,
+       NVL2('&&inst4_present.','','-- skip inst4') skip_inst4,
+       NVL2('&&inst5_present.','','-- skip inst5') skip_inst5,
+       NVL2('&&inst6_present.','','-- skip inst6') skip_inst6,
+       NVL2('&&inst7_present.','','-- skip inst7') skip_inst7,
+       NVL2('&&inst8_present.','','-- skip inst8') skip_inst8
+  FROM DUAL;
 
 -- ebs
 DEF ebs_release = '';

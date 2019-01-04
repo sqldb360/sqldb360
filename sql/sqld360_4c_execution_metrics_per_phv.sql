@@ -134,66 +134,49 @@ END;
 / 
 
 DEF skip_bch='';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Total number of Executions per PHV for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'position');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Total number of Executions per PHV for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Total number of Executions per PHV for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Total number of Executions per PHV for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Total number of Executions per PHV for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Total number of Executions per PHV for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Total number of Executions per PHV for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Total number of Executions per PHV for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Total number of Executions per PHV for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 
 DEF skip_bch='Y';
@@ -299,66 +282,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Number of execution per PHV from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Number of execution per PHV from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Number of execution per PHV from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Number of execution per PHV from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Number of execution per PHV from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Number of execution per PHV from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Number of execution per PHV from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Number of execution per PHV from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Number of execution per PHV from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -407,66 +373,49 @@ END;
 / 
 
 DEF skip_bch='';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Total Elapsed Time for recent executions per PHV for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'position');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Total Elapsed Time for recent executions per PHV for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='Y';
 ---------------------
@@ -497,66 +446,49 @@ END;
 / 
 
 DEF skip_bch='';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Total Elapsed Time for historical executions per PHV for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'position');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Total Elapsed Time for historical executions per PHV for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_bch='Y';
 ----------------------------
@@ -661,66 +593,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Total Elapsed Time per PHV from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Total Elapsed Time per PHV from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -912,66 +827,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'position');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Avg Elapsed Time/Execution per PHV for recent executions for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -1167,66 +1065,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'position');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Avg Elapsed Time/Execution per PHV for historical executions for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -1348,66 +1229,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Avg Elapsed Time/Execution per PHV (total) from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -1528,66 +1392,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Avg Elapsed Time/Execution per PHV (delta) from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -1739,66 +1586,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Avg Elapsed Time/Execution per PHV (moving 1d) from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -1921,66 +1751,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Avg Buffer Gets/Row/Execution per PHV from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI
@@ -2101,66 +1914,49 @@ DEF chartype = 'LineChart';
 DEF stacked = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'Execution Plan Cost per PHV from AWR for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 1;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 2;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 3;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 4;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 5;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 6;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 7;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM gv$instance WHERE instance_number = 8;
 DEF title = 'Execution Plan Cost per PHV from AWR for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.sqld360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.sqld360_9a_pre_one.sql
 
 COL phv1_ PRI
 COL phv2_ PRI

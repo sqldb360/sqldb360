@@ -107,66 +107,50 @@ END;
 /
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
+DEF skip_inst = '&&is_single_instance.';
 DEF title = 'OS Load and CPU Cores for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'OS Load and CPU Cores for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'OS Load and CPU Cores for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'OS Load and CPU Cores for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'OS Load and CPU Cores for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'OS Load and CPU Cores for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'OS Load and CPU Cores for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'OS Load and CPU Cores for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'OS Load and CPU Cores for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF main_table = '&&awr_hist_prefix.OSSTAT';
@@ -258,66 +242,50 @@ END;
 /
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
+DEF skip_inst = '&&is_single_instance.';
 DEF title = 'OS Load and CPU Subscription Threshold for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'OS Load and CPU Subscription Threshold for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF main_table = '&&awr_hist_prefix.OSSTAT';
@@ -419,66 +387,50 @@ END;
 /
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
+DEF skip_inst = '&&is_single_instance.';
 DEF title = 'CPU Time Percent for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'CPU Time Percent for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'CPU Time Percent for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'CPU Time Percent for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'CPU Time Percent for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'CPU Time Percent for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'CPU Time Percent for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'CPU Time Percent for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'CPU Time Percent for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF tit_01 = 'Busy Time %';
@@ -566,84 +518,68 @@ COL cores_over_threads NEW_V cores_over_threads;
 DEF abstract = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
+DEF skip_inst = '&&is_single_instance.';
 DEF title = 'CPU Busy and Idle Times Percent for Cluster';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&gv_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS');
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 1';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 1 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 2';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 2 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 3';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 3 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 4';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 4 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 5';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 5 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 6';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 6 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 7';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 7 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'CPU Busy and Idle Times Percent for Instance 8';
 SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 8 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF tit_01 = 'User Time %';
@@ -730,66 +666,50 @@ DEF vaxis = 'Percent over (User + Sys)';
 DEF abstract = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
+DEF skip_inst = '&&is_single_instance.';
 DEF title = 'CPU User and Sys Times Percent for Cluster';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'CPU User and Sys Times Percent for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'CPU User and Sys Times Percent for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'CPU User and Sys Times Percent for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'CPU User and Sys Times Percent for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'CPU User and Sys Times Percent for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'CPU User and Sys Times Percent for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'CPU User and Sys Times Percent for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'CPU User and Sys Times Percent for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF main_table = '&&awr_hist_prefix.OSSTAT';
@@ -879,102 +799,62 @@ END;
 DEF abstract = '';
 
 DEF skip_lch = '';
-DEF skip_all = '&&is_single_instance.';
+DEF skip_inst = '&&is_single_instance.';
 DEF title = 'Virtual Memory (VM) for Cluster';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'Virtual Memory (VM) for Instance 1';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'Virtual Memory (VM) for Instance 2';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'Virtual Memory (VM) for Instance 3';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'Virtual Memory (VM) for Instance 4';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'Virtual Memory (VM) for Instance 5';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'Virtual Memory (VM) for Instance 6';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'Virtual Memory (VM) for Instance 7';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'Virtual Memory (VM) for Instance 8';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
-SET SERVEROUT ON;
-SET SERVEROUT ON SIZE 1000000;
-SET SERVEROUT ON SIZE UNL;
-SPO &&edb360_output_directory.99810_&&common_edb360_prefix._chart_setup_driver1.sql;
-DECLARE
-  l_count NUMBER;
-BEGIN
-  FOR i IN 1 .. 15
-  LOOP
-    SELECT COUNT(*) INTO l_count FROM &&gv_object_prefix.instance WHERE instance_number = i;
-    IF l_count = 0 THEN
-      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
-      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '''';');
-    ELSE
-      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' HEA ''Inst '||i||''' PRI;');
-      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = ''Inst '||i||''';');
-    END IF;
-  END LOOP;
-END;
-/
-SPO OFF;
-SET SERVEROUT OFF;
-@&&edb360_output_directory.99810_&&common_edb360_prefix._chart_setup_driver1.sql;
-HOS zip -mj &&edb360_zip_filename. &&edb360_output_directory.99810_&&common_edb360_prefix._chart_setup_driver1.sql >> &&edb360_log3..txt
-
+@&&chart_setup_driver;
 
 DEF main_table = '&&awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
