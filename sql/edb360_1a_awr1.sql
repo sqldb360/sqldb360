@@ -249,32 +249,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@metric_name@', '&&title.');
 DEF skip_lch = 'Y';
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
--- from 5a
-SET SERVEROUT ON;
-SET SERVEROUT ON SIZE 1000000;
-SET SERVEROUT ON SIZE UNL;
-SPO &&edb360_output_directory.99840_&&common_edb360_prefix._chart_setup_driver2.sql;
-DECLARE
-  l_count NUMBER;
-BEGIN
-  FOR i IN 1 .. 15
-  LOOP
-    SELECT COUNT(*) INTO l_count FROM &&gv_object_prefix.instance WHERE instance_number = i;
-    IF l_count = 0 THEN
-      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
-      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '';');
-    ELSE
-      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' HEA 'Inst '||i||'' FOR 999990.000 PRI;');
-      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = 'Inst '||i||'';');
-    END IF;
-  END LOOP;
-END;
-/
-SPO OFF;
-SET SERVEROUT OFF;
-@&&edb360_output_directory.99840_&&common_edb360_prefix._chart_setup_driver2.sql;
-HOS zip -mj &&edb360_zip_filename. &&edb360_output_directory.99840_&&common_edb360_prefix._chart_setup_driver2.sql >> &&edb360_log3..txt
+@&&chart_setup_driver.;
 
 DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF chartype = 'AreaChart';

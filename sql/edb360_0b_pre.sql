@@ -575,6 +575,35 @@ SELECT NVL2('&&inst1_present.','','-- skip inst1') skip_inst1,
        NVL2('&&inst7_present.','','-- skip inst7') skip_inst7,
        NVL2('&&inst8_present.','','-- skip inst8') skip_inst8
   FROM DUAL;
+
+SET SERVEROUT ON;
+SET SERVEROUT ON SIZE 1000000;
+SET SERVEROUT ON SIZE UNL;
+DEF chart_setup_driver ='&&edb360_output_directory.99800_&&common_edb360_prefix._chart_setup_driver1.sql';
+SPO &&chart_setup_driver.;
+DECLARE
+  l_count NUMBER;
+  l_instances varchar2(15):='&&inst1_present.&&inst2_present.&&inst3_present.&&inst4_present.&&inst5_present.&&inst6_present.&&inst7_present.&&inst8_present.';
+BEGIN
+  FOR i IN 1 .. 8
+  LOOP
+    IF instr(l_instances,to_char(i,'fm9'))=0 THEN
+      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
+      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '''';');
+    ELSE
+      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' HEA ''Inst '||i||''' FOR 999990.000 PRI;');
+      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = ''Inst '||i||''';');
+    END IF;
+  END LOOP;
+  FOR i IN 9 .. 15 LOOP
+   DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
+   DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '''';'); 
+  END LOOP
+END;
+/
+SPO OFF;
+SET SERVEROUT OFF;
+
 -- eAdam
 DEF edb360_eadam_snaps = '-666';
 

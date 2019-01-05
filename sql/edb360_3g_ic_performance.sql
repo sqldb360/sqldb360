@@ -103,60 +103,44 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'h.instance_num
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'Interconnect Client Statistics for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'Interconnect Client Statistics for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'Interconnect Client Statistics for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'Interconnect Client Statistics for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'Interconnect Client Statistics for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'Interconnect Client Statistics for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'Interconnect Client Statistics for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'Interconnect Client Statistics for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 /****************************************************************************************/
 
@@ -317,60 +301,44 @@ EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', 'h.instance_nu
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'IC Device Statistics summary for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'IC Device Statistics summary for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'IC Device Statistics summary for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'IC Device Statistics summary for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'IC Device Statistics summary for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'IC Device Statistics summary for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'IC Device Statistics summary for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'IC Device Statistics summary for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = 'Y';
 
@@ -409,53 +377,37 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = 'IC Device Statistics details for Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = 'IC Device Statistics details for Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = 'IC Device Statistics details for Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = 'IC Device Statistics details for Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = 'IC Device Statistics details for Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = 'IC Device Statistics details for Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = 'IC Device Statistics details for Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = 'IC Device Statistics details for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

@@ -197,9 +197,8 @@ BEGIN
   :sql_text := q'[
 SELECT *
   FROM &&dva_object_prefix.sql_plan_dir_objects
- ORDER BY
-       1,2,3,4
- ]';
+ ORDER BY 1,2,3,4
+]';
 END;
 /
 @@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql       

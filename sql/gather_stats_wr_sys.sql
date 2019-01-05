@@ -18,7 +18,7 @@
 --             
 ---------------------------------------------------------------------------------------
 --
-SET HEA OFF PAGES 0;
+SET HEA OFF LINES 500 PAGES 0;
 SPO gather_stats_awr.sql;
 SELECT 'EXEC DBMS_STATS.GATHER_TABLE_STATS(''SYS'','''||table_name||''',force=>TRUE);'
   FROM dba_tables
@@ -28,6 +28,6 @@ SELECT 'EXEC DBMS_STATS.GATHER_TABLE_STATS(''SYS'','''||table_name||''',force=>T
        table_name
 /
 SPO OFF;
-SET HEA ON PAGES 24;
+SET HEA ON LINES 80 PAGES 24;
 SET ECHO ON;
 @gather_stats_awr.sql

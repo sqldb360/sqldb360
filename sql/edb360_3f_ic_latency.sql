@@ -273,30 +273,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 
-SET SERVEROUT ON;
-SET SERVEROUT ON SIZE 1000000;
-SET SERVEROUT ON SIZE UNL;
-SPO &&edb360_output_directory.99800_&&common_edb360_prefix._chart_setup_driver2.sql;
-DECLARE
-  l_count NUMBER;
-BEGIN
-  FOR i IN 1 .. 13
-  LOOP
-    SELECT COUNT(*) INTO l_count FROM &&gv_object_prefix.instance WHERE instance_number = i;
-    IF l_count = 0 THEN
-      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
-      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i + 2, 2, '0')||' = '''';');
-    ELSE
-      DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' HEA ''Inst '||i||''' FOR 999990.0 PRI;');
-      DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i + 2, 2, '0')||' = ''Inst '||i||''';');
-    END IF;
-  END LOOP;
-END;
-/
-SPO OFF;
-SET SERVEROUT OFF;
-@&&edb360_output_directory.99800_&&common_edb360_prefix._chart_setup_driver2.sql;
-HOS zip -mj &&edb360_zip_filename. &&edb360_output_directory.99800_&&common_edb360_prefix._chart_setup_driver2.sql >> &&edb360_log3..txt
+@&&chart_setup_driver.;
 
 DEF tit_01 = 'Cluster Avg';
 DEF tit_02 = '';
@@ -332,299 +309,235 @@ EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
 DEF tit_02 = 'Inst Avg';
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = '8K msg pings received from Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = '8K msg pings sent to Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = '500B msg pings received from Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 1;
 DEF title = '500B msg pings sent to Instance 1';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = '8K msg pings received from Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = '8K msg pings sent to Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = '500B msg pings received from Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 2;
 DEF title = '500B msg pings sent to Instance 2';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = '8K msg pings received from Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = '8K msg pings sent to Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = '500B msg pings received from Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 3;
 DEF title = '500B msg pings sent to Instance 3';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = '8K msg pings received from Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = '8K msg pings sent to Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = '500B msg pings received from Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 4;
 DEF title = '500B msg pings sent to Instance 4';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = '8K msg pings received from Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = '8K msg pings sent to Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = '500B msg pings received from Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 5;
 DEF title = '500B msg pings sent to Instance 5';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = '8K msg pings received from Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = '8K msg pings sent to Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = '500B msg pings received from Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 6;
 DEF title = '500B msg pings sent to Instance 6';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = '8K msg pings received from Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = '8K msg pings sent to Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = '500B msg pings received from Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 7;
 DEF title = '500B msg pings sent to Instance 7';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = '8K msg pings received from Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = '8K msg pings sent to Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '8K');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = '500B msg pings received from Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'target');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE instance_number = 8;
 DEF title = '500B msg pings sent to Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 EXEC :sql_text := REPLACE(:sql_text, '@msg@', '500B');
 EXEC :sql_text := REPLACE(:sql_text, '@denorm@', 'source');
-@@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = 'Y';
 
