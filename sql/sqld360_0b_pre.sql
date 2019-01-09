@@ -181,11 +181,11 @@ SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)),1)) avg_thread_count FROM gv$osstat W
 
 -- get number of Hosts
 COL hosts_count NEW_V hosts_count FOR A2;
-SELECT TO_CHAR(COUNT(DISTINCT inst_id)) hosts_count FROM gv$osstat WHERE stat_name = 'NUM_CPU_CORES';
+SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)))) hosts_count FROM (select count(distinct INSTANCE_NUMBER) value,snap_id FROM dba_hist_osstat WHERE stat_name = 'NUM_CPU_CORES' group by snap_id);
 
 -- get cores_threads_hosts
 COL cores_threads_hosts NEW_V cores_threads_hosts;
-SELECT CASE TO_NUMBER('&&hosts_count.') WHEN 1 THEN 'cores:&&avg_core_count. threads:&&avg_thread_count.' ELSE 'cores:&&avg_core_count.(avg) threads:&&avg_thread_count.(avg) hosts:&&hosts_count.' END cores_threads_hosts FROM DUAL;
+SELECT CASE TO_NUMBER('&&hosts_count.') WHEN 1 THEN 'cores:&&avg_core_count. threads:&&avg_thread_count.' ELSE 'cores:&&avg_core_count.(avg) threads:&&avg_thread_count.(avg) hosts:&&hosts_count.(avg)' END cores_threads_hosts FROM DUAL;
 
 --SET TERM OFF;
 
@@ -301,9 +301,9 @@ COL is_single_instance NEW_V is_single_instance FOR A1;
 
 WITH hist AS (
 SELECT DISTINCT instance_number
-  FROM &&awr_object_prefix.snapshot
+  FROM dba_hist_snapshot
 WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
-   AND dbid = &&edb360_dbid.
+   AND dbid = &&sqld360_dbid.
 )
 SELECT MAX(CASE instance_number WHEN 1 THEN '1' ELSE NULL END) inst1_present,
        MAX(CASE instance_number WHEN 2 THEN '2' ELSE NULL END) inst2_present,
