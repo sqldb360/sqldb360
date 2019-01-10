@@ -853,7 +853,6 @@ DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
-
 @&&chart_setup_driver;
 
 DEF main_table = '&&awr_hist_prefix.OSSTAT';

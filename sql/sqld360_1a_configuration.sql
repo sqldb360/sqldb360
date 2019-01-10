@@ -29,6 +29,8 @@ BEGIN
   :sql_text := q'[
 WITH  
 rac AS (SELECT /*+ &&sq_fact_hints. */ COUNT(*) instances, CASE COUNT(*) WHEN 1 THEN 'Single-instance' ELSE COUNT(*)||'-node RAC cluster' END db_type FROM gv$instance),
+hrac AS (SELECT /*+ &&sq_fact_hints. */ CASE &&hosts_count. WHEN 1 THEN ' (historicly Single-instance in AWR)' ELSE ' (historicly &&hosts_count.-node RAC cluster in AWR)' END db_type 
+           FROM rac WHERE TO_CHAR(RAC.instances)<>&&hosts_count.),
 mem AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM gv$system_parameter2 WHERE name = 'memory_target'),
 sga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM gv$system_parameter2 WHERE name = 'sga_target'),
 pga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM gv$system_parameter2 WHERE name = 'pga_aggregate_target'),
@@ -57,7 +59,7 @@ SELECT 'Database size:', TRIM(TO_CHAR(ROUND((data.bytes + temp.bytes + log.bytes
  UNION ALL
 SELECT 'Datafiles:', data.files||' (on '||data.tablespaces||' tablespaces)' FROM data
  UNION ALL
-SELECT 'Database configuration:', rac.db_type FROM rac
+SELECT 'Instance configuration:', rac.db_type||(select hrac.db_type FROM hrac ) FROM rac
  UNION ALL
 SELECT 'Database memory:', 
        CASE WHEN mem.target > 0 THEN 'MEMORY'  ||TRIM(TO_CHAR(ROUND(mem.target / POWER(2,30), 1), '999,990.0'))||' GB, ' END||
