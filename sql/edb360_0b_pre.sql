@@ -504,11 +504,11 @@ SELECT TO_CHAR(CASE ROUND(AVG(TO_NUMBER(cpus.value))/AVG(TO_NUMBER(cores.value))
 
 -- get number of Hosts
 COL hosts_count NEW_V hosts_count FOR A2;
-SELECT TO_CHAR(COUNT(DISTINCT inst_id)) hosts_count FROM &&gv_object_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES';
+SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)))) hosts_count FROM (select count(distinct INSTANCE_NUMBER) value,snap_id FROM &&awr_object_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES' group by snap_id);
 
 -- get cores_threads_hosts
 COL cores_threads_hosts NEW_V cores_threads_hosts;
-SELECT CASE TO_NUMBER('&&hosts_count.') WHEN 1 THEN 'cores:&&avg_core_count. threads:&&avg_thread_count.' ELSE 'cores:&&avg_core_count.(avg) threads:&&avg_thread_count.(avg) hosts:&&hosts_count.' END cores_threads_hosts FROM DUAL;
+SELECT CASE TO_NUMBER('&&hosts_count.') WHEN 1 THEN 'cores:&&avg_core_count. threads:&&avg_thread_count.' ELSE 'cores:&&avg_core_count.(avg) threads:&&avg_thread_count.(avg) hosts:&&hosts_count.(avg)' END cores_threads_hosts FROM DUAL;
 
 -- get block_size
 COL database_block_size NEW_V database_block_size;
@@ -598,11 +598,17 @@ BEGIN
   FOR i IN 9 .. 15 LOOP
    DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
    DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '''';'); 
-  END LOOP
+  END LOOP;
 END;
 /
 SPO OFF;
 SET SERVEROUT OFF;
+
+hos echo "this is 0b" >> &&edb360_log3..txt
+hos pwd >> &&edb360_log3..txt
+hos cat &&chart_setup_driver. >> &&edb360_log3..txt
+
+HOS zip -j &&edb360_zip_filename. &&chart_setup_driver. >> &&edb360_log3..txt
 
 -- eAdam
 DEF edb360_eadam_snaps = '-666';

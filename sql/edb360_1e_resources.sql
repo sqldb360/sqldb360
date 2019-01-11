@@ -424,19 +424,21 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 @@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-EF title = 'CPU Demand Series (Peak) for Instance 5';
+DEF title = 'CPU Demand Series (Peak) for Instance 5';
 DEF abstract = 'Number of Sessions demanding CPU. Based on peak demand per hour.<br />'
 DEF foot = 'Sessions "ON CPU" or "ON CPU" + "resmgr:cpu quantum"'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 @@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
+DEF title = 'CPU Demand Series (Peak) for Instance 6';
 DEF abstract = 'Number of Sessions demanding CPU. Based on peak demand per hour.<br />'
 DEF foot = 'Sessions "ON CPU" or "ON CPU" + "resmgr:cpu quantum"'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 @@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
+DEF title = 'CPU Demand Series (Peak) for Instance 7';
 DEF abstract = 'Number of Sessions demanding CPU. Based on peak demand per hour.<br />'
 DEF foot = 'Sessions "ON CPU" or "ON CPU" + "resmgr:cpu quantum"'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');

@@ -18,8 +18,8 @@ ALTER SESSION SET SQL_TRACE = FALSE;
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
--- Collect chart setup driver
-HOS zip -mj &&edb360_zip_filename. &&chart_setup_driver. >> &&edb360_log3..txt
+-- Remove chart setup driver
+HOS rm &&chart_setup_driver. >> &&edb360_log3..txt
 
 -- cleanup
 SET HEA ON; 
