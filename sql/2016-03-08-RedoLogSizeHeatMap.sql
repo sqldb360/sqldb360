@@ -183,6 +183,7 @@ BEGIN
   END LOOP;
 
   DBMS_OUTPUT.PUT_LINE('</TABLE>');
+  DBMS_OUTPUT.PUT_LINE('NB: Total size of all copies of archived read log files');
   DBMS_OUTPUT.PUT_LINE('</HTML>');
 
 END;
