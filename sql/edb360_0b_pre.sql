@@ -1,6 +1,6 @@
-DEF edb360_vYYNN = 'v182';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2018-09-09)';
-DEF edb360_copyright = ' (c) 2018';
+DEF edb360_vYYNN = 'v191';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2019-03-23)';
+DEF edb360_copyright = ' (c) 2019';
 
 SET TERM OFF;
 -- watchdog
@@ -562,7 +562,7 @@ SELECT MAX(CASE instance_number WHEN 1 THEN '1' ELSE NULL END) inst1_present,
        MAX(CASE instance_number WHEN 5 THEN '5' ELSE NULL END) inst5_present,
        MAX(CASE instance_number WHEN 6 THEN '6' ELSE NULL END) inst6_present,
        MAX(CASE instance_number WHEN 7 THEN '7' ELSE NULL END) inst7_present,
-       MAX(CASE instance_number WHEN 8 THEN '8' ELSE NULL END) inst8_present,     
+       MAX(CASE instance_number WHEN 8 THEN '8' ELSE NULL END) inst8_present,
        (CASE COUNT(instance_number) WHEN 1 THEN 'Y' ELSE NULL END) is_single_instance
   FROM hist;
 
@@ -597,7 +597,7 @@ BEGIN
   END LOOP;
   FOR i IN 9 .. 15 LOOP
    DBMS_OUTPUT.PUT_LINE('COL inst_'||LPAD(i, 2, '0')||' NOPRI;');
-   DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '''';'); 
+   DBMS_OUTPUT.PUT_LINE('DEF tit_'||LPAD(i, 2, '0')||' = '''';');
   END LOOP;
 END;
 /
