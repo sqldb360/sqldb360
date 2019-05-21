@@ -704,6 +704,10 @@ PRO        RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11
 PRO        t.plan_table_output
 PRO   FROM v, TABLE(DBMS_XPLAN.DISPLAY('gv$sql_plan_statistics_all', NULL, 'ADVANCED ALLSTATS LAST', 
 PRO        'inst_id = '||v.inst_id||' AND sql_id = '''||v.sql_id||''' AND child_number = '||v.child_number)) t
+PRO where not exists (select 1 from PLAN_TABLE)
+PRO UNION ALL -- get the plan from PLAN TABLE (if used explain plan in the script.sql)
+PRO SELECT RPAD('PLAN_TABLE', 21) inst_child, plan_table_output
+PRO FROM TABLE(DBMS_XPLAN.DISPLAY('PLAN_TABLE', NULL, 'ADVANCED')) where exists (select 1 from PLAN_TABLE)
 PRO /
 PRO SPO OFF
 SPO OFF
