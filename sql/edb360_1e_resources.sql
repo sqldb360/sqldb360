@@ -320,6 +320,12 @@ DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
 
+# The GROUP BY of cpu_per_inst_and_sample changed from sample_id to sample_time 
+# to syncronize the samples between instances and be able to group them together for the cluster calculation.
+# Each instance has its own sample_id sequence so that prevents the correct grouping for the cluster.
+# The per-instance calculations should not get affected as all samples in the same instance have the same sample_id.
+# The sample_time was adjusted to the nearest 10 seconds to allow for small time variations between instances at the moment of sampling.
+
 BEGIN
   :sql_text_backup := q'[
 WITH 
@@ -327,8 +333,8 @@ cpu_per_inst_and_sample AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
        /* &&section_id..&&report_sequence. */
        snap_id,
-       instance_number,
-       MIN(sample_time) sample_time,
+       #cluster# instance_number,
+       MIN(sample_time-numtoDSinterval(extract(second from sample_time),'second')+numtoDSinterval(round(extract(second from sample_time)/10)*10,'second')) sample_time,
        SUM(CASE session_state WHEN 'ON CPU' THEN 1 ELSE 0 END) on_cpu,
        SUM(CASE event WHEN 'resmgr:cpu quantum' THEN 1 ELSE 0 END) resmgr,
        COUNT(*) on_cpu_and_resmgr
@@ -339,13 +345,13 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND (session_state = 'ON CPU' OR event = 'resmgr:cpu quantum')
  GROUP BY
        snap_id,
-       instance_number,
-       sample_id
+       #cluster#,
+       (sample_time-numtoDSinterval(extract(second from sample_time),'second')+numtoDSinterval(round(extract(second from sample_time)/10)*10,'second'))
 ),
 cpu_per_inst_and_hour AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
-       instance_number, 
+       #cluster# instance_number, 
        MIN(sample_time) min_sample_time, 
        MAX(sample_time) max_sample_time, 
        MAX(on_cpu) on_cpu,
@@ -354,7 +360,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM cpu_per_inst_and_sample
  GROUP BY
        snap_id,
-       instance_number
+       #cluster#
 )
 SELECT snap_id,
        TO_CHAR(MIN(min_sample_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
@@ -389,8 +395,10 @@ DEF skip_lch = '';
 DEF title = 'CPU Demand Series (Peak) for Cluster';
 DEF abstract = 'Number of Sessions demanding CPU. Based on peak demand per hour.<br />'
 DEF foot = 'Sessions "ON CPU" or "ON CPU" + "resmgr:cpu quantum"'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(REPLACE(:sql_text_backup, '@instance_number@', 'instance_number'),'#cluster#','0');
 @@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+-- From here the instance_number column needs to be projected.
+EXEC :sql_text_backup := REPLACE(:sql_text_backup,'#cluster#','instance_number');
 
 --DEF vbaseline = 'baseline:&&avg_cpu_count.,';
 DEF vbaseline = '';
@@ -483,8 +491,8 @@ cpu_per_inst_and_sample AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
        /* &&section_id..&&report_sequence. */
        snap_id,
-       instance_number,
-       MIN(sample_time) sample_time,
+       #cluster# instance_number,
+       MIN(sample_time-numtoDSinterval(extract(second from sample_time),'second')+numtoDSinterval(round(extract(second from sample_time)/10)*10,'second')) sample_time,
        COUNT(*) on_cpu
   FROM &&awr_object_prefix.active_sess_history h
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -493,13 +501,13 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND session_state = 'ON CPU'
  GROUP BY
        snap_id,
-       instance_number,
-       sample_id
+       #cluster#,
+       (sample_time-numtoDSinterval(extract(second from sample_time),'second')+numtoDSinterval(round(extract(second from sample_time)/10)*10,'second'))
 ),
 cpu_per_inst_and_hour AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
-       instance_number, 
+       #cluster# instance_number, 
        MIN(sample_time) min_sample_time, 
        MAX(sample_time) max_sample_time, 
        MAX(on_cpu)                                          on_cpu_max,
@@ -513,7 +521,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM cpu_per_inst_and_sample
  GROUP BY
        snap_id,
-       instance_number
+       #cluster#
 )
 SELECT snap_id,
        TO_CHAR(MIN(min_sample_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
@@ -548,8 +556,10 @@ DEF skip_lch = '';
 DEF title = 'CPU Demand Series (Percentile) for Cluster';
 DEF abstract = 'Number of Sessions demanding CPU. Based on percentiles per hour as per Active Session History (ASH).<br />'
 DEF foot = 'Sessions "ON CPU"'
-EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(REPLACE(:sql_text_backup, '@instance_number@', 'instance_number'),'#cluster#','0');
 @@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+-- From here the instance_number column needs to be projected.
+EXEC :sql_text_backup := REPLACE(:sql_text_backup,'#cluster#','instance_number');
 
 --DEF vbaseline = 'baseline:&&avg_cpu_count.,';
 DEF vbaseline = '';
@@ -1201,16 +1211,16 @@ END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF main_table = '&&awr_hist_prefix.SGA';
+DEF main_table = '&&awr_hist_prefix.SGA,&&awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vbaseline = '';
 DEF vaxis = 'Memory in Giga Bytes (GB)';
-DEF tit_01 = 'Total (SGA + PGA)';
+DEF tit_01 = 'SGA + PGA';
 DEF tit_02 = 'SGA';
 DEF tit_03 = 'PGA';
-DEF tit_04 = '';
-DEF tit_05 = '';
+DEF tit_04 = 'VM IN';
+DEF tit_05 = 'VM OUT';
 DEF tit_06 = '';
 DEF tit_07 = '';
 DEF tit_08 = '';
@@ -1221,37 +1231,64 @@ DEF tit_12 = '';
 DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
-DEF abstract = '&&abstract_uom.';
 
 BEGIN
   :sql_text_backup := q'[
 WITH
+vm AS (
+SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       h1.snap_id,
+       h1.dbid,
+       h1.instance_number,
+       SUM(CASE WHEN h1.stat_name = 'VM_IN_BYTES'  AND h1.value > h0.value THEN h1.value - h0.value ELSE 0 END) in_bytes,
+       SUM(CASE WHEN h1.stat_name = 'VM_OUT_BYTES' AND h1.value > h0.value THEN h1.value - h0.value ELSE 0 END) out_bytes
+  FROM &&awr_object_prefix.osstat h0,
+       &&awr_object_prefix.osstat h1
+ WHERE h1.stat_name IN ('VM_IN_BYTES', 'VM_OUT_BYTES')
+   AND h1.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND h1.dbid = &&edb360_dbid.
+   AND h1.instance_number = @instance_number@
+   AND h0.snap_id = h1.snap_id - 1
+   AND h0.dbid = h1.dbid
+   AND h0.instance_number = h1.instance_number
+   AND h0.stat_name = h1.stat_name
+   AND h0.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND h0.dbid = &&edb360_dbid.
+ GROUP BY
+       h1.snap_id,
+       h1.dbid,
+       h1.instance_number
+),
 sga AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       snap_id,
-       dbid,
-       instance_number,
-       SUM(value) bytes
-  FROM &&awr_object_prefix.sga
- WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
-   AND dbid = &&edb360_dbid.
-   AND instance_number = @instance_number@
+       h1.snap_id,
+       h1.dbid,
+       h1.instance_number,
+       SUM(h1.value) bytes
+  FROM &&awr_object_prefix.sga h1
+ WHERE h1.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND h1.dbid = &&edb360_dbid.
+   AND h1.instance_number = @instance_number@
  GROUP BY
-       snap_id,
-       dbid,
-       instance_number
+       h1.snap_id,
+       h1.dbid,
+       h1.instance_number
 ),
 pga AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       snap_id,
-       dbid,
-       instance_number,
-       value bytes
-  FROM &&awr_object_prefix.pgastat
- WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
-   AND dbid = &&edb360_dbid.
-   AND instance_number = @instance_number@
-   AND name = 'total PGA allocated'
+       h1.snap_id,
+       h1.dbid,
+       h1.instance_number,
+       SUM(h1.value) bytes
+  FROM &&awr_object_prefix.pgastat h1
+ WHERE h1.name = 'total PGA allocated'
+   AND h1.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND h1.dbid = &&edb360_dbid.
+   AND h1.instance_number = @instance_number@
+ GROUP BY
+       h1.snap_id,
+       h1.dbid,
+       h1.instance_number
 ),
 mem AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -1260,58 +1297,35 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snp.instance_number,
        snp.begin_interval_time,
        snp.end_interval_time,
-       sga.bytes sga_bytes,
-       pga.bytes pga_bytes,
-       (sga.bytes + pga.bytes) mem_bytes
-  FROM sga, pga, &&awr_object_prefix.snapshot snp
- WHERE pga.snap_id = sga.snap_id
-   AND pga.dbid = sga.dbid
-   AND pga.instance_number = sga.instance_number
-   AND snp.snap_id = sga.snap_id
-   AND snp.dbid = sga.dbid
-   AND snp.instance_number = sga.instance_number
-   AND snp.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+       ROUND((CAST(snp.end_interval_time AS DATE) - CAST(snp.begin_interval_time AS DATE)) * 24 * 60 * 60) interval_secs,
+       NVL(vm.in_bytes, 0) vm_in_bytes,
+       NVL(vm.out_bytes, 0) vm_out_bytes,
+       NVL(sga.bytes, 0) sga_bytes,
+       NVL(pga.bytes, 0) pga_bytes,
+       NVL(sga.bytes, 0) + NVL(pga.bytes, 0) mem_bytes
+  FROM &&awr_object_prefix.snapshot snp,
+       vm, sga, pga
+ WHERE snp.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND snp.dbid = &&edb360_dbid.
-),
-hourly_inst AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       snap_id,
-       instance_number,
-       begin_interval_time,
-       end_interval_time,
-       MAX(sga_bytes) sga_bytes,
-       MAX(pga_bytes) pga_bytes,
-       MAX(mem_bytes) mem_bytes
-  FROM mem
- GROUP BY
-       snap_id,
-       instance_number,
-       begin_interval_time,
-       end_interval_time
-),
-hourly AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       snap_id,
-       TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
-       TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
-       ROUND(SUM(sga_bytes) / POWER(2,30), 3) sga_gb,
-       ROUND(SUM(pga_bytes) / POWER(2,30), 3) pga_gb,
-       ROUND(SUM(mem_bytes) / POWER(2,30), 3) mem_gb,
-       SUM(sga_bytes) sga_bytes,
-       SUM(pga_bytes) pga_bytes,
-       SUM(mem_bytes) mem_bytes
-  FROM hourly_inst
- GROUP BY
-       snap_id
+   AND snp.end_interval_time > (snp.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
+   AND vm.snap_id(+) = snp.snap_id
+   AND vm.dbid(+) = snp.dbid
+   AND vm.instance_number(+) = snp.instance_number
+   AND sga.snap_id(+) = snp.snap_id
+   AND sga.dbid(+) = snp.dbid
+   AND sga.instance_number(+) = snp.instance_number
+   AND pga.snap_id(+) = snp.snap_id
+   AND pga.dbid(+) = snp.dbid
+   AND pga.instance_number(+) = snp.instance_number
 )
 SELECT snap_id,
-       begin_time,
-       end_time,
-       mem_gb,
-       sga_gb,
-       pga_gb,
-       0 dummy_04,
-       0 dummy_05,
+       TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
+       TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
+       ROUND(SUM(mem_bytes)/POWER(2,30),3) mem_gb,
+       ROUND(SUM(sga_bytes)/POWER(2,30),3) sga_gb,
+       ROUND(SUM(pga_bytes)/POWER(2,30),3) pga_gb,
+       ROUND(SUM(vm_in_bytes)/POWER(2,30),3) vm_in_gb,
+       ROUND(SUM(vm_out_bytes)/POWER(2,30),3) vm_out_gb,
        0 dummy_06,
        0 dummy_07,
        0 dummy_08,
@@ -1322,54 +1336,76 @@ SELECT snap_id,
        0 dummy_13,
        0 dummy_14,
        0 dummy_15
-  FROM hourly
+  FROM mem
+ WHERE mem_bytes > 0
+ GROUP BY
+       snap_id
  ORDER BY
        snap_id
 ]';
 END;
 /
+
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Cluster';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
+EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'h1.instance_number');
 @@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 1';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
 @@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 2';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
 @@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 3';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
 @@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 4';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 @@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 5';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 @@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 6';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 @@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 7';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 @@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Memory Size Series for Instance 8';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Includes Free SGA Memory Available.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 

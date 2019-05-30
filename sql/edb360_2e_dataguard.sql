@@ -1,5 +1,5 @@
 @@&&edb360_0g.tkprof.sql
-DEF section_id = '3k';
+DEF section_id = '2e';
 DEF section_name = 'Data Guard Primary Site';
 EXEC DBMS_APPLICATION_INFO.SET_MODULE('&&edb360_prefix.','&&section_id.');
 SPO &&edb360_main_report..html APP;
