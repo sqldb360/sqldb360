@@ -235,6 +235,9 @@ SELECT '--' skip_12r1 FROM v$instance WHERE version LIKE '12.1.%';
 DEF skip_18c = '';
 COL skip_18c NEW_V skip_18c;
 SELECT '--' skip_18c FROM v$instance WHERE version LIKE '18.%';
+DEF skip_19c = '';
+COL skip_19c NEW_V skip_19c;
+SELECT '--' skip_19c FROM v$instance WHERE version LIKE '19.%';
 --
 
 
