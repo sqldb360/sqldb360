@@ -9,8 +9,8 @@ CL COL;
 COL row_num FOR 9999999 HEA '#' PRI;
 
 -- version
-DEF sqld360_vYYNN = 'v182';
-DEF sqld360_vrsn = '&&sqld360_vYYNN. (2018-09-09)';
+DEF sqld360_vYYNN = 'v192';
+DEF sqld360_vrsn = '&&sqld360_vYYNN. (2019-03-23)';
 DEF sqld360_prefix = 'sqld360';
 
 -- parameters
@@ -312,7 +312,7 @@ SELECT MAX(CASE instance_number WHEN 1 THEN '1' ELSE NULL END) inst1_present,
        MAX(CASE instance_number WHEN 5 THEN '5' ELSE NULL END) inst5_present,
        MAX(CASE instance_number WHEN 6 THEN '6' ELSE NULL END) inst6_present,
        MAX(CASE instance_number WHEN 7 THEN '7' ELSE NULL END) inst7_present,
-       MAX(CASE instance_number WHEN 8 THEN '8' ELSE NULL END) inst8_present,     
+       MAX(CASE instance_number WHEN 8 THEN '8' ELSE NULL END) inst8_present,
        (CASE COUNT(instance_number) WHEN 1 THEN 'Y' ELSE NULL END) is_single_instance
   FROM hist;
 

@@ -1,6 +1,14 @@
 Changelog
 =========
 
+v192
+====
+Commit details are in https://github.com/sqldb360/sqldb360/commits/unstable
+
+v191
+====
+Commit details are in https://github.com/sqldb360/sqldb360/commits/unstable
+
 v183
 =====
 1. Modified report in 4f and 4g to express values in AAS, this allows to compare latencies with load

@@ -1402,6 +1402,35 @@ SELECT TO_CHAR(:repo_seq) report_sequence FROM DUAL;
 
 /****************************************************************************************/
 
+DEF title = 'Tables over 10GB and no partitions';
+DEF main_table = '&&dva_view_prefix.TABLES';
+BEGIN
+  :sql_text := q'[
+Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       t.owner, t.table_name, t.blocks, s.block_size, t.blocks*s.block_size bytes,
+       Case When t.blocks*s.block_size between 1024*1024*1024      and 1024*1024*1024*1024-1
+                 Then to_char(round(t.blocks*s.block_size /1024/1024/1024          ),'9999') ||' Gb'
+            When t.blocks*s.block_size between 1024*1024*1024      and 1024*1024*1024*1024*1024-1
+                 Then to_char(round(t.blocks*s.block_size /1024/1024/1024/1024     ),'9999') ||' Tb'
+            When t.blocks*s.block_size between 1024*1024*1024*1024 and 1024*1024*1024*1024*1024*1024-1
+                 Then to_char(round(t.blocks*s.block_size /1024/1024/1024/1024/1024),'9999') ||' Pb'
+       Else To_char(t.blocks*s.block_size) End  display
+From   &&dva_object_prefix.tables t, &&dva_object_prefix.tablespaces s
+Where  t.tablespace_name = s.tablespace_name
+And    t.blocks*s.block_size > 10*1024*1024*1024
+And    partitioned='NO'
+And    owner Not In ('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX_SSO','APPQOSSYS')
+And    owner Not In ('CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA')
+And    owner Not In ('ORDPLUGINS','ORDSYS','OUTLN','OWBSYS','SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN')
+And    owner Not In ('SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL','PERFSTAT','STDBYPERF','MGDSYS','OJVMSYS')
+order by blocks desc ;
+]';
+END;
+/
+
+@@edb360_9a_pre_one.sql
+
+/****************************************************************************************/
 
 /*
 DEF title = 'Indexes with actual size greater than estimated';

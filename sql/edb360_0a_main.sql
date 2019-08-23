@@ -82,6 +82,7 @@ SELECT NVL(TRIM('&2.'), 'null') custom_config_filename FROM DUAL;
 SPO OFF;
 
 -- ash verification
+PRO Please stand by while the AWR/ASH is being checked. Further feedback from you may be needed...
 DEF edb360_estimated_hrs = '0';
 @@&&ash_validation.&&skip_diagnostics.verify_stats_wr_sys.sql
 @@&&ash_validation.&&skip_diagnostics.awr_ash_pre_check.sql
@@ -106,6 +107,8 @@ PRO initial log:
 PRO
 SELECT 'Tool Execution Hours so far: '||ROUND((DBMS_UTILITY.GET_TIME - :edb360_main_time0) / 100 / 3600, 3) tool_exec_hours FROM DUAL
 /
+-- time zero for edb360 (begin)
+EXEC :edb360_main_time0 := DBMS_UTILITY.GET_TIME;
 DEF
 @@edb360_00_config.sql
 PRO
@@ -179,6 +182,7 @@ SPO OFF;
 @@&&edb360_2b.storage.sql
 @@&&edb360_2c.asm.sql
 @@&&edb360_2d.rman.sql
+@@&&edb360_2e.dataguard.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -200,7 +204,6 @@ SPO OFF;
 @@&&edb360_3h.sessions.sql
 @@&&edb360_3i.jdbc_sessions.sql
 @@&&edb360_3j.non_jdbc_sessions.sql
-@@&&edb360_3k.dataguard.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

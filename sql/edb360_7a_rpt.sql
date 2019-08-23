@@ -69,7 +69,8 @@ DECLARE
 		put_line('SPO OFF;');
   END update_log;
 BEGIN
-  SELECT COUNT(*) INTO l_instances FROM &&gv_object_prefix.instance;
+ -- SELECT COUNT(*) INTO l_instances FROM &&gv_object_prefix.instance;
+  l_instances:=length('&&inst1_present.&&inst2_present.&&inst3_present.&&inst4_present.&&inst5_present.&&inst6_present.&&inst7_present.&&inst8_present.');
   
   -- all nodes
   IF l_instances > 1 AND '&&edb360_bypass.' IS NULL THEN
@@ -716,12 +717,19 @@ BEGIN
   END IF;
 
   -- each instance
-  FOR i IN (SELECT instance_number
-              FROM &&gv_object_prefix.instance
+  FOR i IN (SELECT INST instance_number 
+            FROM ( SELECT 1 INST FROM DUAL WHERE '&&inst1_present.' IS NOT NULL UNION ALL 
+                   SELECT 2 INST FROM DUAL WHERE '&&inst2_present.' IS NOT NULL UNION ALL
+                   SELECT 3 INST FROM DUAL WHERE '&&inst3_present.' IS NOT NULL UNION ALL
+                   SELECT 4 INST FROM DUAL WHERE '&&inst4_present.' IS NOT NULL UNION ALL
+                   SELECT 5 INST FROM DUAL WHERE '&&inst5_present.' IS NOT NULL UNION ALL
+                   SELECT 6 INST FROM DUAL WHERE '&&inst6_present.' IS NOT NULL UNION ALL
+                   SELECT 7 INST FROM DUAL WHERE '&&inst7_present.' IS NOT NULL UNION ALL
+                   SELECT 8 INST FROM DUAL WHERE '&&inst8_present.' IS NOT NULL
+                 )
              WHERE '&&diagnostics_pack.' = 'Y'
                AND '&&edb360_bypass.' IS NULL
-             ORDER BY
-                   instance_number)
+            ORDER BY INST)
   LOOP
     FOR j IN (WITH
               expensive2 AS (
