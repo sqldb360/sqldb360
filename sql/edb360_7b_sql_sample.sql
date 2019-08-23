@@ -49,7 +49,7 @@ DECLARE
   l_count NUMBER := 0;
   CURSOR sql_cur IS
               WITH ranked_sql AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+            SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. *//*&&sq_fact_sql_sample_hints.*/
                    /* &&section_id..&&report_sequence. */
                    &&skip_11g_column.&&skip_10g_column.con_id,
                    dbid,
@@ -95,7 +95,7 @@ DECLARE
                AND h.sql_id(+) = r.sql_id
             ),
             not_shared AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
+            SELECT /*+ &&section_id..&&report_sequence. *//*&&sq_fact_sql_sample_hints.*/
                    &&skip_11g_column.&&skip_10g_column.con_id,
                    sql_id, COUNT(*) child_cursors,
                    RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS sql_rank
@@ -170,9 +170,9 @@ DECLARE
             )
             SELECT rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.&&skip_19c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
-                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.&&skip_19c_column.NULL pdb_name,
                    sql_id,
                    db_time_hrs, -- not null means Top as per DB time
                    cpu_time_hrs, -- not null means Top as per DB time
@@ -189,9 +189,9 @@ DECLARE
              UNION ALL
             SELECT sql_rank rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.&&skip_19c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ns.con_id) pdb_name,
-                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.&&skip_19c_column.NULL pdb_name,
                    sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
@@ -209,9 +209,9 @@ DECLARE
              UNION ALL
             SELECT rn rank_num,
                    &&skip_11g_column.&&skip_10g_column.con_id,
-                   &&skip_12c_column.&&skip_18c_column.TO_NUMBER(NULL) con_id,
+                   &&skip_12c_column.&&skip_18c_column.&&skip_19c_column.TO_NUMBER(NULL) con_id,
                    &&skip_11g_column.&&skip_10g_column.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
-                   &&skip_12c_column.&&skip_18c_column.NULL pdb_name,
+                   &&skip_12c_column.&&skip_18c_column.&&skip_19c_column.NULL pdb_name,
                    sample_sql_id sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time

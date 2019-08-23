@@ -297,8 +297,8 @@ SELECT /*+ &&top_level_hints. */
  WHERE (owner, table_name) IN (SELECT /*+ UNNEST */ object_owner, object_name FROM plan_table WHERE statement_id = 'LIST_OF_TABLES' AND remarks = '&&sqld360_sqlid.')
    AND num_buckets <= 253
    AND histogram <> 'NONE'
-   &&skip_12c.&&skip_18c.AND char_length > 32
-   &&skip_12c.&&skip_18c.AND data_length > 32
+   &&skip_12c.&&skip_18c.&&skip_19c.AND char_length > 32
+   &&skip_12c.&&skip_18c.&&skip_19c.AND data_length > 32
    &&skip_10g.&&skip_11g.AND char_length > 64
    &&skip_10g.&&skip_11g.AND data_length > 64
    AND avg_col_len > 6
