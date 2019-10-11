@@ -137,7 +137,6 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 @@&&skip_inst7.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
-DEF title = 'AAS per Wait Class for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.edb360_9a_pre_one.sql
 
@@ -253,6 +252,7 @@ DEF title = 'AAS waiting on Administrative per Instance';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = ''Administrative''');
 @@&&skip_all.edb360_9a_pre_one.sql
 
+DEF skip_lch = '--skip--';
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;
