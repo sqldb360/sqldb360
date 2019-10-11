@@ -137,6 +137,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 @@&&skip_inst7.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
+DEF title = 'AAS per Wait Class for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.edb360_9a_pre_one.sql
 
