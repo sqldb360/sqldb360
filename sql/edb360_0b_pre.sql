@@ -877,6 +877,16 @@ DEF series_13 = ''
 DEF series_14 = ''
 DEF series_15 = ''
 
+-- Variables and controls for 9e_one_line_chart_plus
+DEF skip_lchp = '--skip--';
+VAR AWRPointsIni VARCHAR2(100);
+VAR addAWRPoints VARCHAR2(32);
+BEGIN
+ :addAWRPoints:=(CASE '&&is_single_instance.' WHEN 'Y' THEN '' ELSE 'C' END)||
+  '&&inst1_present.&&inst2_present.&&inst3_present.&&inst4_present.&&inst5_present.&&inst6_present.&&inst7_present.&&inst8_present.';
+END;
+/
+
 -- get udump directory path
 COL edb360_udump_path NEW_V edb360_udump_path FOR A500;
 SELECT value||DECODE(INSTR(value, '/'), 0, '\', '/') edb360_udump_path FROM &&v_dollar.parameter2 WHERE name = 'user_dump_dest';

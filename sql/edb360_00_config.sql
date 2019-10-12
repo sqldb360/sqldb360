@@ -110,12 +110,15 @@ DEF edb360_conf_incl_bar  = 'Y';
 -- excluding awr reports substantially reduces usability with minimal performance gain
 DEF edb360_conf_incl_perfhub = 'Y';
 DEF edb360_conf_incl_awr_rpt = 'Y';
-DEF edb360_conf_incl_awr_diff_rpt = 'Y';
+DEF edb360_conf_incl_awr_diff_rpt = 'Y'; 
 DEF edb360_conf_incl_awr_range_rpt = 'N';
 DEF edb360_conf_incl_addm_rpt = 'N';
 DEF edb360_conf_incl_ash_rpt = 'N';
 DEF edb360_conf_incl_ash_analy_rpt = 'N';
 DEF edb360_conf_incl_tkprof = 'Y';
+
+-- Plotting the points where AWR reports are taken by the edb360 
+DEF edb360_conf_incl_plot_awr ='N'; 
 
 -- up to how many max peaks to consider for reports for entire history work days (between 0 and 3)
 DEF edb360_max_work_days_peaks = 3;

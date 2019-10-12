@@ -69,12 +69,20 @@ COL edb360_prev_child_number NEW_V edb360_prev_child_number NOPRI;
 SELECT prev_sql_id edb360_prev_sql_id, TO_CHAR(prev_child_number) edb360_prev_child_number FROM &&v_dollar.session WHERE sid = SYS_CONTEXT('USERENV', 'SID')
 /
 
+-- choose one_line_plus over one_line if any of one_line_plus features are enabled.
+COL skip_lch   NEW_V skip_lch  NOPRI;
+COL skip_lchp  NEW_V skip_lchp NOPRI;
+SELECT CASE WHEN '&&skip_lch.' IS NULL AND '&&edb360_conf_incl_plot_awr.' ='Y' THEN ' echo skip html ' ELSE '&&skip_lch.' END skip_lch
+     , CASE WHEN '&&skip_lch.' IS NULL AND '&&edb360_conf_incl_plot_awr.' ='Y' THEN ' ' ELSE ' echo skip html ' END skip_lchp
+  FROM DUAL;
+
 -- execute one sql
 @@&&edb360_bypass.&&skip_html.&&edb360_skip_html.edb360_9b_one_html.sql
 @@&&edb360_bypass.&&skip_html.&&edb360_skip_xml.edb360_9g_one_xml.sql
 @@&&edb360_bypass.&&skip_text.&&edb360_skip_text.edb360_9c_one_text.sql
 @@&&edb360_bypass.&&skip_csv.&&edb360_skip_csv.edb360_9d_one_csv.sql
 @@&&edb360_bypass.&&skip_lch.&&edb360_skip_line.edb360_9e_one_line_chart.sql
+@@&&edb360_bypass.&&skip_lchp.&&edb360_skip_line.edb360_9e_one_line_chart_plus.sql
 @@&&edb360_bypass.&&skip_lch2.&&edb360_skip_line.edb360_9e_two_line_chart.sql
 @@&&edb360_bypass.&&skip_pch.&&edb360_skip_pie.edb360_9f_one_pie_chart.sql
 @@&&edb360_bypass.&&skip_bch.&&edb360_skip_bar.edb360_9h_one_bar_chart.sql
@@ -119,6 +127,7 @@ DEF skip_html = '';
 DEF skip_text = '';
 DEF skip_csv = '';
 DEF skip_lch = '--skip--';
+DEF skip_lchp = '--skip--';
 DEF skip_lch2 = '--skip--';
 DEF skip_pch = '--skip--';
 DEF skip_bch = '--skip--';
