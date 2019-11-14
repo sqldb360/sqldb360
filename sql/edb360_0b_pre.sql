@@ -988,3 +988,5 @@ HOS zip -j &&edb360_zip_filename. js/sorttable.js >> &&edb360_log3..txt
 HOS zip -j &&edb360_zip_filename. js/edb360_img.jpg >> &&edb360_log3..txt
 HOS zip -j &&edb360_zip_filename. js/database.jpg >> &&edb360_log3..txt
 HOS zip -j &&edb360_zip_filename. js/edb360_favicon.ico >> &&edb360_log3..txt
+HOS zip -j &&edb360_zip_filename. js/edb360_dlp.js >> &&edb360_log3..txt
+
