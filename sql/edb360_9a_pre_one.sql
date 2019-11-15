@@ -72,8 +72,16 @@ SELECT prev_sql_id edb360_prev_sql_id, TO_CHAR(prev_child_number) edb360_prev_ch
 -- choose one_line_plus over one_line if any of one_line_plus features are enabled.
 COL skip_lch   NEW_V skip_lch  NOPRI;
 COL skip_lchp  NEW_V skip_lchp NOPRI;
-SELECT CASE WHEN '&&skip_lch.' IS NULL AND '&&edb360_conf_incl_plot_awr.' ='Y' THEN ' echo skip html ' ELSE '&&skip_lch.' END skip_lch
-     , CASE WHEN '&&skip_lch.' IS NULL AND '&&edb360_conf_incl_plot_awr.' ='Y' THEN ' ' ELSE ' echo skip html ' END skip_lchp
+SELECT CASE WHEN '&&skip_lch.' IS NULL 
+             AND ( '&&edb360_conf_incl_plot_awr.' ='Y' OR '&&edb360_conf_series_selection.'='Y' )
+            THEN ' echo skip html ' 
+            ELSE '&&skip_lch.' 
+       END skip_lch
+     , CASE WHEN '&&skip_lch.' IS NULL 
+             AND ( '&&edb360_conf_incl_plot_awr.' ='Y' OR '&&edb360_conf_series_selection.'='Y' )
+            THEN ' ' 
+            ELSE ' echo skip html ' 
+       END skip_lchp
   FROM DUAL;
 
 -- execute one sql

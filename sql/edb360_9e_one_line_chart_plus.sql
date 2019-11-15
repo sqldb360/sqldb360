@@ -1,5 +1,6 @@
 -- This chart creator does the same as 9e_one_line_chart.sql plus :
 -- * Plots the begin date of the generated AWR report in 7a.
+-- * Toggle series when clicking the label
 
 -- add seq to one_spool_filename
 EXEC :file_seq := :file_seq + 1;
@@ -27,21 +28,7 @@ SPO &&edb360_output_directory.&&one_spool_filename._line_chart.html;
 PRO <!-- &&one_spool_filename._line_chart.html $ -->
 
 -- chart header
-PRO    &&edb360_conf_google_charts.
-PRO    <script type="text/javascript" src="&&edb360_output_directory.edb360_awr_points.js"></script>
 PRO    <script type="text/javascript">
-PRO      google.load("visualization", "1", {packages:["corechart","controls"]});
-PRO      google.setOnLoadCallback(drawChart);
-PRO     var racIdx = 0;
-PRO     var instIdx1 = 0;
-PRO     var instIdx2 = 0;
-PRO     var instIdx3 = 0;
-PRO     var instIdx4 = 0;
-PRO     var instIdx5 = 0;
-PRO     var instIdx6 = 0;
-PRO     var instIdx7 = 0;
-PRO     var instIdx8 = 0;
-PRO     var data = [];
 PRO     var chartData = [
 -- body
 SET SERVEROUT ON;
@@ -238,7 +225,7 @@ BEGIN
   CLOSE cur;
 
  :AWRPointsControls:=' ';
- :AWRPointsIni:=' ';
+ :AWRPointsIni:=chr(10)||'var chartType=''&&chartype.'''||chr(10)||'var numColumns='||l_ncol||chr(10);
  IF '&&edb360_conf_incl_plot_awr.' ='Y' THEN
   :AWRPointsControls:='<div id="AWRPointsControls_div" style="border: 1px solid #ccc">AWR Points Instances: ';
   addAWRP(1,'&&inst1_present.');
@@ -251,9 +238,10 @@ BEGIN
   addAWRP(8,'&&inst8_present.');
   addAWRP(0,NVL('&&is_single_instance.','C'));  
   :AWRPointsControls:=:AWRPointsControls||'<input type="checkbox" onchange="toggleAnnotations();" checked>long annotations</input></div>';
-  :AWRPointsIni:='initializeArrays('||l_ncol||');';
+  :AWRPointsIni:=:AWRPointsIni||'var annColumns = 2'||chr(10);
  ELSE
   l_lastcol:='-';
+  :AWRPointsIni:=:AWRPointsIni||'var annColumns = 0'||chr(10);
  END IF; 
 END;
 /
@@ -262,15 +250,8 @@ SET SERVEROUT OFF;
 SET HEA OFF;
 
 PRO        ];
--- line chart footer
 
-PRO      function drawChart() {     
-PRO        chartDataPoints = new google.visualization.arrayToDataTable(chartData);
-PRO        var programmaticChart = new google.visualization.ChartWrapper({
-PRO        chartType:'&&chartype.',
-PRO        containerId:'linechart',
-PRO        dataTable: chartDataPoints,
-PRO        options: {&&stacked.
+PRO        options= {&&stacked.
 PRO          chartArea:{left:90, top:75, width:'65%', height:'70%'},
 PRO          backgroundColor: {fill: 'white', stroke: '#336699', strokeWidth: 1},
 PRO          explorer: {actions: ['dragToZoom', 'rightClickToReset'], maxZoomIn: 0.01},
@@ -287,69 +268,14 @@ PRO                   10: { &&series_11.}, 11: { &&series_12.}, 12: { &&series_1
 PRO          },
 PRO          vAxis: {title: '&&vaxis.', &&vbaseline. gridlines: {count: -1}, titleTextStyle: {fontSize: 16, bold: false}}
 PRO        }
-PRO      });
-PRO      programmaticChart.draw();
-PRO /*
-PRO    by Abel Macias
-PRO    October 11th, 2019
-PRO 
-PRO    JavaScript funtions to control the presence of AWR points in the graphs
-PRO    and display the corresponding AWR report when clicked.
-PRO 
-PRO    These functions have to be included inside the drawChart() function.
-PRO  */
-PRO 
-PRO function selectHandler() {
-PRO     var selectedItem = programmaticChart.getChart().getSelection()[0];
-PRO     if (selectedItem) {
-PRO       var value = programmaticChart.getDataTable().getValue(selectedItem.row, 2);
-PRO       if (value != null) {
-PRO        var awrname = value.match(/(?:rac|\d)\_\d+\_\d+\_(?:max|med|min)\w{3,5}/);
-PRO        window.open('./edb360_show.html?awr=awrrpt_'+awrname)
-PRO       }
-PRO     }
-PRO   }
-PRO 
-PRO google.visualization.events.addListener(programmaticChart, 'select', selectHandler); 
-PRO 
-PRO toggleAnnotations = function() {
-PRO   if (programmaticChart.getOption('annotations.style') === 'line') {
-PRO         programmaticChart.setOption('annotations.style','point');
-PRO       } else {
-PRO         programmaticChart.setOption('annotations.style','line');
-PRO       }
-PRO   programmaticChart.draw();
-PRO }
-PRO 
-PRO toggleAWRPoint = function(id){
-PRO   switch(id){
-PRO     case 0: if ( racIdx   == 0 ) { racIdx= 1;    } else { racIdx= 0;    } break;
-PRO     case 1: if ( instIdx1 == 0 ) { instIdx1 = 1; } else { instIdx1 = 0; } break;
-PRO     case 2: if ( instIdx2 == 0 ) { instIdx2 = 1; } else { instIdx2 = 0; } break;
-PRO     case 3: if ( instIdx3 == 0 ) { instIdx3 = 1; } else { instIdx3 = 0; } break;
-PRO     case 4: if ( instIdx4 == 0 ) { instIdx4 = 1; } else { instIdx4 = 0; } break;
-PRO     case 5: if ( instIdx5 == 0 ) { instIdx5 = 1; } else { instIdx5 = 0; } break;
-PRO     case 6: if ( instIdx6 == 0 ) { instIdx6 = 1; } else { instIdx6 = 0; } break;
-PRO     case 7: if ( instIdx7 == 0 ) { instIdx7 = 1; } else { instIdx7 = 0; } break;
-PRO     case 8: if ( instIdx8 == 0 ) { instIdx8 = 1; } else { instIdx8 = 0; } break;
-PRO   }
-PRO   data=chartData.concat([]);
-PRO   if (racIdx > 0)   { data = data.concat(racData); }
-PRO   if (instIdx1 >0 ) { data = data.concat(instData1); }
-PRO   if (instIdx2 >0 ) { data = data.concat(instData2); }
-PRO   if (instIdx3 >0 ) { data = data.concat(instData3); }
-PRO   if (instIdx4 >0 ) { data = data.concat(instData4); }
-PRO   if (instIdx5 >0 ) { data = data.concat(instData5); }
-PRO   if (instIdx6 >0 ) { data = data.concat(instData6); }
-PRO   if (instIdx7 >0 ) { data = data.concat(instData7); }
-PRO   if (instIdx8 >0 ) { data = data.concat(instData8); }
-PRO   programmaticChart.setDataTable(google.visualization.arrayToDataTable(data));
-PRO   programmaticChart.draw();
-PRO }
-PRO 
 PRINT :AWRPointsIni
-PRO     }
+PRO     
 PRO    </script>
+-- line chart footer
+PRO    &&edb360_conf_google_charts.
+PRO    <script type="text/javascript" src="&&edb360_output_directory.edb360_awr_points.js"></script>
+PRO    <script type="text/javascript" src="edb360_dlp.js"></script>
+
 PRO  </head>
 PRO  <body>
 PRO
