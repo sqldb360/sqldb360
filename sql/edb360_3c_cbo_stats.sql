@@ -891,22 +891,28 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-column owner format  heading 'Table|Owner'
-column table_owner   heading 'Table|Owner'
-column table_name    heading 'Table|Name'
-column index_name    heading 'Index|Name'
-column column_name   heading 'Column|Name'
-column object_type   heading 'Object|Type'
-column object_name   heading 'Index/Extension|Name'
-column column_list   heading 'Column|List'
-column histogram     heading 'Histogram|Type'
-column distinct_keys heading 'Distinct|Keys'
-column num_distinct  heading 'Number of|Distinct|Values'
-column num_buckets   heading 'Number of|Buckets'
-column distinct_keys heading 'Distinct|Keys'
+column owner            heading 'Table|Owner'
+column table_owner      heading 'Table|Owner'
+column table_name       heading 'Table|Name'
+column index_name       heading 'Index|Name'
+column column_name      heading 'Column|Name'
+column object_type      heading 'Object|Type'
+column object_name      heading 'Index/Extension|Name'
+column column_list      heading 'Column|List'
+column histogram        heading 'Histogram|Type'
+column distinct_keys    heading 'Distinct|Keys'
+column num_distinct     heading 'Number of|Distinct|Values'
+column num_buckets      heading 'Number of|Buckets'
+column distinct_keys    heading 'Distinct|Keys'
+column col_num_distinct heading 'Column|Number of|Distinct|Values'
+column col_num_buckets  heading 'Column|Number of|Buckets'
+column col_histogram    heading 'Column|Histogram|Type'
 DEF title = 'Columns with Histograms in Extended Statistics';
 REM dmk 29.11.2018 Columns with histograms that are part of a column group where the extended statistics do not have a histogram, 
 REM or part of a composite index where there is no corresponding extended histogram prevent use of extended statistics.  Need extended histograms.
+REM https://jonathanlewis.wordpress.com/2012/04/11/extended-stats/ - note Colgan comment
+REM https://antognini.ch/2014/02/extension-bypassed-because-of-missing-histogram/ - note fix control
+REM see also Bug 6972291 - Column group selectivity is not used when there is a histogram on one column (Doc ID 6972291.8)
 DEF main_table = '&&dva_view_prefix.STAT_EXTENSIONS';
 BEGIN
   :sql_text := q'[
@@ -919,6 +925,9 @@ WHERE   i.table_owner = c.table_owner
 AND     i.table_name = c.table_name
 AND     i.owner = c.index_owner
 AND     i.index_name = c.index_name
+AND     i.table_name NOT LIKE 'BIN$%' 
+AND     i.table_owner NOT IN &&exclusion_list.
+AND     i.table_owner NOT IN &&exclusion_list2.
 GROUP BY i.table_owner, i.table_name, i.owner, i.index_name, i.distinct_keys
 HAVING COUNT(*) > 1
 ), e as ( /*extended stats*/
@@ -931,12 +940,35 @@ WHERE	e.creator = 'USER'
 AND     se.owner = e.owner
 AND     se.table_name = e.table_name
 AND     se.column_name = e.extension_name
+AND     e.table_name NOT LIKE 'BIN$%' 
+AND     e.owner NOT IN &&exclusion_list.
+AND     e.owner NOT IN &&exclusion_list2.
 )
+SELECT	e.owner, e.table_name
+, 	    'Extension' object_type
+,       e.extension_name object_name, e.num_distinct, e.num_buckets, e.extension
+,       sc.column_name
+,       sc.num_distinct col_num_distinct
+,       sc.num_buckets col_num_buckets
+,       sc.histogram col_histogram
+FROM	e
+,       &&dva_object_prefix.tab_col_statistics sc
+WHERE	e.histogram = 'NONE'
+AND     e.extension LIKE '%"'||sc.column_name||'"%'
+AND     sc.owner = e.owner
+AND     sc.table_name = e.table_name
+AND     sc.histogram != 'NONE'
+AND     sc.num_buckets > 1
+AND     e.num_buckets = 1
+UNION ALL
 SELECT	/*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
         i.table_owner, i.table_name
 ,       'Index' object_type
-,       i.index_name object_name, i.distinct_keys, i.column_list
-,       sc.column_name, sc.num_distinct, sc.num_buckets, sc.histogram
+,       i.index_name object_name, i.distinct_keys, TO_NUMBER(null), i.column_list
+,       sc.column_name
+,       sc.num_distinct col_num_distinct
+,       sc.num_buckets col_num_buckets
+,       sc.histogram col_histogram
 from	i
 ,       &&dva_object_prefix.ind_columns ic
 ,       &&dva_object_prefix.tab_col_statistics sc
@@ -948,6 +980,7 @@ AND     sc.owner = i.table_owner
 AND     sc.table_name = ic.table_name
 AND     sc.column_name = ic.column_name
 AND     sc.histogram != 'NONE'
+AND     sc.num_buckets > 1
 AND NOT EXISTS( /*report index if no extension*/
         SELECT 'x'
         FROM    e
@@ -955,42 +988,27 @@ AND NOT EXISTS( /*report index if no extension*/
         AND     e.table_name = i.table_name
         AND     e.extension = i.column_list      
         )
-AND     i.table_name NOT LIKE 'BIN$%' 
-AND     i.table_owner NOT IN &&exclusion_list.
-AND     i.table_owner NOT IN &&exclusion_list2.
-UNION ALL
-SELECT	e.owner, e.table_name
-, 	    'Extension' object_type
-,       e.extension_name object_name, e.num_distinct, e.extension
-,       sc.column_name, sc.num_distinct, sc.num_buckets, sc.histogram
-FROM	e
-,       &&dva_object_prefix.tab_col_statistics sc
-WHERE	e.histogram = 'NONE'
-AND     e.extension LIKE '%"'||sc.column_name||'"%'
-AND     sc.owner = e.owner
-AND     sc.table_name = e.table_name
-AND     sc.histogram != 'NONE'
-AND     e.table_name NOT LIKE 'BIN$%' 
-AND     e.owner NOT IN &&exclusion_list.
-AND     e.owner NOT IN &&exclusion_list2.
-ORDER BY 1,2,3,5
+ORDER BY 1,2,3,4
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
-column owner format  heading clear
-column table_owner   heading clear
-column table_name    heading clear
-column index_name    heading clear
-column column_name   heading clear
-column object_type   heading clear
-column object_name   heading clear
-column column_list   heading clear
-column histogram     heading clear
-column distinct_keys heading clear
-column num_distinct  heading clear
-column num_buckets   heading clear
-column distinct_keys heading clear
+column owner            heading clear
+column table_owner      heading clear
+column table_name       heading clear
+column index_name       heading clear
+column column_name      heading clear
+column object_type      heading clear
+column object_name      heading clear
+column column_list      heading clear
+column histogram        heading clear
+column distinct_keys    heading clear
+column num_distinct     heading clear
+column num_buckets      heading clear
+column distinct_keys    heading clear
+column col_num_distinct heading clear
+column col_num_buckets  heading clear
+column col_histogram    heading clear
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;
