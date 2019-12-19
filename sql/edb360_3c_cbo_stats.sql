@@ -843,6 +843,18 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+DEF title = 'Auto Optimizer Stats Collection';
+DEF main_table = '&&dva_view_prefix.TABLES';
+BEGIN
+  :sql_text := q'[
+select client_name, status
+from   dba_autotask_client
+where  client_name = 'auto optimizer stats collection'
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
 @@&&skip_10g_script.&&skip_11r1_script.edb360_3c_dbms_stats.sql
 
 DEF title = 'SYS Stats for WRH$, WRI$, WRM$ and WRR$ Tables';
