@@ -224,6 +224,18 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+DEF title = 'Options';
+DEF main_table = '&&v_view_prefix.OPTION';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM &&v_object_prefix.option
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
 DEF title = 'Database';
 DEF main_table = '&&v_view_prefix.DATABASE';
 BEGIN
