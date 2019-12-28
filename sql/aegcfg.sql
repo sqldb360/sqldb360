@@ -29,3 +29,10 @@ DEF edb360_conf_max_hours = '24';
 DEF edb360_conf_incl_awr_diff_rpt = 'N';
 DEF edb360_conf_incl_plot_awr ='Y';
 DEF edb360_conf_series_selection ='Y';
+
+-- transfer options to sqld
+-- Do not modify unless you want different options for edb and sqld
+
+DEF sqld360_conf_incl_awr_diff_rpt = '&&edb360_conf_incl_awr_diff_rpt.';
+DEF sqld360_conf_incl_plot_awr ='&&edb360_conf_incl_plot_awr.';
+DEF sqld360_conf_series_selection ='&&edb360_conf_series_selection.';
