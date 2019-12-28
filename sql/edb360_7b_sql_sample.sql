@@ -381,9 +381,9 @@ BEGIN
       update_log('SQLD360 rank:'||sql_rec.rank_num||' SQL_ID:'||sql_rec.sql_id||' TOP_type:'||sql_rec.top_type);
       put_line('PRO PRO prepares execution of sqld360');
       IF sql_rec.rank_num <= &&edb360_conf_sqld360_top_tc. THEN
-        put_line('INSERT INTO plan_table (id, statement_id, operation, options, object_node) SELECT '||sql_rec.rank_num||', ''SQLD360_SQLID'', '''||sql_rec.sql_id||''', ''&&call_sqld360_bitmask_tc.'', '''||sql_rec.pdb_name||''' FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  <  :edb360_max_seconds;');
+        put_line('INSERT INTO plan_table (id, statement_id, operation, options, object_node, projection) SELECT '||sql_rec.rank_num||', ''SQLD360_SQLID'', '''||sql_rec.sql_id||''', ''&&call_sqld360_bitmask_tc.'', '''||sql_rec.pdb_name||''' , ''&&custom_config_filename.'' FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  <  :edb360_max_seconds;');
       ELSE
-        put_line('INSERT INTO plan_table (id, statement_id, operation, options, object_node) SELECT '||sql_rec.rank_num||', ''SQLD360_SQLID'', '''||sql_rec.sql_id||''', ''&&call_sqld360_bitmask.'', '''||sql_rec.pdb_name||''' FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  <  :edb360_max_seconds;');
+        put_line('INSERT INTO plan_table (id, statement_id, operation, options, object_node, projection) SELECT '||sql_rec.rank_num||', ''SQLD360_SQLID'', '''||sql_rec.sql_id||''', ''&&call_sqld360_bitmask.'', '''||sql_rec.pdb_name||''' , ''&&custom_config_filename.'' FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  <  :edb360_max_seconds;');
       END IF;
     END IF;
   END LOOP;
