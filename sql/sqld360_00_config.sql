@@ -26,34 +26,34 @@ DEF sqld360_conf_incl_scatt  = 'Y';
 -- include/exclude SQL Monitor reports
 DEF sqld360_conf_incl_sqlmon = 'Y';
 
--- include/exclude DBA_HIST_ASH (always on by default, turned off only by eDB180) 
+-- include/exclude DBA_HIST_ASH (always on by default, turned off only by eDB180)
 DEF sqld360_conf_incl_ash_hist = 'Y';
 
--- include/exclude AWR Reports (always off by default) 
+-- include/exclude AWR Reports (always off by default)
 DEF sqld360_conf_incl_awrrpt = 'N';
 
--- include/exclude ASH SQL Reports (always off by default, very expensive and little benefit) 
+-- include/exclude ASH SQL Reports (always off by default, very expensive and little benefit)
 DEF sqld360_conf_incl_ashrpt = 'N';
 
--- include/exclude eAdam (only for standalone execs, always skipped for eDB360 execs) 
+-- include/exclude eAdam (only for standalone execs, always skipped for eDB360 execs)
 DEF sqld360_conf_incl_eadam = 'Y';
 
--- include/exclude raw ASH data sample (only for standalone execs, always skipped for eDB360 execs) 
+-- include/exclude raw ASH data sample (only for standalone execs, always skipped for eDB360 execs)
 DEF sqld360_conf_incl_rawash = 'Y';
 
--- include/exclude stats history (always on by default, turned off only by eDB180) 
+-- include/exclude stats history (always on by default, turned off only by eDB180)
 DEF sqld360_conf_incl_stats_h = 'Y';
 
--- include/exclude search for FORCE MATCHING SQLs (only for standalone execs, always skipped for eDB360 execs) 
+-- include/exclude search for FORCE MATCHING SQLs (only for standalone execs, always skipped for eDB360 execs)
 DEF sqld360_conf_incl_fmatch = 'Y';
 
--- include/exclude Metadata section (useful to work around DBMS_METADATA bugs) 
+-- include/exclude Metadata section (useful to work around DBMS_METADATA bugs)
 DEF sqld360_conf_incl_metadata = 'Y';
 
--- include/exclude basic stats commands 
+-- include/exclude basic stats commands
 DEF sqld360_conf_incl_stats = 'Y';
 
--- include/exclude Testcase Builder (only for standalone execs, always skipped for eDB360 execs) 
+-- include/exclude Testcase Builder (only for standalone execs, always skipped for eDB360 execs)
 DEF sqld360_conf_incl_tcb = 'N';
 
 -- include/exclude SQL Tuning Advisor reports (not calling the API, just reporting on already executed tasks)
@@ -62,7 +62,7 @@ DEF sqld360_conf_incl_sta = 'Y';
 -- include/exclude GV$SQL_OPTIMIZER_ENV (workaround of bug 22468781)
 DEF sqld360_conf_incl_cboenv = 'Y';
 
--- TCB data, sampling percentage, 0 means no data, any other value between 1 and 100 is ok (only for standalone execs, always skipped for eDB360 execs) 
+-- TCB data, sampling percentage, 0 means no data, any other value between 1 and 100 is ok (only for standalone execs, always skipped for eDB360 execs)
 -- THIS OPTION IS INTENTIONALLY INGORED, email me if you'd like to have TCB with data
 DEF sqld360_conf_tcb_sample = '0';
 
@@ -103,6 +103,10 @@ DEF sqld360_conf_dbid = '';
 -- specify the unit of measure to use for avg elapsed from AWR (valid values are "s" and "ms")
 DEF sqld360_conf_awr_timescale = 's';
 
+-- Following features work ONLY if executed as part of eDB360 for now
+-- will change in the future
+DEF sqld360_conf_incl_plot_awr ='N';
+DEF sqld360_conf_series_selection ='N';
 /**************************** not recommended to modify *********************************/
 
 DEF sqld360_conf_tool_page = '<a href="http://mauro-pagano.com/2015/02/16/sqld360-sql-diagnostics-collection-made-faster/" target="_blank">';
