@@ -103,6 +103,8 @@ DEF sqld360_conf_dbid = '';
 -- specify the unit of measure to use for avg elapsed from AWR (valid values are "s" and "ms")
 DEF sqld360_conf_awr_timescale = 's';
 
+DEF sqld360_conf_incl_plot_awr ='N';
+DEF sqld360_conf_series_selection ='N';
 /**************************** not recommended to modify *********************************/
 
 DEF sqld360_conf_tool_page = '<a href="http://mauro-pagano.com/2015/02/16/sqld360-sql-diagnostics-collection-made-faster/" target="_blank">';
