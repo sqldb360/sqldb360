@@ -509,7 +509,11 @@ SELECT CASE '&&sqld360_conf_incl_bubble.' WHEN 'N' THEN '--' END sqld360_skip_bu
 SELECT CASE '&&sqld360_conf_incl_scatt.'  WHEN 'N' THEN '--' END sqld360_skip_scatt  FROM DUAL;
 
 COL sqld360_skip_awrrpt NEW_V sqld360_skip_awrrpt;
-SELECT CASE '&&sqld360_conf_incl_awrrpt.' WHEN 'N' THEN '--' END sqld360_skip_awrrpt FROM DUAL;
+SELECT CASE WHEN '&&from_edb360.' = '--' 
+            THEN CASE WHEN '&&sqld360_conf_incl_awrrpt.'='N' THEN '--' END
+            ELSE CASE WHEN '&&sqld360_conf_incl_plot_awr.'='N' AND '&&sqld360_conf_incl_awrrpt.'='N' THEN '--' END
+        END sqld360_skip_awrrpt 
+FROM DUAL;
 
 COL sqld360_skip_ashrpt NEW_V sqld360_skip_ashrpt;
 SELECT CASE '&&sqld360_conf_incl_ashrpt.' WHEN 'N' THEN '--' END sqld360_skip_ashrpt FROM DUAL;
