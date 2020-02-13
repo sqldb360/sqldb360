@@ -225,7 +225,10 @@ BEGIN
   CLOSE cur;
 
  :AWRPointsControls:=' ';
- :AWRPointsIni:=chr(10)||'var chartType=''&&chartype.'''||chr(10)||'var numColumns='||l_ncol||chr(10)||' var path7a=''..'' '||chr(10);
+ :AWRPointsIni:=chr(10)||'var chartType=''&&chartype.'''||chr(10)||'var numColumns='||l_ncol||chr(10);
+ IF '&&from_edb360.'='--' THEN :AWRPointsIni:=:AWRPointsIni||'var path7a=''..'' '||chr(10);
+ ELSE :AWRPointsIni:=:AWRPointsIni||'var path7a=''.'' '||chr(10);
+ END IF;
  IF '&&sqld360_conf_incl_plot_awr.' ='Y' THEN
   :AWRPointsControls:='<div id="AWRPointsControls_div" style="border: 1px solid #ccc">AWR Points Instances: ';
   addAWRP(1,'&&inst1_present.');
