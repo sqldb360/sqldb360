@@ -417,8 +417,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id
 )
 SELECT snap_id,
-       TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
-       TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
+       TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
+       TO_CHAR(end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time,
        ROUND(db_time / 1e6, 2) db_time_secs,
        ROUND(io_time / 1e6, 2) io_time_secs,
        ROUND(u_io_time / 1e6, 2) u_io_secs,
