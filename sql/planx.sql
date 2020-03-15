@@ -1134,6 +1134,7 @@ BEGIN
   	       AND h.sql_id = :sql_id
   	       AND h.current_obj# >= 0
   	       AND o.object_id(+) = h.current_obj#
+           AND h.wait_class in ('Application', 'Cluster', 'Concurrency', 'User I/O')
   	     UNION
   	    SELECT /*+ 
                FULL(h.INT$DBA_HIST_ACT_SESS_HISTORY.sn) 
@@ -1154,6 +1155,7 @@ BEGIN
   	       AND h.sql_id = :sql_id
   	       AND h.current_obj# >= 0
   	       AND o.object_id(+) = h.current_obj#
+           AND h.wait_class in ('Application', 'Cluster', 'Concurrency', 'User I/O')
   	    )
   	    SELECT 'TABLE', t.owner, t.table_name
   	      FROM dba_tab_statistics t, -- include fixed objects
