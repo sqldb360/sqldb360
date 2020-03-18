@@ -839,7 +839,7 @@ BEGIN
 -- requested by David Kurtz
 -- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas
 WITH t aS (
-SELECT  /*+MATERIALIZE*/ t.owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
+SELECT  /*+MATERIALIZE*/ t.table_owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
 FROM    &&dva_object_prefix.tab_partitions t
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
 and     t.table_owner not in &&exclusion_list.
@@ -892,7 +892,7 @@ AND     (  t.num_rows = 0
         OR t.num_rows IS NULL
         )
 ), s as (
-SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.partition_name, s.subpartition_name, s.tablespace_name, s.blocks
+SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.partition_name, s.tablespace_name, s.blocks
 FROM 	&&dva_object_prefix.segments s
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
 and     s.owner not in &&exclusion_list.
