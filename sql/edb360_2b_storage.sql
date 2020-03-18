@@ -789,28 +789,38 @@ column LIKE_PREDS         clear
 column NULL_PREDS         clear
 
 
-DEF title = 'Tables with one extent and no rows';
+DEF title = 'Tables with one physical extent and no rows';
 DEF main_table = '&&dva_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- requested by David Kurtz
-SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
-        t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+-- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas, eg PeopleSoft Financials
+WITH t aS (
+SELECT  /*+MATERIALIZE*/ t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
 FROM    &&dva_object_prefix.tables t
-,       &&dva_object_prefix.segments s
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
 and     t.owner not in &&exclusion_list.
 and     t.owner not in &&exclusion_list2.
-and     s.segment_type = 'TABLE'
-and     t.owner = s.owner
-and     t.table_name = s.segment_name
-and     t.tablespace_name = s.tablespace_name
-and     s.partition_name IS NULL
 and     t.segment_created = 'YES'
 AND     (       t.num_rows = 0
         OR       t.num_rows IS NULL     
         )
+), s as (
+SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.tablespace_name, s.blocks
+FROM 	dba_segments s
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+and     s.owner not in &&exclusion_list.
+and     s.owner not in &&exclusion_list2.
+and     s.segment_type = 'TABLE'
+and     s.partition_name IS NULL
 and     s.extents =  1
+)
+SELECT  t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+FROM    t
+,       s
+where   t.owner = s.owner
+and     t.table_name = s.segment_name
+and     t.tablespace_name = s.tablespace_name
 ORDER BY 1,2
 ]';
 END;
