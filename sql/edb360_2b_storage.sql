@@ -807,7 +807,7 @@ AND     (       t.num_rows = 0
         )
 ), s as (
 SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.tablespace_name, s.blocks
-FROM 	dba_segments s
+FROM 	&&dva_object_prefix.segments s
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
 and     s.owner not in &&exclusion_list.
 and     s.owner not in &&exclusion_list2.
@@ -832,28 +832,38 @@ COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
 CL BRE;
 CL COMP;
 
-DEF title = 'Partitions with one extent and no rows';
+DEF title = 'Partitions with one physical extent and no rows';
 DEF main_table = '&&dva_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- requested by David Kurtz
-SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
-        t.table_owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+-- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas
+WITH t aS (
+SELECT  /*+MATERIALIZE*/ t.owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
 FROM    &&dva_object_prefix.tab_partitions t
-,       &&dva_object_prefix.segments s
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.table_owner not in &&exclusion_list.
-and     t.table_owner not in &&exclusion_list2.
+and     t.owner not in &&exclusion_list.
+and     t.owner not in &&exclusion_list2.
+and     t.segment_created = 'YES'
+AND     (  t.num_rows = 0
+        OR t.num_rows IS NULL
+        )
+), s as (
+SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.partition_name, s.tablespace_name, s.blocks
+FROM 	&&dva_object_prefix.segments s
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+and     s.owner not in &&exclusion_list.
+and     s.owner not in &&exclusion_list2.
 and     s.segment_type = 'TABLE PARTITION'
-and     t.table_owner = s.owner
+and     s.extents =  1
+)
+SELECT  t.table_owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+FROM    t
+,       s
+WHERE   t.table_owner = s.owner
 and     t.table_name = s.segment_name
 and     t.tablespace_name = s.tablespace_name
 and     t.partition_name = s.partition_name
-and     t.segment_created = 'YES'
-AND     (       t.num_rows = 0
-        OR       t.num_rows IS NULL     
-        )
-and     s.extents =  1
 ORDER BY 1,2,3
 ]';
 END;
@@ -865,28 +875,39 @@ COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
 CL BRE;
 CL COMP;
 
-DEF title = 'Subpartitions with one extent and no rows';
+DEF title = 'Subpartitions with one physical extent and no rows';
 DEF main_table = '&&dva_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- requested by David Kurtz
+-- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas
+WITH t aS (
+SELECT  /*+MATERIALIZE*/ t.table_owner, t.table_name, t.partition_name, t.subpartition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
+FROM    &&dva_object_prefix.tab_subpartitions t
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+and     t.owner not in &&exclusion_list.
+and     t.owner not in &&exclusion_list2.
+and     t.segment_created = 'YES'
+AND     (  t.num_rows = 0
+        OR t.num_rows IS NULL
+        )
+), s as (
+SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.partition_name, s.subpartition_name, s.tablespace_name, s.blocks
+FROM 	&&dva_object_prefix.segments s
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+and     s.owner not in &&exclusion_list.
+and     s.owner not in &&exclusion_list2.
+and     s.segment_type = 'TABLE SUBPARTITION'
+and     s.extents =  1
+)
 SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
         t.table_owner, t.table_name, t.partition_name, t.subpartition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
 FROM    &&dva_object_prefix.tab_subpartitions t
 ,       &&dva_object_prefix.segments s
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.table_owner not in &&exclusion_list.
-and     t.table_owner not in &&exclusion_list2.
-and     s.segment_type = 'TABLE SUBPARTITION'
-and     t.table_owner = s.owner
+WHERE   t.table_owner = s.owner
 and     t.table_name = s.segment_name
 and     t.subpartition_name = s.partition_name
 and     t.tablespace_name = s.tablespace_name
-and     t.segment_created = 'YES'
-AND     (       t.num_rows = 0
-        OR       t.num_rows IS NULL     
-        )
-and     s.extents =  1
 ORDER BY 1,2,3,4
 ]';
 END;
