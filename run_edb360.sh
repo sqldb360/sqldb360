@@ -1,4 +1,3 @@
-# edb360 collector
 #!/bin/sh
 echo "Start edb360."
 type nawk 1>/dev/null 2>&1 && AWK=nawk || AWK=awk

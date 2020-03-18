@@ -153,8 +153,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.dbid,
        h.instance_number,
        h.if_name,
-       s.begin_interval_time,
-       s.end_interval_time,
+       first_value(s.begin_interval_time) over (PARTITION BY s.dbid,s.snap_id ORDER BY s.snap_id) begin_interval_time,
+       first_value(s.end_interval_time) over (PARTITION BY s.dbid,s.snap_id ORDER BY s.snap_id) end_interval_time,
        s.startup_time - LAG(s.startup_time) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) startup_time_interval,
        h.bytes_received - LAG(h.bytes_received) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) bytes_received,
        h.packets_received - LAG(h.packets_received) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) packets_received,
@@ -243,8 +243,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        snap_id
-       ,TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time
-       ,TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time
+       ,TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time
+       ,TO_CHAR(end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time
        #column01#
        #column02#
        #column03#

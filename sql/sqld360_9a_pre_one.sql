@@ -44,12 +44,28 @@ PRO <li title="&&main_table.">&&title.
 SPO OFF;
 HOS zip -q &&sqld360_main_filename._&&sqld360_file_time. &&sqld360_main_report..html
 
+-- choose one_line_plus over one_line if any of one_line_plus features are enabled.
+COL skip_lch   NEW_V skip_lch  NOPRI;
+COL skip_lchp  NEW_V skip_lchp NOPRI;
+SELECT CASE WHEN '&&skip_lch.' IS NULL 
+             AND ( '&&sqld360_conf_incl_plot_awr.' ='Y' OR '&&sqld360_conf_series_selection.'='Y' )
+            THEN ' echo skip html ' 
+            ELSE '&&skip_lch.' 
+       END skip_lch
+     , CASE WHEN '&&skip_lch.' IS NULL 
+             AND ( '&&sqld360_conf_incl_plot_awr.' ='Y' OR '&&sqld360_conf_series_selection.'='Y' )
+            THEN ' ' 
+            ELSE ' echo skip html ' 
+       END skip_lchp
+  FROM DUAL;
+
 -- execute one sql
 @@&&skip_html.&&sqld360_skip_html.sqld360_9b_one_html.sql
 @@&&skip_xml.&&sqld360_skip_xml.sqld360_9i_one_xml.sql
 @@&&skip_text.&&sqld360_skip_text.sqld360_9c_one_text.sql
 @@&&skip_csv.&&sqld360_skip_csv.sqld360_9d_one_csv.sql
 @@&&skip_lch.&&sqld360_skip_line.sqld360_9e_one_line_chart.sql
+@@&&skip_lchp.&&sqld360_skip_line.sqld360_9e_one_line_chart_plus.sql
 @@&&skip_pch.&&sqld360_skip_pie.sqld360_9f_one_pie_chart.sql
 @@&&skip_bch.&&sqld360_skip_bar.sqld360_9g_one_bar_chart.sql
 @@&&skip_tch.&&sqld360_skip_tree.sqld360_9h_one_org_chart.sql

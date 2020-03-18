@@ -30,7 +30,7 @@ BEGIN
   :sql_text := q'[
 WITH /* &&section_id..&&report_sequence. */ 
  rac AS (SELECT /*+ &&sq_fact_hints. */ COUNT(*) instances, CASE COUNT(*) WHEN 1 THEN 'Single-instance' ELSE COUNT(*)||'-node RAC cluster' END db_type FROM &&gv_object_prefix.instance),
-hrac AS (SELECT /*+ &&sq_fact_hints. */ CASE &&hosts_count. WHEN 1 THEN ' (historicly Single-instance in AWR)' ELSE ' (historicly &&hosts_count.-node RAC cluster in AWR)' END db_type 
+hrac AS (SELECT /*+ &&sq_fact_hints. */ CASE &&hosts_count. WHEN 1 THEN ' (historically Single-instance in AWR)' ELSE ' (historicly &&hosts_count.-node RAC cluster in AWR)' END db_type 
            FROM rac WHERE TO_CHAR(RAC.instances)<>&&hosts_count.),
 mem AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM &&gv_object_prefix.system_parameter2 WHERE name = 'memory_target'),
 sga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM &&gv_object_prefix.system_parameter2 WHERE name = 'sga_target'),
@@ -221,6 +221,18 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&v_object_prefix.version
 ]';
 END;				
+/
+@@edb360_9a_pre_one.sql
+
+DEF title = 'Options';
+DEF main_table = '&&v_view_prefix.OPTION';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM &&v_object_prefix.option
+]';
+END;
 /
 @@edb360_9a_pre_one.sql
 

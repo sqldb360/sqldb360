@@ -108,7 +108,7 @@ BEGIN
 
     -- this execution is from edb360, call SQLd360 several times passing the appropriare flag
     --  the DISTINCT here is to make sure we run SQLd360 once even though the SQL is top in multiple categories (e.g. signature and dbtime)
-    FOR i IN (SELECT operation, options, object_node
+    FOR i IN (SELECT operation, options, object_node, projection
                 FROM plan_table
                WHERE statement_id = 'SQLD360_SQLID'
                ORDER BY id) LOOP
@@ -151,7 +151,7 @@ BEGIN
        --  the code can switch back to CDB to update the right plan table with the file name
        put('DEF sqld360_container='''||container||'''');
 
-       put('@@&&skip_sqld360.sql/sqld360_0a_main.sql '||i.operation||' '||license||' NULL');
+       put('@@&&skip_sqld360.sql/sqld360_0a_main.sql '||i.operation||' '||license||' '||i.projection);
        put('HOS unzip -l &&sqld360_main_filename._&&sqld360_file_time.');
 
        -- the following code is to handle the timeout from eDB360
