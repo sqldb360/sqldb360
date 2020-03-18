@@ -842,8 +842,8 @@ WITH t aS (
 SELECT  /*+MATERIALIZE*/ t.owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
 FROM    &&dva_object_prefix.tab_partitions t
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.owner not in &&exclusion_list.
-and     t.owner not in &&exclusion_list2.
+and     t.table_owner not in &&exclusion_list.
+and     t.table_owner not in &&exclusion_list2.
 and     t.segment_created = 'YES'
 AND     (  t.num_rows = 0
         OR t.num_rows IS NULL
@@ -885,8 +885,8 @@ WITH t aS (
 SELECT  /*+MATERIALIZE*/ t.table_owner, t.table_name, t.partition_name, t.subpartition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
 FROM    &&dva_object_prefix.tab_subpartitions t
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.owner not in &&exclusion_list.
-and     t.owner not in &&exclusion_list2.
+and     t.table_owner not in &&exclusion_list.
+and     t.table_owner not in &&exclusion_list2.
 and     t.segment_created = 'YES'
 AND     (  t.num_rows = 0
         OR t.num_rows IS NULL
