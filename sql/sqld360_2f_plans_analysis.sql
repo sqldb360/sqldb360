@@ -316,7 +316,7 @@ BEGIN
     put('SELECT /*+ ORDERED USE_NL(t) */                                      ');
     put('       RPAD(''Inst: ''||v.inst_id, 9)||'' ''||RPAD(''Child: ''||v.child_number, 11) inst_child,');
     put('       t.plan_table_output                                           ');
-    put('  FROM v, TABLE(DBMS_XPLAN.DISPLAY(''gv$sql_plan_statistics_all'', NULL, ''ADVANCED ALLSTATS LAST'',');
+    put('  FROM v, TABLE(DBMS_XPLAN.DISPLAY(''gv$sql_plan_statistics_all'', NULL, ''ADVANCED ALLSTATS LAST &&format_adaptive'',');
     put('       ''inst_id=''||v.inst_id||'' AND sql_id=''''''||v.sql_id||'''''' AND plan_hash_value='|| i.plan_hash_value||' AND child_number=''||v.child_number||'' AND child_address=''''''||v.child_address||'''''''')) t ');
     put('/');
 
@@ -367,7 +367,7 @@ BEGIN
     put('   AND plan_hash_value = '||i.plan_hash_value                          );
     put(' ORDER BY 1, 2, 3 )                                                   ');
     put('SELECT /*+ ORDERED USE_NL(t) */ t.plan_table_output                   ');
-    put('  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, ''ADVANCED'')) t;');
+    put('  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, ''ADVANCED &&format_adaptive'')) t;');
 
     put('SET TERM ON                                                           ');
     put('-- get current time                                                   ');

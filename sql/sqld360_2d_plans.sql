@@ -72,25 +72,25 @@ SELECT /*+ MATERIALIZE */
 SELECT /*+ ORDERED USE_NL(t) */
        RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) inst_child, 
        t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY('gv$sql_plan_statistics_all', NULL, 'ADVANCED ALLSTATS LAST', 
+  FROM v, TABLE(DBMS_XPLAN.DISPLAY('gv$sql_plan_statistics_all', NULL, 'ADVANCED ALLSTATS LAST &&format_adaptive', 
        'inst_id='||v.inst_id||' AND sql_id='''||v.sql_id||''' AND child_number='||v.child_number||' AND child_address='''||v.child_address||'''')) t
 /
 
-WITH v AS (
-SELECT /*+ MATERIALIZE */
-       DISTINCT sql_id, inst_id, child_number, child_address
-  FROM gv$sql
- WHERE sql_id = '&&sqld360_sqlid.'
-   AND loaded_versions > 0
-   AND is_obsolete = 'N'
-   AND '&&skip_10g' IS NULL AND '&&skip_10g' IS NULL
- ORDER BY 1, 2, 3 )
-SELECT /*+ ORDERED USE_NL(t) */
-       RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) inst_child, 
-       t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY('gv$sql_plan_statistics_all', NULL, 'ADVANCED ALLSTATS LAST ADAPTIVE', 
-       'inst_id='||v.inst_id||' AND sql_id='''||v.sql_id||''' AND child_number='||v.child_number||' AND child_address='''||v.child_address||'''')) t
-/
+--WITH v AS (
+--SELECT /*+ MATERIALIZE */
+--       DISTINCT sql_id, inst_id, child_number, child_address
+--  FROM gv$sql
+-- WHERE sql_id = '&&sqld360_sqlid.'
+--   AND loaded_versions > 0
+--   AND is_obsolete = 'N'
+--   AND '&&skip_10g' IS NULL AND '&&skip_10g' IS NULL
+-- ORDER BY 1, 2, 3 )
+--SELECT /*+ ORDERED USE_NL(t) */
+--       RPAD('Inst: '||v.inst_id, 9)||' '||RPAD('Child: '||v.child_number, 11) inst_child, 
+--       t.plan_table_output
+--  FROM v, TABLE(DBMS_XPLAN.DISPLAY('gv$sql_plan_statistics_all', NULL, 'ADVANCED ALLSTATS LAST ADAPTIVE', 
+--       'inst_id='||v.inst_id||' AND sql_id='''||v.sql_id||''' AND child_number='||v.child_number||' AND child_address='''||v.child_address||'''')) t
+--/
 
 SET TERM ON
 -- get current time
@@ -145,19 +145,19 @@ SELECT /*+ MATERIALIZE */
    AND sql_id = '&&sqld360_sqlid.'
  ORDER BY 1, 2, 3 )
 SELECT /*+ ORDERED USE_NL(t) */ t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, 'ADVANCED')) t;
+  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, 'ADVANCED &&format_adaptive')) t;
 
-WITH v AS (
-SELECT /*+ MATERIALIZE */ 
-       DISTINCT sql_id, plan_hash_value, dbid
-  FROM dba_hist_sql_plan 
- WHERE '&&diagnostics_pack.' = 'Y'
-   AND dbid = '&&sqld360_dbid.' 
-   AND sql_id = '&&sqld360_sqlid.'
-   AND '&&skip_10g' IS NULL AND '&&skip_10g' IS NULL
- ORDER BY 1, 2, 3 )
-SELECT /*+ ORDERED USE_NL(t) */ t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, 'ADVANCED +ADAPTIVE')) t;
+--WITH v AS (
+--SELECT /*+ MATERIALIZE */ 
+--       DISTINCT sql_id, plan_hash_value, dbid
+--  FROM dba_hist_sql_plan 
+-- WHERE '&&diagnostics_pack.' = 'Y'
+--   AND dbid = '&&sqld360_dbid.' 
+--   AND sql_id = '&&sqld360_sqlid.'
+--   AND '&&skip_10g' IS NULL AND '&&skip_10g' IS NULL
+-- ORDER BY 1, 2, 3 )
+--SELECT /*+ ORDERED USE_NL(t) */ t.plan_table_output
+--  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, 'ADVANCED +ADAPTIVE')) t;
 
 SET TERM ON
 -- get current time
@@ -208,7 +208,7 @@ ALTER SESSION SET CURRENT_SCHEMA = &&xplan_user.;
 EXPLAIN PLAN FOR &&xplan_sql.
 /
 SET TERM ON 
-SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY);
+SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY,format=>'ADVANCED &&format_adaptive');
 ALTER SESSION SET CURRENT_SCHEMA = &&current_user.;
 
 
@@ -261,7 +261,7 @@ SELECT /*+ MATERIALIZE */
   FROM dba_sql_plan_baselines 
  WHERE signature = '&&exact_matching_signature.')
 SELECT /*+ ORDERED USE_NL(t) */ t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE(v.sql_handle, NULL, 'ADVANCED')) t;
+  FROM v, TABLE(DBMS_XPLAN.DISPLAY_SQL_PLAN_BASELINE(v.sql_handle, NULL, 'ADVANCED &&format_adaptive')) t;
 
 
 SET TERM ON
@@ -315,7 +315,7 @@ SELECT /*+ MATERIALIZE */
   FROM dba_sqlset_statements 
  WHERE sql_id = '&&sqld360_sqlid.')
 SELECT /*+ ORDERED USE_NL(t) */ t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY_SQLSET(sqlset_name => v.sqlset_name, sql_id => v.sql_id, plan_hash_value => v.plan_hash_value, format => 'ADVANCED',sqlset_owner => v.sqlset_owner)) t;
+  FROM v, TABLE(DBMS_XPLAN.DISPLAY_SQLSET(sqlset_name => v.sqlset_name, sql_id => v.sql_id, plan_hash_value => v.plan_hash_value, format => 'ADVANCED &&format_adaptive',sqlset_owner => v.sqlset_owner)) t;
 
 
 SET TERM ON
