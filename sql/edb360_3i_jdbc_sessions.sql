@@ -160,13 +160,13 @@ and s.sql_address =t.address(+)
 and s.sql_hash_value =t.hash_value(+)
 and s.sql_id = t.sql_id(+)
 and s.sql_child_number = t.child_number(+)
-&&skip_11g_column.&&skip_10g_column.and s.con_id = t.con_id(+)
+&&skip_ver_le_11.and s.con_id = t.con_id(+)
 and s.inst_id =t2.inst_id(+)
 and s.prev_sql_addr =t2.address(+)  
 and s.prev_hash_value =t2.hash_value(+)
 and s.prev_sql_id = t2.sql_id(+)
 and s.prev_child_number = t2.child_number(+)
-&&skip_11g_column.&&skip_10g_column.and s.con_id = t2.con_id(+)
+&&skip_ver_le_11.and s.con_id = t2.con_id(+)
 and s.program like '%JDBC%' 
 and s.status = 'ACTIVE' 
 order by last_call_et
@@ -188,13 +188,13 @@ and s.sql_address =t.address(+)
 and s.sql_hash_value =t.hash_value(+)
 and s.sql_id = t.sql_id(+)
 and s.sql_child_number = t.child_number(+)
-&&skip_11g_column.&&skip_10g_column.and s.con_id = t.con_id(+)
+&&skip_ver_le_11.and s.con_id = t.con_id(+)
 and s.inst_id =t2.inst_id(+)
 and s.prev_sql_addr =t2.address(+)  
 and s.prev_hash_value =t2.hash_value(+)
 and s.prev_sql_id = t2.sql_id(+)
 and s.prev_child_number = t2.child_number(+)
-&&skip_11g_column.&&skip_10g_column.and s.con_id = t2.con_id(+)
+&&skip_ver_le_11.and s.con_id = t2.con_id(+)
 and s.program like '%JDBC%' 
 and s.status <> 'ACTIVE' 
 order by last_call_et

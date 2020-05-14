@@ -37,21 +37,21 @@ sga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM &&gv_object_prefix
 pga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM &&gv_object_prefix.system_parameter2 WHERE name = 'pga_aggregate_target'),
 db_block AS (SELECT /*+ &&sq_fact_hints. */ value bytes FROM &&v_object_prefix.system_parameter2 WHERE name = 'db_block_size'),
 db AS (SELECT /*+ &&sq_fact_hints. */ name, platform_name FROM &&v_object_prefix.database),
-&&skip_10g_column.&&skip_11g_column. pdbs AS (SELECT /*+ &&sq_fact_hints. */ * FROM v$pdbs), -- need 12c flag
+&&skip_ver_le_11. pdbs AS (SELECT /*+ &&sq_fact_hints. */ * FROM v$pdbs), -- need 12c flag
 inst AS (SELECT /*+ &&sq_fact_hints. */ host_name, version db_version FROM &&v_object_prefix.instance),
 data AS (SELECT /*+ &&sq_fact_hints. */ SUM(bytes) bytes, COUNT(*) files, COUNT(DISTINCT ts#) tablespaces FROM &&v_object_prefix.datafile),
 temp AS (SELECT /*+ &&sq_fact_hints. */ SUM(bytes) bytes FROM &&v_object_prefix.tempfile),
 log AS (SELECT /*+ &&sq_fact_hints. */ SUM(bytes) * MAX(members) bytes FROM &&v_object_prefix.log),
 control AS (SELECT /*+ &&sq_fact_hints. */ SUM(block_size * file_size_blks) bytes FROM &&v_object_prefix.controlfile),
-&&skip_10g_column.&&skip_11r1_column. cell AS (SELECT /*+ &&sq_fact_hints. */ COUNT(DISTINCT cell_name) cnt FROM &&v_object_prefix.cell_state),
+&&skip_ver_le_11_1. cell AS (SELECT /*+ &&sq_fact_hints. */ COUNT(DISTINCT cell_name) cnt FROM &&v_object_prefix.cell_state),
 core AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) cnt FROM &&gv_object_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES'),
 cpu AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) cnt FROM &&gv_object_prefix.osstat WHERE stat_name = 'NUM_CPUS'),
 pmem AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) bytes FROM &&gv_object_prefix.osstat WHERE stat_name = 'PHYSICAL_MEMORY_BYTES')
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        'Database name:' system_item, db.name system_value FROM db
 UNION ALL
-&&skip_10g_column.&&skip_11g_column. SELECT '    pdb:'||name, 'Open Mode:'||open_mode FROM pdbs -- need 12c flag
-&&skip_10g_column.&&skip_11g_column.  UNION ALL
+&&skip_ver_le_11. SELECT '    pdb:'||name, 'Open Mode:'||open_mode FROM pdbs -- need 12c flag
+&&skip_ver_le_11.  UNION ALL
 SELECT 'Oracle Database version:', inst.db_version FROM inst
  UNION ALL
 SELECT 'Database block size:', TRIM(TO_CHAR(db_block.bytes / POWER(2,10), '90'))||' KB' FROM db_block
@@ -70,17 +70,17 @@ CASE WHEN pga.target > 0 THEN 'PGA '   ||TRIM(TO_CHAR(ROUND(pga.target / POWER(2
 CASE WHEN mem.target > 0 THEN 'AMM' ELSE CASE WHEN sga.target > 0 THEN 'ASMM' ELSE 'MANUAL' END END
   FROM mem, sga, pga
  UNION ALL
-&&skip_10g_column.&&skip_11r1_column. SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 or X-6 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%8160%' THEN 'X7-2 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END|| 
-&&skip_10g_column.&&skip_11r1_column. 'with '||cell.cnt||' storage servers' 
-&&skip_10g_column.&&skip_11r1_column. ELSE 'Unknown' END FROM cell
-&&skip_10g_column.&&skip_11r1_column.  UNION ALL
+&&skip_ver_le_11_1. SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 or X-6 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8160%' THEN 'X7-2 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END|| 
+&&skip_ver_le_11_1. 'with '||cell.cnt||' storage servers' 
+&&skip_ver_le_11_1. ELSE 'Unknown' END FROM cell
+&&skip_ver_le_11_1.  UNION ALL
 SELECT 'Processor:', '&&processor_model.' FROM DUAL
  UNION ALL
 SELECT 'Physical CPUs:', core.cnt||' cores'||CASE WHEN rac.instances > 0 THEN ', on '||rac.db_type END FROM rac, core
@@ -273,7 +273,7 @@ ORDER BY pdb1.con_id
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Pluggable Databases Saved States';
 DEF main_table = '&&dva_view_prefix.PDB_SAVED_STATES';
@@ -285,7 +285,7 @@ ORDER BY 1
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Database and Instance History';
 DEF main_table = '&&awr_hist_prefix.DATABASE_INSTANCE';
@@ -363,7 +363,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Registry History';
 DEF main_table = '&&dva_view_prefix.REGISTRY_HISTORY';
@@ -619,7 +619,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'System Parameters Change Log';
 DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
@@ -630,14 +630,14 @@ all_parameters AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        snap_id,
        dbid,
-       &&skip_10g_column.&&skip_11g_column.con_id,
+       &&skip_ver_le_11.con_id,
        instance_number,
        parameter_name,
        value,
        isdefault,
        ismodified,
        lag(value) OVER (PARTITION BY dbid, 
-       &&skip_10g_column.&&skip_11g_column.con_id,
+       &&skip_ver_le_11.con_id,
        instance_number, parameter_hash ORDER BY snap_id) prior_value
   FROM &&awr_object_prefix.parameter
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -647,7 +647,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        TO_CHAR(s.begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(s.end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time,
        p.snap_id,
-       &&skip_10g_column.&&skip_11g_column.p.con_id,
+       &&skip_ver_le_11.p.con_id,
        --p.dbid,
        p.instance_number,
        p.parameter_name,

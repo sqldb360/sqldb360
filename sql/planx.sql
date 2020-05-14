@@ -716,7 +716,7 @@ SELECT /*+ MATERIALIZE */
 SELECT /*+ ORDERED USE_NL(t) */ 
        TO_CHAR(v.timestamp, 'YYYY-MM-DD"T"HH24:MI:SS') plan_timestamp_ff,
        t.plan_table_output
-  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, 'ADVANCED')) t
+  FROM v, TABLE(DBMS_XPLAN.DISPLAY_AWR(v.sql_id, v.plan_hash_value, v.dbid, 'ADVANCED &&format_adaptive')) t
 /  
 CLEAR BREAK;
 

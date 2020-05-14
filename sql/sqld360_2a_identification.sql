@@ -8,7 +8,7 @@ SPO OFF;
 
 @@sqld360_2a_formatted.sql 
 @@sqld360_2a_standalone.sql
-@@&&skip_10g.&&skip_11r1.sqld360_2a_xpand.sql
+&&skip_ver_le_11_1.sqld360_2a_xpand.sql
 
 -- to clean environment after 3 standalone scripts
 SET HEAD ON PAGES &&def_max_rows.; 

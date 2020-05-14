@@ -69,7 +69,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_12_1.sqld360_9a_pre_one.sql
 
 -- compute low and high values for each table column
 -- the delete is safe, one SQL at a time
@@ -256,7 +256,7 @@ SELECT *
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_12_1.sqld360_9a_pre_one.sql
 
 --------------------------------------------
 
@@ -297,10 +297,10 @@ SELECT /*+ &&top_level_hints. */
  WHERE (owner, table_name) IN (SELECT /*+ UNNEST */ object_owner, object_name FROM plan_table WHERE statement_id = 'LIST_OF_TABLES' AND remarks = '&&sqld360_sqlid.')
    AND num_buckets <= 253
    AND histogram <> 'NONE'
-   &&skip_12c.&&skip_18c.&&skip_19c.AND char_length > 32
-   &&skip_12c.&&skip_18c.&&skip_19c.AND data_length > 32
-   &&skip_10g.&&skip_11g.AND char_length > 64
-   &&skip_10g.&&skip_11g.AND data_length > 64
+   &&skip_ver_ge_12.AND char_length > 32
+   &&skip_ver_ge_12.AND data_length > 32
+   &&skip_ver_le_11.AND char_length > 64
+   &&skip_ver_le_11.AND data_length > 64
    AND avg_col_len > 6
  ORDER BY owner, table_name, column_id
 ]';

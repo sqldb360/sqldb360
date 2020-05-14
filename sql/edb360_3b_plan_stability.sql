@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-@@&&skip_tuning.&&skip_10g_script.&&skip_11r1_script.edb360_3b_autotunereport.sql
+&&skip_ver_le_11_1.@@&&skip_tuning.edb360_3b_autotunereport.sql
 
 DEF title = 'SQL Patches';
 DEF main_table = '&&dva_view_prefix.SQL_PATCHES';
@@ -20,7 +20,7 @@ SELECT *
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Profiles';
 DEF main_table = '&&dva_view_prefix.SQL_PROFILES';
@@ -87,7 +87,7 @@ SELECT *
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Baselines Summary by Status';
 DEF main_table = '&&dva_view_prefix.SQL_PLAN_BASELINES';
@@ -112,7 +112,7 @@ SELECT COUNT(*),
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Baselines Summary by Creation Month';
 DEF main_table = '&&dva_view_prefix.SQL_PLAN_BASELINES';
@@ -122,7 +122,7 @@ SELECT TO_CHAR(TRUNC(created, 'MM'), 'YYYY-MM') created,
        COUNT(*) baselines,
        SUM(CASE enabled WHEN 'YES' THEN 1 ELSE 0 END) enabled,
        SUM(CASE enabled WHEN 'YES' THEN (CASE accepted WHEN 'YES' THEN 1 ELSE 0 END) ELSE 0 END) accepted,
-       &&skip_11r1_column.SUM(CASE enabled WHEN 'YES' THEN (CASE accepted WHEN 'YES' THEN (CASE reproduced WHEN 'YES' THEN 1 ELSE 0 END) ELSE 0 END) ELSE 0 END) reproduced,
+       &&skip_ver_le_11_1.SUM(CASE enabled WHEN 'YES' THEN (CASE accepted WHEN 'YES' THEN (CASE reproduced WHEN 'YES' THEN 1 ELSE 0 END) ELSE 0 END) ELSE 0 END) reproduced,
        SUM(CASE enabled WHEN 'NO' THEN 1 ELSE 0 END) disabled
   FROM &&dva_object_prefix.sql_plan_baselines
  GROUP BY
@@ -132,7 +132,7 @@ SELECT TO_CHAR(TRUNC(created, 'MM'), 'YYYY-MM') created,
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Baselines State by SQL';
 DEF main_table = '&&dva_view_prefix.SQL_PLAN_BASELINES';
@@ -162,7 +162,7 @@ SELECT q.signature,
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Directives';
 DEF main_table = '&&dva_view_prefix.SQL_PLAN_DIRECTIVES';
@@ -189,7 +189,7 @@ SELECT d.dir_id,
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Directives - Objects';
 DEF main_table = '&&dva_view_prefix.SQL_PLAN_DIR_OBJECTS';
@@ -201,7 +201,7 @@ SELECT *
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql       
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql       
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

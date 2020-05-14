@@ -39,7 +39,7 @@ SELECT a.samples,
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 COL db_time_secs HEA "DB Time|Secs";
 COL io_time_secs HEA "IO Time|Secs";
@@ -481,7 +481,7 @@ ORDER BY
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 COL cv_cellname       HEAD CELLNAME         FOR A20
 COL cv_cellversion    HEAD CELLSRV_VERSION  FOR A20
@@ -549,7 +549,7 @@ ORDER BY
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 COL cv_cellname       HEAD CELLNAME         FOR A20
 COL cv_cellversion    HEAD CELLSRV_VERSION  FOR A20
@@ -601,7 +601,7 @@ ORDER BY
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 COL cv_cellname       HEAD CELL_NAME        FOR A20
 COL cv_cell_path      HEAD CELL_PATH        FOR A20
@@ -633,7 +633,7 @@ ORDER BY
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 COL cellname            HEAD CELLNAME       FOR A20
 COL celldisk_name       HEAD CELLDISK       FOR A30
@@ -791,7 +791,7 @@ ORDER BY
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 CLEAR BREAKS
 
 SPO &&edb360_main_report..html APP;

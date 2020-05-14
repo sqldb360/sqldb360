@@ -125,7 +125,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Memory Target Advice';
 DEF main_table = '&&gv_view_prefix.MEMORY_TARGET_ADVICE';
@@ -139,7 +139,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'SGA Target Advice';
 DEF main_table = '&&gv_view_prefix.SGA_TARGET_ADVICE';
@@ -179,7 +179,7 @@ WITH
 totals AS (
   SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
          /* &&section_id..&&report_sequence. */
-        &&skip_11g_column.&&skip_10g_column.con_id,
+        &&skip_ver_le_11.con_id,
         INSTANCE_NUMBER,
         LOW_OPTIMAL_SIZE lnum, 
         HIGH_OPTIMAL_SIZE+1 hnum,
@@ -191,13 +191,13 @@ totals AS (
   WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
     AND dbid = &&edb360_dbid.
   GROUP BY 
-        &&skip_11g_column.&&skip_10g_column.con_id,
+        &&skip_ver_le_11.con_id,
         INSTANCE_NUMBER,
         LOW_OPTIMAL_SIZE,
         HIGH_OPTIMAL_SIZE
     )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-  &&skip_11g_column.&&skip_10g_column.con_id,
+  &&skip_ver_le_11.con_id,
   INSTANCE_NUMBER,
   (case when lnum between 1024           and 1024*1024-1                then to_char(round(lnum /1024),'9999') ||' Kb'
         when lnum between 1024*1024      and 1024*1024*1024-1           then to_char(round(lnum /1024/1024),'9999') ||' Mb'
@@ -214,7 +214,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   multipasses MULTIPASSES_EXECUTIONS,
   totex TOTAL_EXECUTIONS
 FROM totals
-ORDER BY &&skip_11g_column.&&skip_10g_column.con_id,
+ORDER BY &&skip_ver_le_11.con_id,
          INSTANCE_NUMBER,
          lnum
 ]';
@@ -237,7 +237,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Memory Current Resize Operations';
 DEF main_table = '&&gv_view_prefix.MEMORY_CURRENT_RESIZE_OPS';
@@ -254,7 +254,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Memory Resize Operations Hist';
 DEF main_table = '&&awr_hist_prefix.MEMORY_RESIZE_OPS';
@@ -273,7 +273,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Target Advice Hist';
 DEF main_table = '&&awr_hist_prefix.MEMORY_TARGET_ADVICE';
@@ -293,7 +293,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

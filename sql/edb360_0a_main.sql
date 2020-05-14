@@ -53,11 +53,11 @@ SET TERM OFF;
 COL diagnostics_pack NEW_V diagnostics_pack FOR A1;
 SELECT CASE WHEN '&&license_pack.' IN ('T', 'D') THEN 'Y' ELSE 'N' END diagnostics_pack FROM DUAL;
 COL skip_diagnostics NEW_V skip_diagnostics FOR A1;
-SELECT CASE WHEN '&&license_pack.' IN ('T', 'D') THEN NULL ELSE 'Y' END skip_diagnostics FROM DUAL;
+SELECT CASE WHEN '&&license_pack.' IN ('T', 'D') THEN NULL ELSE '--' END skip_diagnostics FROM DUAL;
 COL tuning_pack NEW_V tuning_pack FOR A1;
 SELECT CASE WHEN '&&license_pack.' = 'T' THEN 'Y' ELSE 'N' END tuning_pack FROM DUAL;
 COL skip_tuning NEW_V skip_tuning FOR A1;
-SELECT CASE WHEN '&&license_pack.' = 'T' THEN NULL ELSE 'Y' END skip_tuning FROM DUAL;
+SELECT CASE WHEN '&&license_pack.' = 'T' THEN NULL ELSE '--' END skip_tuning FROM DUAL;
 SET TERM ON;
 SELECT 'Be aware value "N" reduces output content substantially. Avoid "N" if possible.' warning FROM dual WHERE '&&license_pack.' = 'N';
 BEGIN
@@ -84,8 +84,8 @@ SPO OFF;
 -- ash verification
 PRO Please stand by while the AWR/ASH is being checked. Further feedback from you may be needed...
 DEF edb360_estimated_hrs = '0';
-@@&&ash_validation.&&skip_diagnostics.verify_stats_wr_sys.sql
-@@&&ash_validation.&&skip_diagnostics.awr_ash_pre_check.sql
+&&skip_diagnostics.@@&&ash_validation.verify_stats_wr_sys.sql
+&&skip_diagnostics.@@&&ash_validation.awr_ash_pre_check.sql
 
 SET HEA OFF TERM OFF;
 SPO edb360_pause.sql
@@ -220,10 +220,10 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_4c.mem_stats.sql
 @@&&skip_diagnostics.&&edb360_4d.time_model.sql
 @@&&skip_diagnostics.&&edb360_4e.time_model_comp.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&edb360_4f.io_waits.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&edb360_4g.io_waits_top_histog.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&edb360_4h.io_waits_top_trend.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&edb360_4i.io_waits_top_relation.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4f.io_waits.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4g.io_waits_top_histog.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4h.io_waits_top_trend.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4i.io_waits_top_relation.sql
 @@&&edb360_4j.parallel_execution.sql
 @@&&skip_diagnostics.&&edb360_4k.sysmetric_history.sql
 @@&&skip_diagnostics.&&edb360_4l.sysmetric_summary.sql
@@ -267,9 +267,9 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_6i.ash_objects.sql
 @@&&skip_diagnostics.&&edb360_6j.ash_services.sql
 @@&&skip_diagnostics.&&edb360_6k.ash_phv.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&edb360_6l.ash_signature.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&skip_11g_script.&&edb360_6m.ash_pdbs.sql
-@@&&skip_diagnostics.&&skip_10g_script.&&skip_11g_script.&&edb360_6n.ash_pdbs_ts.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_6l.ash_signature.sql
+&&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
+&&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

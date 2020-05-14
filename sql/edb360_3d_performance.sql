@@ -111,7 +111,7 @@ HAVING MAX(sql_text) IS NOT NULL
 ]';
 END;
 /
-@@&&skip_tuning.&&skip_10g_script.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Monitor Recent Executions Summary';
 DEF abstract = 'Aggregated by SQL_ID and sorted by Total Elapsed Time.<br />';
@@ -230,7 +230,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_tuning.&&skip_10g_script.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Monitor Recent Executions DONE (ERROR)';
 DEF abstract = 'Aggregated by SQL_ID and Error.<br />';
@@ -259,7 +259,7 @@ HAVING MAX(sql_text) IS NOT NULL
 ]';
 END;
 /
-@@&&skip_tuning.&&skip_10g_script.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Monitor (QUEUED)';
 DEF main_table = '&&gv_view_prefix.SQL_MONITOR';
@@ -286,7 +286,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_tuning.&&skip_10g_script.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL with changing Elapsed Time per Execution (list)';
 DEF abstract = 'SQL Statements with "Elapsed Time per Execution" changing over time.<br />';
@@ -543,15 +543,15 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        , ROUND(h.buffer_gets_total    / h.executions_total) bg_per_exec
        , ROUND(h.disk_reads_total     / h.executions_total) dr_per_exec
        , ROUND(h.direct_writes_total  / h.executions_total) dw_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.physical_read_requests_total   / h.executions_total) prr_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.physical_read_bytes_total      / h.executions_total) prb_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.physical_write_requests_total  / h.executions_total) pwr_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.physical_write_bytes_total     / h.executions_total) pwb_per_exec	
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.io_offload_elig_bytes_total    / h.executions_total) ofb_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.io_interconnect_bytes_total    / h.executions_total) icb_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.optimized_physical_reads_total / h.executions_total) opr_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.cell_uncompressed_bytes_total  / h.executions_total) unb_per_exec
-       &&skip_10g_column.&&skip_11r1_column., ROUND(h.io_offload_return_bytes_total  / h.executions_total) orb_per_exec
+       &&skip_ver_le_11_1., ROUND(h.physical_read_requests_total   / h.executions_total) prr_per_exec
+       &&skip_ver_le_11_1., ROUND(h.physical_read_bytes_total      / h.executions_total) prb_per_exec
+       &&skip_ver_le_11_1., ROUND(h.physical_write_requests_total  / h.executions_total) pwr_per_exec
+       &&skip_ver_le_11_1., ROUND(h.physical_write_bytes_total     / h.executions_total) pwb_per_exec	
+       &&skip_ver_le_11_1., ROUND(h.io_offload_elig_bytes_total    / h.executions_total) ofb_per_exec
+       &&skip_ver_le_11_1., ROUND(h.io_interconnect_bytes_total    / h.executions_total) icb_per_exec
+       &&skip_ver_le_11_1., ROUND(h.optimized_physical_reads_total / h.executions_total) opr_per_exec
+       &&skip_ver_le_11_1., ROUND(h.cell_uncompressed_bytes_total  / h.executions_total) unb_per_exec
+       &&skip_ver_le_11_1., ROUND(h.io_offload_return_bytes_total  / h.executions_total) orb_per_exec
   FROM ranked r,
        &&awr_object_prefix.sqlstat h, 
        &&awr_object_prefix.snapshot s
@@ -785,7 +785,7 @@ SELECT dbms_result_cache.status FROM dual
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Result Cache memory';
 DEF main_table = '&&gv_view_prefix.RESULT_CACHE_MEMORY';
@@ -799,7 +799,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Result Cache statistics';
 DEF main_table = '&&gv_view_prefix.RESULT_CACHE_STATISTICS';
@@ -813,7 +813,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Client Result Cache statistics';
 DEF main_table = 'CLIENT_RESULT_CACHE_STATS$';
@@ -827,7 +827,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'AAS for past minute';
 DEF main_table = '&&gv_view_prefix.WAITCLASSMETRIC';

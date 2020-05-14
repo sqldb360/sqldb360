@@ -13,7 +13,7 @@ BEGIN
 WITH
 hist AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
-       &&skip_11g_column.&&skip_10g_column.con_id,
+       &&skip_ver_le_11.con_id,
        sql_plan_hash_value,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(DISTINCT sql_id) distinct_sql_id,
@@ -24,7 +24,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
    AND sql_id IS NOT NULL
    AND sql_plan_hash_value > 0
  GROUP BY
-       &&skip_11g_column.&&skip_10g_column.con_id,
+       &&skip_ver_le_11.con_id,
        sql_plan_hash_value
 ),
 total AS (
@@ -39,7 +39,7 @@ SELECT h.sql_plan_hash_value||'('||h.distinct_sql_id||')' plan_hash_value,
        &&gv_object_prefix.sql v2
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND v2.sql_id(+) = h.sample_sql_id
-   &&skip_11g_column.&&skip_10g_column.AND v2.con_id(+) = h.con_id
+   &&skip_ver_le_11.AND v2.con_id(+) = h.con_id
  UNION 
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,
@@ -125,7 +125,7 @@ WITH
 hist AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
        /* &&section_id..&&report_sequence. */
-       &&skip_11g_column.&&skip_10g_column.con_id,
+       &&skip_ver_le_11.con_id,
        sql_plan_hash_value,
        dbid,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
@@ -139,7 +139,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
-       &&skip_11g_column.&&skip_10g_column.con_id,
+       &&skip_ver_le_11.con_id,
        sql_plan_hash_value,
        dbid
 ),
@@ -155,7 +155,7 @@ SELECT h.sql_plan_hash_value||'('||h.distinct_sql_id||')' plan_hash_value,
        &&awr_object_prefix.sqltext s
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sample_sql_id AND s.dbid(+) = h.dbid
-   &&skip_11g_column.&&skip_10g_column.AND s.con_id(+) = h.con_id
+   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
  UNION 
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,

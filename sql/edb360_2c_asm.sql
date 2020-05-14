@@ -19,7 +19,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'ASM Client';
 DEF main_table = '&&v_view_prefix.ASM_CLIENT';
@@ -117,7 +117,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'ASM File';
 DEF main_table = '&&v_view_prefix.ASM_FILE';

@@ -179,7 +179,7 @@ where  role not in (SELECT ROLE FROM &&dva_object_prefix.roles WHERE ORACLE_MAIN
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Role Privileges (not default)';
 DEF main_table ='&&dva_view_prefix.ROLE_PRIVS';
@@ -193,7 +193,7 @@ where  1=1
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'System Grants (not default)';
 DEF main_table='&&dva_view_prefix.SYS_PRIVS';
@@ -208,7 +208,7 @@ where  1=1
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

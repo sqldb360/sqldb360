@@ -31,7 +31,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_12_1.sqld360_9a_pre_one.sql
 
 DEF title = 'Automatic In-Memory Tasks';
 DEF main_table = 'DBA_INMEMORY_AIMTASKS';
@@ -44,7 +44,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_12_1.sqld360_9a_pre_one.sql
 
 DEF title = 'Automatic In-Memory Task Details';
 DEF main_table = 'DBA_INMEMORY_AIMTASKDETAILS';
@@ -57,7 +57,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_12_1.sqld360_9a_pre_one.sql
 
 
 DEF title = 'In-Memory Segments';
@@ -117,7 +117,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.&&skip_12r1.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_12_1.sqld360_9a_pre_one.sql
 
 
 SPO &&sqld360_main_report..html APP;

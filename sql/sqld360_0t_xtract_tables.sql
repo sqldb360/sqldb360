@@ -51,15 +51,15 @@ BEGIN
 &&sqld360_skip_obj_ashbased.           AND pt.object_instance > 0
 &&sqld360_skip_obj_ashbased.           AND o.object_id = pt.object_instance
 &&sqld360_skip_obj_ashbased.           AND pt.other_tag IN ('Application', 'Cluster', 'Concurrency', 'User I/O') 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.   UNION 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.   SELECT SUBSTR(owner,1,30) object_owner, SUBSTR(name,1,30) object_name
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.     FROM v$db_object_cache  -- it's intentional here to use V$ instead of GV$ to keep the plan easy 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.    WHERE type IN ('TABLE','VIEW') 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.      AND hash_value IN (SELECT to_hash
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                           FROM v$object_dependency 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                          WHERE from_hash IN (SELECT hash_value
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                                                FROM v$sqlarea  
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                                               WHERE sql_id IN ('&&sqld360_sqlid.', '&&sqld360_xplan_sqlid.')))
+&&skip_ver_le_11_1.&&sqld360_skip_objd.   UNION 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.   SELECT SUBSTR(owner,1,30) object_owner, SUBSTR(name,1,30) object_name
+&&skip_ver_le_11_1.&&sqld360_skip_objd.     FROM v$db_object_cache  -- it's intentional here to use V$ instead of GV$ to keep the plan easy 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.    WHERE type IN ('TABLE','VIEW') 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.      AND hash_value IN (SELECT to_hash
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                           FROM v$object_dependency 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                          WHERE from_hash IN (SELECT hash_value
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                                                FROM v$sqlarea  
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                                               WHERE sql_id IN ('&&sqld360_sqlid.', '&&sqld360_xplan_sqlid.')))
         )
         SELECT 'TABLE', o.owner, o.name table_name
           FROM dba_tables t,   

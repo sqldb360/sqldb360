@@ -17,13 +17,13 @@ BEGIN
        ROUND(SUM(io_time)/1e6/DECODE(SUM(executions),0,1,SUM(executions)),6) avg_io_time_secs, ROUND(SUM(rows_processed)/DECODE(SUM(executions),0,1,SUM(executions)),3) avg_rows_processed,
        ROUND(SUM(rows_processed)/DECODE(SUM(fetches),0,1,SUM(fetches)),3) avg_rows_per_fetch,
        sql_profile, 
-       &&skip_10g.sql_plan_baseline, sql_patch, 
+       &&skip_ver_le_10.sql_plan_baseline, sql_patch, 
        ROUND(AVG(cost)) avg_cost, MIN(cost) min_cost, MAX(cost) max_cost, 
        MIN(first_load_time) first_load_time, MAX(last_load_time) last_load_time, 
        MIN(optimizer_env_hash_value) min_cbo_env, max(optimizer_env_hash_value) max_cbo_env,
        MIN(min_dop) min_req_dop, MAX(max_dop) max_req_dop
   FROM (SELECT 'MEM' source, a.plan_hash_value, a.force_matching_signature, a.sql_profile, 
-                &&skip_10g.a.sql_plan_baseline, a.sql_patch, 
+                &&skip_ver_le_10.a.sql_plan_baseline, a.sql_patch, 
                 executions, fetches, end_of_fetch_count, elapsed_time, cpu_time, rows_processed, buffer_gets, first_load_time, last_load_time, optimizer_cost cost, optimizer_env_hash_value, min_dop, max_dop, user_io_wait_time io_time
           FROM gv$sql a,
                (SELECT plan_hash_value, MIN(TO_NUMBER(extractValue(XMLType(other_xml),'/other_xml/info[@type="dop"]'))) min_dop, 
@@ -36,7 +36,7 @@ BEGIN
            AND a.plan_hash_value = dop.plan_hash_value(+)
         UNION ALL
         SELECT 'HIST' source, a.plan_hash_value, a.force_matching_signature, a.sql_profile, 
-               &&skip_10g.'N/A' sql_plan_baseline, 'N/A' sql_patch, 
+               &&skip_ver_le_10.'N/A' sql_plan_baseline, 'N/A' sql_patch, 
                executions_delta executions, fetches_delta fetches,  end_of_fetch_count_delta end_of_fetch_count, elapsed_time_delta elapsed_time, cpu_time_delta cpu_time, rows_processed_delta rows_processed,
                buffer_gets_delta buffer_gets, null first_load_time, null last_load_time, optimizer_cost, optimizer_env_hash_value, min_dop, max_dop, iowait_delta
           FROM dba_hist_sqlstat a,
@@ -52,7 +52,7 @@ BEGIN
            AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
            AND a.plan_hash_value = dop.plan_hash_value(+))
  GROUP BY source, plan_hash_value, force_matching_signature, 
-          &&skip_10g.sql_plan_baseline, sql_patch,
+          &&skip_ver_le_10.sql_plan_baseline, sql_patch,
           sql_profile
 }';
 END;

@@ -112,7 +112,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_11.sqld360_9a_pre_one.sql
 
 
 --DEF title = 'SQL Plan Directives Objects';
@@ -127,7 +127,7 @@ END;
 --';
 --END;
 --/
---@@&&skip_10g.&&skip_11g.sqld360_9a_pre_one.sql
+--@@&&skip_ver_le_11.sqld360_9a_pre_one.sql
 
 -- this only makes sense in 12.2 because of the other object_type so can't filter on just owner, object_name
 DEF title = 'SQL Plan Directives Objects';
@@ -144,7 +144,7 @@ SELECT /*+ &&top_level_hints. */ *
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_11.sqld360_9a_pre_one.sql
 
 
 COL ADDRESS NOPRI
@@ -161,7 +161,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_11.sqld360_9a_pre_one.sql
 
 COL ADDRESS PRI
 
@@ -177,7 +177,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_11.sqld360_9a_pre_one.sql
 
 SPO &&sqld360_main_report..html APP;
 PRO </ol>

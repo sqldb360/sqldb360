@@ -29,7 +29,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Blocks with Corruption or Nonlogged';
 DEF main_table = '&&v_view_prefix.DATABASE_BLOCK_CORRUPTION';
@@ -114,7 +114,7 @@ Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ * from n
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Block Change Tracking';
 DEF main_table = '&&v_view_prefix.BLOCK_CHANGE_TRACKING';
@@ -143,7 +143,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 -- skipped on 10g due to bug as per mos 420200.1
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'RMAN Backup Set Details';
 DEF main_table = '&&v_view_prefix.BACKUP_SET_DETAILS';
@@ -193,7 +193,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Restore Point';
 DEF main_table = '&&v_view_prefix.RESTORE_POINT';
