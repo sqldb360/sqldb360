@@ -64,7 +64,7 @@ BEGIN
     -- need to check if dba_stat_extensions existed in 10g, likely not so need to introduce conditional code here
     FOR j IN (SELECT col.owner, col.table_name, column_name, 
                      &&skip_ver_le_10.NVL2(exts.extension, exts.extension, col.column_name) display_name, 
-                     &&skip_ver_ge_12.col.column_name display_name,
+                     &&skip_ver_ge_11.col.column_name display_name,
                      col.data_type, col.histogram, col.sample_size, col.num_nulls, col.num_buckets
                 FROM dba_tab_cols col
                      &&skip_ver_le_10.,dba_stat_extensions exts
