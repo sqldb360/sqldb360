@@ -41,15 +41,15 @@ BEGIN
                    SELECT owner object_owner, mview_name object_name, 'MATERIALIZED_VIEW' object_type
                      FROM dba_mviews
                     WHERE (owner, mview_name) IN (SELECT object_owner, object_name FROM plan_table WHERE statement_id = 'LIST_OF_TABLES' AND remarks = '&&sqld360_sqlid.')
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.   UNION 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.   SELECT SUBSTR(owner,1,30) object_owner, SUBSTR(name,1,30) object_name, SUBSTR(type,1,30) object_type
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.     FROM v$db_object_cache -- it's intentional here to use V$ instead of GV$ to keep the plan easy 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.    WHERE type IN ('INDEX', 'TABLE', 'CLUSTER', 'VIEW', 'SYNONYM', 'SEQUENCE', 'PROCEDURE', 'FUNCTION', 'PACKAGE', 'PACKAGE BODY' ) 
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.      AND hash_value IN (SELECT to_hash
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                           FROM v$object_dependency
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                          WHERE from_hash IN (SELECT hash_value
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                                                FROM v$sqlarea
-&&skip_10g.&&skip_11r1.&&sqld360_skip_objd.                                               WHERE sql_id IN ('&&sqld360_sqlid.', '&&sqld360_xplan_sqlid.')))
+&&skip_ver_le_11_1.&&sqld360_skip_objd.   UNION 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.   SELECT SUBSTR(owner,1,30) object_owner, SUBSTR(name,1,30) object_name, SUBSTR(type,1,30) object_type
+&&skip_ver_le_11_1.&&sqld360_skip_objd.     FROM v$db_object_cache -- it's intentional here to use V$ instead of GV$ to keep the plan easy 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.    WHERE type IN ('INDEX', 'TABLE', 'CLUSTER', 'VIEW', 'SYNONYM', 'SEQUENCE', 'PROCEDURE', 'FUNCTION', 'PACKAGE', 'PACKAGE BODY' ) 
+&&skip_ver_le_11_1.&&sqld360_skip_objd.      AND hash_value IN (SELECT to_hash
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                           FROM v$object_dependency
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                          WHERE from_hash IN (SELECT hash_value
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                                                FROM v$sqlarea
+&&skip_ver_le_11_1.&&sqld360_skip_objd.                                               WHERE sql_id IN ('&&sqld360_sqlid.', '&&sqld360_xplan_sqlid.')))
                   )
             WHERE object_owner NOT IN ('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX_SSO','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES',
                                        'MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','OUTLN','OWBSYS', 'PUBLIC',

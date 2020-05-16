@@ -249,7 +249,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Function-based Indexes';
 DEF main_table = '&&dva_view_prefix.INDEXES';
@@ -544,7 +544,7 @@ HAVING MAX(last_date) < SYSDATE - &&history_days.
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Indexes not recently used';
 DEF main_table = '&&dva_view_prefix.INDEXES';
@@ -614,7 +614,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Redundant Indexes(1)';
 DEF main_table = '&&dva_view_prefix.INDEXES';
@@ -786,8 +786,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE WHEN uniqueness LIKE 'NONUNIQUE%' THEN 1 ELSE 0 END) non_unique,
        SUM(CASE WHEN status LIKE 'VALID%' THEN 1 ELSE 0 END) valid,
        SUM(CASE WHEN status LIKE 'N/A%' THEN 1 ELSE 0 END) status_na,
-       &&skip_10g_column.SUM(CASE WHEN visibility LIKE 'VISIBLE%' THEN 1 ELSE 0 END) visible,
-       &&skip_10g_column.SUM(CASE WHEN visibility LIKE 'INVISIBLE%' THEN 1 ELSE 0 END) invisible,
+       &&skip_ver_le_10.SUM(CASE WHEN visibility LIKE 'VISIBLE%' THEN 1 ELSE 0 END) visible,
+       &&skip_ver_le_10.SUM(CASE WHEN visibility LIKE 'INVISIBLE%' THEN 1 ELSE 0 END) invisible,
        SUM(CASE WHEN status LIKE 'UNUSABLE%' THEN 1 ELSE 0 END) unusable
   FROM &&dva_object_prefix.indexes
  WHERE table_owner NOT IN &&exclusion_list.
@@ -886,7 +886,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Tables on KEEP Cell Flash Cache';
 DEF main_table = '&&dva_view_prefix.TABLES';
@@ -907,7 +907,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Tables set for Compression';
 DEF main_table = '&&dva_view_prefix.TABLES';
@@ -929,7 +929,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Partitions set for Compression';
 DEF main_table = '&&dva_view_prefix.TAB_PARTITIONS';
@@ -957,7 +957,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 REM DMK 25.6.2018
 DEF title = 'Unindexed Partition Key Columns';
@@ -1072,7 +1072,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Segments with non-default Buffer Pool';
 DEF main_table = '&&dva_view_prefix.SEGMENTS';
@@ -1116,7 +1116,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Segments with non-default Cell Flash Cache';
 DEF main_table = '&&dva_view_prefix.SEGMENTS';
@@ -1138,7 +1138,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
 
 DEF title = 'Degree of Parallelism DOP on Tables';
 DEF main_table = '&&dva_view_prefix.TABLES';
@@ -1396,7 +1396,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Scheduler Job Log for past 7 days';
 DEF main_table = '&&dva_view_prefix.SCHEDULER_JOB_LOG';
@@ -1429,7 +1429,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Scheduler Windows';
 DEF main_table = '&&dva_view_prefix.SCHEDULER_WINDOWS';
@@ -1458,7 +1458,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Scheduler Window Group Members';
 DEF main_table = '&&dva_view_prefix.SCHEDULER_WINGROUP_MEMBERS';
@@ -1486,7 +1486,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Advisor Parameters';
 DEF main_table = '&&dva_view_prefix.ADVISOR_PARAMETERS';
@@ -1498,7 +1498,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Advisor Execution Types';
 DEF main_table = '&&dva_view_prefix.ADVISOR_EXECUTION_TYPES';
@@ -1510,7 +1510,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Advisor Tasks';
 DEF main_table = '&&dva_view_prefix.ADVISOR_TASKS';
@@ -1522,7 +1522,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Advisor Executions';
 DEF main_table = '&&dva_view_prefix.ADVISOR_EXECUTIONS';
@@ -1534,7 +1534,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Automated Maintenance Tasks';
 DEF main_table = '&&dva_view_prefix.AUTOTASK_CLIENT';
@@ -1548,7 +1548,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Automated Maintenance Tasks PDBs';
 DEF main_table = 'CDB_AUTOTASK_CLIENT';
@@ -1563,7 +1563,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Automated Maintenance Task Tasks';
 DEF main_table = '&&dva_view_prefix.AUTOTASK_TASK';
@@ -1577,7 +1577,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Automated Maintenance Task Tasks PDBs';
 DEF main_table = 'CDB_AUTOTASK_TASK';
@@ -1592,7 +1592,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Automated Maintenance Tasks History';
 DEF main_table = '&&dva_view_prefix.AUTOTASK_CLIENT_HISTORY';
@@ -1606,7 +1606,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Automated Maintenance Tasks History PDBs';
 DEF main_table = 'CDB_AUTOTASK_CLIENT_HISTORY';
@@ -1621,7 +1621,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Auto Task Job History';
 DEF main_table = '&&dva_view_prefix.AUTOTASK_JOB_HISTORY';
@@ -1635,7 +1635,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Auto Task Job History PDBs';
 DEF main_table = 'CDB_AUTOTASK_JOB_HISTORY';
@@ -1650,7 +1650,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Current Blocking Activity';
 DEF main_table = '&&gv_view_prefix.SESSION';
@@ -1841,7 +1841,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = &&edb360_dbid.
-   &&skip_11g_column.&&skip_10g_column.AND s.con_id(+) = h.con_id
+   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
  GROUP BY
        h.sql_id,
        DBMS_LOB.SUBSTR(s.sql_text, 1000)
@@ -1850,7 +1850,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'SQL with over 2GB of PGA allocated memory';
 DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
@@ -1869,7 +1869,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = &&edb360_dbid.
-   &&skip_11g_column.&&skip_10g_column.AND s.con_id(+) = h.con_id
+   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
  GROUP BY
        h.sql_id,
        DBMS_LOB.SUBSTR(s.sql_text, 1000) 
@@ -1878,7 +1878,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.&&skip_11r1_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11_1.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Opened Cursors Current - Count per Session';
 DEF main_table = '&&gv_view_prefix.SESSTAT';
@@ -1938,7 +1938,7 @@ HAVING COUNT(*) >= 50
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Cached Cursors List per Session';
 DEF main_table = '&&gv_view_prefix.OPEN_CURSOR';
@@ -1949,11 +1949,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.open_cursor
  ORDER BY 
        inst_id, sid, sql_id
-       &&skip_10g_column., sql_exec_id
+       &&skip_ver_le_10., sql_exec_id
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Session Cursor Cache Misses per Session';
 DEF main_table = '&&gv_view_prefix.SESSTAT';
@@ -2351,7 +2351,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_diagnostics.&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'ASH Retention ';
 DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
@@ -2502,7 +2502,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

@@ -67,18 +67,18 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(DECODE(status, 'VALID', 0, 1)) not_valid,
        SUM(DECODE(logging, 'YES', 0, 1)) not_logging,
        SUM(DECODE(TRIM(cache), 'Y', 1, 0)) cache,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(result_cache, 'FORCE', 1, 0)) result_cache_force,
+       &&skip_ver_le_11_1.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(result_cache, 'FORCE', 1, 0)) result_cache_force,
        SUM(DECODE(dependencies, 'ENABLED', 1, 0)) dependencies,
        SUM(DECODE(compression, 'ENABLED', 1, 0)) compression,
-       &&skip_10g_column.SUM(DECODE(compress_for, 'BASIC', 1, 0)) compress_for_basic,
-       &&skip_10g_column.SUM(DECODE(compress_for, 'OLTP', 1, 0)) compress_for_oltp,
-       &&skip_10g_column.SUM(CASE WHEN compress_for IN 
-       &&skip_10g_column.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW') 
-       &&skip_10g_column.THEN 1 ELSE 0 END) compress_for_hcc,
+       &&skip_ver_le_10.SUM(DECODE(compress_for, 'BASIC', 1, 0)) compress_for_basic,
+       &&skip_ver_le_10.SUM(DECODE(compress_for, 'OLTP', 1, 0)) compress_for_oltp,
+       &&skip_ver_le_10.SUM(CASE WHEN compress_for IN 
+       &&skip_ver_le_10.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW') 
+       &&skip_ver_le_10.THEN 1 ELSE 0 END) compress_for_hcc,
        SUM(DECODE(dropped, 'YES', 1, 0)) dropped,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(read_only, 'YES', 1, 0)) read_only,
+       &&skip_ver_le_11_1.SUM(DECODE(read_only, 'YES', 1, 0)) read_only,
        SUM(num_rows) sum_num_rows,
        MAX(num_rows) max_num_rows,
        SUM(blocks) sum_blocks,
@@ -197,10 +197,10 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(DECODE(partitioned, 'YES', 1, 0)) partitioned,
        SUM(DECODE(temporary, 'Y', 1, 0)) temporary,
        SUM(DECODE(status, 'UNUSABLE', 1, 0)) unusable,
-       &&skip_10g_column.SUM(DECODE(visibility, 'INVISIBLE', 1, 0)) invisible,
+       &&skip_ver_le_10.SUM(DECODE(visibility, 'INVISIBLE', 1, 0)) invisible,
        SUM(DECODE(logging, 'YES', 0, 1)) not_logging,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
        SUM(DECODE(compression, 'ENABLED', 1, 0)) compression,
        SUM(DECODE(dropped, 'YES', 1, 0)) dropped,
        SUM(leaf_blocks) sum_leaf_blocks,
@@ -270,14 +270,14 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(subpartition_count) subpartition_count,
        SUM(DECODE(last_analyzed, NULL, 1, 0)) not_analyzed,
        SUM(DECODE(logging, 'YES', 0, 1)) not_logging,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
        SUM(DECODE(compression, 'ENABLED', 1, 0)) compression,
-       &&skip_10g_column.SUM(DECODE(compress_for, 'BASIC', 1, 0)) compress_for_basic,
-       &&skip_10g_column.SUM(DECODE(compress_for, 'OLTP', 1, 0)) compress_for_oltp,
-       &&skip_10g_column.SUM(CASE WHEN compress_for IN 
-       &&skip_10g_column.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW') 
-       &&skip_10g_column.THEN 1 ELSE 0 END) compress_for_hcc,
+       &&skip_ver_le_10.SUM(DECODE(compress_for, 'BASIC', 1, 0)) compress_for_basic,
+       &&skip_ver_le_10.SUM(DECODE(compress_for, 'OLTP', 1, 0)) compress_for_oltp,
+       &&skip_ver_le_10.SUM(CASE WHEN compress_for IN 
+       &&skip_ver_le_10.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW') 
+       &&skip_ver_le_10.THEN 1 ELSE 0 END) compress_for_hcc,
        SUM(num_rows) sum_num_rows,
        MAX(num_rows) max_num_rows,
        SUM(blocks) sum_blocks,
@@ -314,8 +314,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(DECODE(last_analyzed, NULL, 1, 0)) not_analyzed,
        SUM(DECODE(status, 'UNUSABLE', 1, 0)) unusable,
        SUM(DECODE(logging, 'YES', 0, 1)) not_logging,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
-       &&skip_10g_column.&&skip_11r1_column.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
+       &&skip_ver_le_11_1.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
        SUM(DECODE(compression, 'ENABLED', 1, 0)) compression,
        SUM(leaf_blocks) sum_leaf_blocks,
        MAX(leaf_blocks) max_leaf_blocks,
@@ -843,7 +843,7 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-@@&&skip_10g_script.&&skip_11r1_script.edb360_3c_dbms_stats.sql
+&&skip_ver_le_11_1.@@edb360_3c_dbms_stats.sql
 
 DEF title = 'SYS Stats for WRH$, WRI$, WRM$ and WRR$ Tables';
 DEF main_table = '&&dva_view_prefix.TABLES';

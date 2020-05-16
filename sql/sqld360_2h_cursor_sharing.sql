@@ -53,7 +53,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.sqld360_9a_pre_one.sql
+&&skip_ver_le_10.@@sqld360_9a_pre_one.sql
 
 
 DEF title = 'ACS Statistics';
@@ -68,7 +68,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.sqld360_9a_pre_one.sql
+&&skip_ver_le_10.@@sqld360_9a_pre_one.sql
 
 
 DEF title = 'ACS Selectivity';
@@ -83,7 +83,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.sqld360_9a_pre_one.sql
+&&skip_ver_le_10.@@sqld360_9a_pre_one.sql
 
 SPO &&sqld360_main_report..html APP;
 PRO </ol>

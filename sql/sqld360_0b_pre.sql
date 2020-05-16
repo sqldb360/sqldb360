@@ -85,11 +85,11 @@ SET TERM OFF;
 COL diagnostics_pack NEW_V diagnostics_pack FOR A1;
 SELECT CASE WHEN '&&license_pack.' IN ('T', 'D') THEN 'Y' ELSE 'N' END diagnostics_pack FROM DUAL;
 COL skip_diagnostics NEW_V skip_diagnostics FOR A1;
-SELECT CASE WHEN '&&license_pack.' IN ('T', 'D') THEN NULL ELSE 'Y' END skip_diagnostics FROM DUAL;
+SELECT CASE WHEN '&&license_pack.' IN ('T', 'D') THEN NULL ELSE '--' END skip_diagnostics FROM DUAL;
 COL tuning_pack NEW_V tuning_pack FOR A1;
 SELECT CASE WHEN '&&license_pack.' = 'T' THEN 'Y' ELSE 'N' END tuning_pack FROM DUAL;
 COL skip_tuning NEW_V skip_tuning FOR A1;
-SELECT CASE WHEN '&&license_pack.' = 'T' THEN NULL ELSE 'Y' END skip_tuning FROM DUAL;
+SELECT CASE WHEN '&&license_pack.' = 'T' THEN NULL ELSE '--' END skip_tuning FROM DUAL;
 SET TERM ON;
 SELECT 'Be aware value "N" reduces output content substantially. Avoid "N" if possible.' warning FROM dual WHERE '&&license_pack.' = 'N';
 BEGIN
@@ -207,39 +207,42 @@ COL row_num NEW_V row_num HEA '#' PRI;
 
 -- get rdbms version
 COL db_version NEW_V db_version;
-SELECT version db_version FROM v$instance;
-DEF skip_10g = '';
-COL skip_10g NEW_V skip_10g;
-SELECT '--' skip_10g FROM v$instance WHERE version LIKE '10%';
-COL skip_11g NEW_V skip_11g;
-SELECT '--' skip_11g FROM v$instance WHERE version LIKE '11%';
-DEF skip_11r1 = '';
-COL skip_11r1 NEW_V skip_11r1;
-SELECT '--' skip_11r1 FROM v$instance WHERE version LIKE '11.1%';
-DEF skip_11r201 = '';
-COL skip_11r201 NEW_V skip_11r201;
-SELECT '--' skip_11r201 FROM v$instance WHERE version LIKE '11.2.0.1%';
--- this is to bypass some bugs in 11.2.0.3 that can cause slowdown
-DEF skip_11r203 = '';
-COL skip_11r203 NEW_V skip_11r203;
-SELECT '--' skip_11r203 FROM v$instance WHERE version LIKE '11.2.0.3%';
-DEF skip_12c = '';
-COL skip_12c NEW_V skip_12c;
-SELECT '--' skip_12c FROM v$instance WHERE version LIKE '12.%';
-DEF skip_12r101 = '';
-COL skip_12r101 NEW_V skip_12r101;
-SELECT '--' skip_12r101 FROM v$instance WHERE version LIKE '12.1.0.1%';
-DEF skip_12r1 = '';
-COL skip_12r1 NEW_V skip_12r1;
-SELECT '--' skip_12r1 FROM v$instance WHERE version LIKE '12.1.%';
-DEF skip_18c = '';
-COL skip_18c NEW_V skip_18c;
-SELECT '--' skip_18c FROM v$instance WHERE version LIKE '18.%';
-DEF skip_19c = '';
-COL skip_19c NEW_V skip_19c;
-SELECT '--' skip_19c FROM v$instance WHERE version LIKE '19.%';
---
+--SELECT version db_version FROM v$instance;
+--DEF skip_10g = '';
+--COL skip_10g NEW_V skip_10g;
+--SELECT '--' skip_10g FROM v$instance WHERE version LIKE '10%';
+--COL skip_11g NEW_V skip_11g;
+--SELECT '--' skip_11g FROM v$instance WHERE version LIKE '11%';
+--DEF skip_11r1 = '';
+--COL skip_11r1 NEW_V skip_11r1;
+--SELECT '--' skip_11r1 FROM v$instance WHERE version LIKE '11.1%';
+--DEF skip_11r201 = '';
+--COL skip_11r201 NEW_V skip_11r201;
+--SELECT '--' skip_11r201 FROM v$instance WHERE version LIKE '11.2.0.1%';
+--DEF skip_11r203 = '';
+--COL skip_11r203 NEW_V skip_11r203;
+--SELECT '--' skip_11r203 FROM v$instance WHERE version LIKE '11.2.0.3%';
+--DEF skip_12c = '';
+--COL skip_12c NEW_V skip_12c;
+--SELECT '--' skip_12c FROM v$instance WHERE version LIKE '12.%';
+--DEF skip_12r101 = '';
+--COL skip_12r101 NEW_V skip_12r101;
+--SELECT '--' skip_12r101 FROM v$instance WHERE version LIKE '12.1.0.1%';
+--DEF skip_12r1 = '';
+--COL skip_12r1 NEW_V skip_12r1;
+--SELECT '--' skip_12r1 FROM v$instance WHERE version LIKE '12.1.%';
+--DEF skip_18c = '';
+--COL skip_18c NEW_V skip_18c;
+--SELECT '--' skip_18c FROM v$instance WHERE version LIKE '18.%';
+--DEF skip_19c = '';
+--COL skip_19c NEW_V skip_19c;
+--SELECT '--' skip_19c FROM v$instance WHERE version LIKE '19.%';
 
+SELECT 
+FROM v$instance
+
+--
+@@moat369_fc_oracle_version.sql
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A3;

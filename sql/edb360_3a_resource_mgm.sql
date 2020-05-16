@@ -103,7 +103,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Resource Plans for PDBs';
 DEF main_table = '&&dva_view_prefix.CDB_RSRC_PLANS';
@@ -117,7 +117,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Active Resource Consumer Groups';
 DEF main_table = '&&gv_view_prefix.RSRC_CONSUMER_GROUP';
@@ -201,7 +201,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Resources Consumed History';
 DEF main_table = '&&gv_view_prefix.RSRCMGRMETRIC_HISTORY';
@@ -215,7 +215,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

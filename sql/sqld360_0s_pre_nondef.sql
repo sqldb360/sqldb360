@@ -15,6 +15,9 @@ SET HEA OFF;
 EXEC :file_seq := :file_seq + 1;
 SELECT LPAD(:file_seq, 5, '0')||'_&&spool_filename.' one_spool_filename FROM DUAL;
 
+COL format_adaptive NEW_V format_adaptive
+SELECT '+ADAPTIVE' format_adaptive FROM v$instance WHERE version >= '12.';
+
 SET TERM ON; 
 
 -- log

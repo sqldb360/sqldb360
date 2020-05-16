@@ -436,23 +436,23 @@ SELECT version db_version FROM &&v_object_prefix.instance;
 
 -- skip
 
-DEF skip_10g_column = '';
-COL skip_10g_column NEW_V skip_10g_column;
-DEF skip_10g_script = '';
-COL skip_10g_script NEW_V skip_10g_script;
-SELECT ' -- skip 10g ' skip_10g_column, ' echo skip 10g ' skip_10g_script FROM &&v_object_prefix.instance WHERE version LIKE '10%';
+--DEF skip_10g_column = '';
+--COL skip_10g_column NEW_V skip_10g_column;
+--DEF skip_10g_script = '';
+--COL skip_10g_script NEW_V skip_10g_script;
+--SELECT ' -- skip 10g ' skip_10g_column, ' echo skip 10g ' skip_10g_script FROM &&v_object_prefix.instance WHERE version LIKE '10%';
 --
-DEF skip_11g_column = '';
-COL skip_11g_column NEW_V skip_11g_column;
-DEF skip_11g_script = '';
-COL skip_11g_script NEW_V skip_11g_script;
-SELECT ' -- skip 11g ' skip_11g_column, ' echo skip 11g ' skip_11g_script FROM &&v_object_prefix.instance WHERE version LIKE '11%';
+--DEF skip_11g_column = '';
+--COL skip_11g_column NEW_V skip_11g_column;
+--DEF skip_11g_script = '';
+--COL skip_11g_script NEW_V skip_11g_script;
+--SELECT ' -- skip 11g ' skip_11g_column, ' echo skip 11g ' skip_11g_script FROM &&v_object_prefix.instance WHERE version LIKE '11%';
 --
-DEF skip_11r1_column = '';
-COL skip_11r1_column NEW_V skip_11r1_column;
-DEF skip_11r1_script = '';
-COL skip_11r1_script NEW_V skip_11r1_script;
-SELECT ' -- skip 11gR1 ' skip_11r1_column, ' echo skip 11gR1 ' skip_11r1_script FROM &&v_object_prefix.instance WHERE version LIKE '11.1%';
+--DEF skip_11r1_column = '';
+--COL skip_11r1_column NEW_V skip_11r1_column;
+--DEF skip_11r1_script = '';
+--COL skip_11r1_script NEW_V skip_11r1_script;
+--SELECT ' -- skip 11gR1 ' skip_11r1_column, ' echo skip 11gR1 ' skip_11r1_script FROM &&v_object_prefix.instance WHERE version LIKE '11.1%';
 --
 DEF skip_non_repo_column = '';
 COL skip_non_repo_column NEW_V skip_non_repo_column;
@@ -460,29 +460,31 @@ DEF skip_non_repo_script = '';
 COL skip_non_repo_script NEW_V skip_non_repo_script;
 SELECT ' -- skip non-repository ' skip_non_repo_column, ' echo skip non-repository ' skip_non_repo_script FROM DUAL WHERE '&&tool_repo_user.' IS NOT NULL;
 --
-DEF skip_12c_column = '';
-COL skip_12c_column NEW_V skip_12c_column;
-DEF skip_12c_script = '';
-COL skip_12c_script NEW_V skip_12c_script;
-SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &&v_object_prefix.instance WHERE version LIKE '12%';
+--DEF skip_12c_column = '';
+--COL skip_12c_column NEW_V skip_12c_column;
+--DEF skip_12c_script = '';
+--COL skip_12c_script NEW_V skip_12c_script;
+--SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &&v_object_prefix.instance WHERE version LIKE '12%';
 --
-DEF skip_12r2_column = '';
-COL skip_12r2_column NEW_V skip_12r2_column;
-DEF skip_12r2_script = '';
-COL skip_12r2_script NEW_V skip_12r2_script;
-SELECT ' -- skip 12cR2 ' skip_12r2_column, ' echo skip 12cR2 ' skip_12r2_script FROM &&v_object_prefix.instance WHERE version LIKE '12.2%';
+--DEF skip_12r2_column = '';
+--COL skip_12r2_column NEW_V skip_12r2_column;
+--DEF skip_12r2_script = '';
+--COL skip_12r2_script NEW_V skip_12r2_script;
+--SELECT ' -- skip 12cR2 ' skip_12r2_column, ' echo skip 12cR2 ' skip_12r2_script FROM &&v_object_prefix.instance WHERE version LIKE '12.2%';
 --
-DEF skip_18c_column = '';
-COL skip_18c_column NEW_V skip_18c_column;
-DEF skip_18c_script = '';
-COL skip_18c_script NEW_V skip_18c_script;
-SELECT ' -- skip 18c ' skip_18c_column, ' echo skip 18c ' skip_18c_script FROM &&v_object_prefix.instance WHERE version LIKE '18%';
+--DEF skip_18c_column = '';
+--COL skip_18c_column NEW_V skip_18c_column;
+--DEF skip_18c_script = '';
+--COL skip_18c_script NEW_V skip_18c_script;
+--SELECT ' -- skip 18c ' skip_18c_column, ' echo skip 18c ' skip_18c_script FROM &&v_object_prefix.instance WHERE version LIKE '18%';
 --
-DEF skip_19c_column = '';
-COL skip_19c_column NEW_V skip_19c_column;
-DEF skip_19c_script = '';
-COL skip_19c_script NEW_V skip_19c_script;
-SELECT ' -- skip 19c ' skip_19c_column, ' echo skip 19c ' skip_19c_script FROM &&v_object_prefix.instance WHERE version LIKE '19%';
+--DEF skip_19c_column = '';
+--COL skip_19c_column NEW_V skip_19c_column;
+--DEF skip_19c_script = '';
+--COL skip_19c_script NEW_V skip_19c_script;
+--SELECT ' -- skip 19c ' skip_19c_column, ' echo skip 19c ' skip_19c_script FROM &&v_object_prefix.instance WHERE version LIKE '19%';
+
+@@moat369_fc_oracle_version.sql
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A6;

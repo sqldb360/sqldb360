@@ -475,7 +475,7 @@ SELECT SUBSTR(TRIM(h.sql_id||' '||h.program||' '||
        &&awr_object_prefix.sqltext s 
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = h.dbid
-   &&skip_11g_column.&&skip_10g_column.AND s.con_id(+) = h.con_id
+   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
  UNION ALL
 SELECT 'Others' source,
        NVL(SUM(h.samples), 0) samples,

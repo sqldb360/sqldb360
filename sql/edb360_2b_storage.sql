@@ -31,7 +31,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Tablespace';
 DEF main_table = '&&v_view_prefix.TABLESPACE';
@@ -368,7 +368,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 
 DEF title = 'Kernel I/O taking long';
 DEF main_table = '&&v_view_prefix.KERNEL_IO_OUTLIER';
@@ -382,7 +382,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'Log Writer I/O taking long';
 DEF main_table = '&&v_view_prefix.LGWRIO_OUTLIER';
@@ -396,7 +396,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'I/O taking long';
 DEF main_table = '&&v_view_prefix.IO_OUTLIER';
@@ -410,7 +410,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_10g_script.&&skip_11g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_11.@@edb360_9a_pre_one.sql
 
 DEF title = 'SYSAUX Occupants';
 DEF main_table = '&&v_view_prefix.SYSAUX_OCCUPANTS';
@@ -828,7 +828,7 @@ END;
 BRE ON REPORT;
 COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
 COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 CL BRE;
 CL COMP;
 
@@ -871,7 +871,7 @@ END;
 BRE ON REPORT;
 COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
 COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 CL BRE;
 CL COMP;
 
@@ -915,7 +915,7 @@ END;
 BRE ON REPORT;
 COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
 COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
-@@&&skip_10g_script.edb360_9a_pre_one.sql
+&&skip_ver_le_10.@@edb360_9a_pre_one.sql
 CL BRE;
 CL COMP;
 
@@ -1252,7 +1252,7 @@ BEGIN
               FROM dba_tab_statistics s, dba_tables x, dba_users u, v$parameter p
              WHERE x.owner NOT IN &&exclusion_list. -- exclude non-application schemas
                AND x.owner NOT IN &&exclusion_list2. -- exclude more non-application schemas
-               &&skip_10g_column.&&skip_11g_column.AND u.oracle_maintained = 'N'
+               &&skip_ver_le_11.AND u.oracle_maintained = 'N'
                AND x.owner = u.username
                AND x.tablespace_name NOT IN ('SYSTEM','SYSAUX')
                AND x.iot_type IS NULL
@@ -1260,7 +1260,7 @@ BEGIN
                AND x.status = 'VALID'
                AND x.temporary = 'N'
                AND x.dropped = 'NO'
-               &&skip_10g_column.&&skip_11g_column.AND x.segment_created = 'YES'
+               &&skip_ver_le_11.AND x.segment_created = 'YES'
                AND p.name = 'db_block_size'
                AND s.owner = x.owner
                AND s.table_name = x.table_name
@@ -1382,7 +1382,7 @@ BEGIN
               FROM dba_ind_statistics s, dba_indexes x, dba_users u, v$parameter p
              WHERE x.owner NOT IN &&exclusion_list. -- exclude non-application schemas
                AND x.owner NOT IN &&exclusion_list2. -- exclude more non-application schemas
-               &&skip_10g_column.&&skip_11g_column.AND u.oracle_maintained = 'N'
+               &&skip_ver_le_11.AND u.oracle_maintained = 'N'
                AND x.owner = u.username
                AND x.tablespace_name NOT IN ('SYSTEM','SYSAUX')
                AND x.index_type LIKE '%NORMAL%'
@@ -1390,9 +1390,9 @@ BEGIN
                AND x.status = 'VALID'
                AND x.temporary = 'N'
                AND x.dropped = 'NO'
-               &&skip_10g_column.&&skip_11g_column.AND x.visibility = 'VISIBLE'
-               &&skip_10g_column.&&skip_11g_column.AND x.segment_created = 'YES'
-               &&skip_10g_column.&&skip_11g_column.AND x.orphaned_entries = 'NO'
+               &&skip_ver_le_11.AND x.visibility = 'VISIBLE'
+               &&skip_ver_le_11.AND x.segment_created = 'YES'
+               &&skip_ver_le_11.AND x.orphaned_entries = 'NO'
                AND p.name = 'db_block_size'
                AND s.owner = x.owner
                AND s.index_name = x.index_name

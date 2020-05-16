@@ -191,9 +191,9 @@ BEGIN
            DBMS_OUTPUT.PUT_LINE('  srec.maxval := '''||current_column.high_value||''';');  
 
            SELECT endpoint_number, endpoint_value
-                  &&skip_10g.&&skip_11g.,endpoint_repeat_count
+                  &&skip_ver_le_11.,endpoint_repeat_count
              BULK COLLECT INTO ep_number, ep_value
-                  &&skip_10g.&&skip_11g.,eprc
+                  &&skip_ver_le_11.,eprc
              FROM dba_tab_histograms
             WHERE table_name = current_table.table_name
               AND owner = current_table.owner
@@ -222,14 +222,14 @@ BEGIN
            END LOOP;
            DBMS_OUTPUT.PUT_LINE(');');
            
-           &&skip_10g.&&skip_11g.DBMS_OUTPUT.PUT_LINE(' srec.rpcnts := DBMS_STATS.NUMARRAY(');
-           &&skip_10g.&&skip_11g.FOR i IN 1..eprc.COUNT LOOP
-           &&skip_10g.&&skip_11g.    IF i > 1 THEN
-           &&skip_10g.&&skip_11g.        DBMS_OUTPUT.PUT(',');
-           &&skip_10g.&&skip_11g.    END IF;
-           &&skip_10g.&&skip_11g.    DBMS_OUTPUT.PUT_LINE(eprc(i));
-           &&skip_10g.&&skip_11g.END LOOP;
-           &&skip_10g.&&skip_11g.DBMS_OUTPUT.PUT_LINE(');');
+           &&skip_ver_le_11.DBMS_OUTPUT.PUT_LINE(' srec.rpcnts := DBMS_STATS.NUMARRAY(');
+           &&skip_ver_le_11.FOR i IN 1..eprc.COUNT LOOP
+           &&skip_ver_le_11.    IF i > 1 THEN
+           &&skip_ver_le_11.        DBMS_OUTPUT.PUT(',');
+           &&skip_ver_le_11.    END IF;
+           &&skip_ver_le_11.    DBMS_OUTPUT.PUT_LINE(eprc(i));
+           &&skip_ver_le_11.END LOOP;
+           &&skip_ver_le_11.DBMS_OUTPUT.PUT_LINE(');');
 
        END IF;
        

@@ -41,7 +41,7 @@ SPO OFF;
 @@&&from_edb360.&&skip_force_match.&&sqld360_skip_fmatch.sqld360_2c_performance_fm.sql
 @@sqld360_2d_plans.sql
 @@sqld360_2e_plan_control.sql
-@@&&skip_tuning.&&skip_10g.&&sqld360_skip_sqlmon.sqld360_2f_sql_monitor.sql
+@@&&skip_tuning.&&skip_ver_le_10.&&sqld360_skip_sqlmon.sqld360_2f_sql_monitor.sql
 @@sqld360_2g_binds.sql
 @@sqld360_2h_cursor_sharing.sql
 
@@ -57,8 +57,8 @@ SPO OFF;
 
 @@sqld360_3a_objects.sql
 @@&&sqld360_skip_stats_h.sqld360_3c_stats_history.sql
-@@&&skip_10g.&&skip_11g.&&skip_12r101.sqld360_3d_inmemory.sql
-@@&&skip_10g.&&skip_11g.sqld360_3e_bt_cache.sql
+@@&&skip_ver_le_12_101.sqld360_3d_inmemory.sql
+@@&&skip_ver_le_11.sqld360_3e_bt_cache.sql
 @@&&sqld360_skip_metadata.sqld360_3f_metadata.sql
 
 
@@ -86,11 +86,11 @@ PRO </td><td>
 PRO
 SPO OFF;
 
-@@&&skip_10g.&&skip_11r1.sqld360_5a_10053.sql
-@@&&skip_tuning.&&skip_10g.&&sqld360_skip_sqlmon.sqld360_5b_sqlmon.sql
+@@&&skip_ver_le_11_1.sqld360_5a_10053.sql
+@@&&skip_tuning.&&skip_ver_le_10.&&sqld360_skip_sqlmon.sqld360_5b_sqlmon.sql
 @@&&skip_diagnostics.&&sqld360_skip_awrrpt.sqld360_5c_awr.sql
 @@&&skip_diagnostics.&&sqld360_skip_ashrpt.sqld360_5d_ash.sql
-@@&&skip_tcb.&&skip_10g.&&sqld360_skip_tcb.&&sqld360_local_exec.sqld360_5e_tcb.sql
+@@&&skip_tcb.&&skip_ver_le_10.&&sqld360_skip_tcb.&&sqld360_local_exec.sqld360_5e_tcb.sql
 @@&&from_edb360.&&skip_diagnostics.&&sqld360_skip_rawash.sqld360_5f_rawash.sql
 @@&&sqld360_skip_stats.sqld360_5i_stats.sql
 @@&&from_edb360.&&skip_diagnostics.&&sqld360_skip_eadam.sqld360_5g_eadam_ash.sql

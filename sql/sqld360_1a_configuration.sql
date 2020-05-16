@@ -36,20 +36,20 @@ sga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM gv$system_paramete
 pga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM gv$system_parameter2 WHERE name = 'pga_aggregate_target'),
 db_block AS (SELECT /*+ &&sq_fact_hints. */ value bytes FROM v$system_parameter2 WHERE name = 'db_block_size'),
 db AS (SELECT /*+ &&sq_fact_hints. */ name, platform_name FROM v$database),
-&&skip_10g.&&skip_11g.  pdbs AS (SELECT /*+ &&sq_fact_hints. */ * FROM v$pdbs), -- need 12c flag
+&&skip_ver_le_11.  pdbs AS (SELECT /*+ &&sq_fact_hints. */ * FROM v$pdbs), -- need 12c flag
 inst AS (SELECT /*+ &&sq_fact_hints. */ host_name, version db_version FROM v$instance),
 data AS (SELECT /*+ &&sq_fact_hints. */ SUM(bytes) bytes, COUNT(*) files, COUNT(DISTINCT ts#) tablespaces FROM v$datafile),
 temp AS (SELECT /*+ &&sq_fact_hints. */ SUM(bytes) bytes FROM v$tempfile),
 log AS (SELECT /*+ &&sq_fact_hints. */ SUM(bytes) * MAX(members) bytes FROM v$log),
 control AS (SELECT /*+ &&sq_fact_hints. */ SUM(block_size * file_size_blks) bytes FROM v$controlfile),
-&&skip_10g.&&skip_11g. cell AS (SELECT /*+ &&sq_fact_hints. */ COUNT(DISTINCT cell_name) cnt FROM v$cell_state),
+&&skip_ver_le_11. cell AS (SELECT /*+ &&sq_fact_hints. */ COUNT(DISTINCT cell_name) cnt FROM v$cell_state),
 core AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) cnt FROM gv$osstat WHERE stat_name = 'NUM_CPU_CORES'),
 cpu AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) cnt FROM gv$osstat WHERE stat_name = 'NUM_CPUS'),
 pmem AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) bytes FROM gv$osstat WHERE stat_name = 'PHYSICAL_MEMORY_BYTES')
 SELECT /*+ &&top_level_hints. */ 'Database name:' system_item, db.name system_value FROM db
  UNION ALL
-&&skip_10g.&&skip_11g. SELECT '    pdb:'||name, 'Open Mode:'||open_mode FROM pdbs -- need 12c flag
-&&skip_10g.&&skip_11g. UNION ALL
+&&skip_ver_le_11. SELECT '    pdb:'||name, 'Open Mode:'||open_mode FROM pdbs -- need 12c flag
+&&skip_ver_le_11. UNION ALL
 SELECT 'Oracle Database version:', inst.db_version FROM inst
  UNION ALL
 SELECT 'Database block size:', TRIM(TO_CHAR(db_block.bytes / POWER(2,10), '90'))||' KB' FROM db_block
@@ -68,16 +68,16 @@ SELECT 'Database memory:',
        CASE WHEN mem.target > 0 THEN 'AMM ' ELSE CASE WHEN sga.target > 0 THEN 'ASMM' ELSE 'MANUAL' END END
   FROM mem, sga, pga
  UNION ALL
-&&skip_10g.&&skip_11g.SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
-&&skip_10g.&&skip_11g.        CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END|| 
-&&skip_10g.&&skip_11g.        CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END|| 
-&&skip_10g.&&skip_11g.        CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END|| 
-&&skip_10g.&&skip_11g.        CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 ' END|| 
-&&skip_10g.&&skip_11g.        CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END|| 
-&&skip_10g.&&skip_11g.        CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END|| 
-&&skip_10g.&&skip_11g.        'with '||cell.cnt||' storage servers' 
-&&skip_10g.&&skip_11g.        ELSE 'Unknown' END FROM cell
-&&skip_10g.&&skip_11g. UNION ALL
+&&skip_ver_le_11.SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
+&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END|| 
+&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END|| 
+&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END|| 
+&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 ' END|| 
+&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END|| 
+&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END|| 
+&&skip_ver_le_11.        'with '||cell.cnt||' storage servers' 
+&&skip_ver_le_11.        ELSE 'Unknown' END FROM cell
+&&skip_ver_le_11. UNION ALL
 SELECT 'Processor:', '&&processor_model.' FROM DUAL
  UNION ALL
 SELECT 'Physical CPUs:', core.cnt||' cores'||CASE WHEN rac.instances > 0 THEN ', on '||rac.db_type END FROM rac, core
@@ -386,7 +386,7 @@ SELECT /*+ &&top_level_hints. */
 ]';
 END;
 /
-@@&&skip_10g.&&skip_11g.sqld360_9a_pre_one.sql
+@@&&skip_ver_le_11.sqld360_9a_pre_one.sql
 
 COL addr PRI
 

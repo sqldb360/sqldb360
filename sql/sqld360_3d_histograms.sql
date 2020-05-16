@@ -63,16 +63,16 @@ BEGIN
     put('SPO OFF');
     -- need to check if dba_stat_extensions existed in 10g, likely not so need to introduce conditional code here
     FOR j IN (SELECT col.owner, col.table_name, column_name, 
-                     &&skip_10g.NVL2(exts.extension, exts.extension, col.column_name) display_name, 
-                     &&skip_11g.&&skip_12c.&&skip_18c.&&skip_19c.col.column_name display_name,
+                     &&skip_ver_le_10.NVL2(exts.extension, exts.extension, col.column_name) display_name, 
+                     &&skip_ver_ge_11.col.column_name display_name,
                      col.data_type, col.histogram, col.sample_size, col.num_nulls, col.num_buckets
                 FROM dba_tab_cols col
-                     &&skip_10g.,dba_stat_extensions exts
+                     &&skip_ver_le_10.,dba_stat_extensions exts
                WHERE col.owner = i.owner
                  AND col.table_name = i.table_name
-                 &&skip_10g.AND col.owner = exts.owner(+)
-                 &&skip_10g.AND col.table_name = exts.table_name(+)
-                 &&skip_10g.AND col.column_name = exts.extension_name(+)
+                 &&skip_ver_le_10.AND col.owner = exts.owner(+)
+                 &&skip_ver_le_10.AND col.table_name = exts.table_name(+)
+                 &&skip_ver_le_10.AND col.column_name = exts.extension_name(+)
                  AND col.histogram <> 'NONE'
                ORDER BY col.owner, col.table_name, col.column_id) 
     LOOP
