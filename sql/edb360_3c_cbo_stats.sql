@@ -54,6 +54,22 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+col TYPE_COUNT heading 'Type|Count'
+col NOT_ANALYZED heading 'Not|Analyzed'
+col STATS_LOCKED heading 'Stats|Locked'
+col STALE_STATS	heading 'Stale|Stats'
+col SUM_NUM_ROWS heading 'Sum|NUM_ROWS'
+col MAX_NUM_ROWS heading 'Max|NUM_ROWS'
+col SUM_BLOCKS heading 'Sum|Blocks'
+col MAX_BLOCKS heading 'Max|Blocks'
+col MIN_LAST_ANALYZED 'Min Last|Analyzed'
+col MAX_LAST_ANALYZED 'Max Last|Analyzed'
+col MEDIAN_LAST_ANALYZE	'Median|Last|Analyzed'
+col LAST_ANALYZED_75_PE	'Last Analyzed|75th Percentile'
+col LAST_ANALYZED_90_PE	'Last Analyzed|90th Percentile'	
+col LAST_ANALYZED_95_PE	'Last Analyzed|95th Percentile'
+col LAST_ANALYZED_99_PE	'Last Analyzed|99th Percentile'
+
 DEF title = 'Tables Summary';
 DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
@@ -117,22 +133,6 @@ END;
 @@edb360_9a_pre_one.sql
 
 rem dmk 14.11.2018 better title to help distinguish reports in section
-col TYPE_COUNT heading 'Type|Count'
-col NOT_ANALYZED heading 'Not|Analyzed'
-col STATS_LOCKED heading 'Stats|Locked'
-col STALE_STATS	heading 'Stale|Stats'
-col SUM_NUM_ROWS heading 'Sum|NUM_ROWS'
-col MAX_NUM_ROWS heading 'Max|NUM_ROWS'
-col SUM_BLOCKS heading 'Sum|Blocks'
-col MAX_BLOCKS heading 'Max|Blocks'
-col MIN_LAST_ANALYZED 'Min Last|Analyzed'
-col MAX_LAST_ANALYZED 'Max Last|Analyzed'
-col MEDIAN_LAST_ANALYZE	'Median|Last|Analyzed'
-col LAST_ANALYZED_75_PE	'Last Analyzed|75th Percentile'
-col LAST_ANALYZED_90_PE	'Last Analyzed|90th Percentile'	
-col LAST_ANALYZED_95_PE	'Last Analyzed|95th Percentile'
-col LAST_ANALYZED_99_PE	'Last Analyzed|99th Percentile'
-
 DEF title = 'Table Statistics Summary';
 DEF main_table = '&&cdb_view_prefix.TAB_STATISTICS';
 BEGIN
