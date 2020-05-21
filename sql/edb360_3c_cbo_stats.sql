@@ -65,10 +65,10 @@ col MAX_BLOCKS heading 'Max|Blocks'
 col MIN_LAST_ANALYZED 'Min Last|Analyzed'
 col MAX_LAST_ANALYZED 'Max Last|Analyzed'
 col MEDIAN_LAST_ANALYZE	'Median|Last|Analyzed'
-col LAST_ANALYZED_75_PE	'Last Analyzed|75th Percentile'
-col LAST_ANALYZED_90_PE	'Last Analyzed|90th Percentile'	
-col LAST_ANALYZED_95_PE	'Last Analyzed|95th Percentile'
-col LAST_ANALYZED_99_PE	'Last Analyzed|99th Percentile'
+col LAST_ANALYZED_75_PERECENTILE 'Last Analyzed|75th Percentile'
+col LAST_ANALYZED_90_PERECENTILE 'Last Analyzed|90th Percentile'	
+col LAST_ANALYZED_95_PERECENTILE 'Last Analyzed|95th Percentile'
+col LAST_ANALYZED_99_PERECENTILE 'Last Analyzed|99th Percentile'
 
 DEF title = 'Tables Summary';
 DEF main_table = '&&cdb_view_prefix.TABLES';
