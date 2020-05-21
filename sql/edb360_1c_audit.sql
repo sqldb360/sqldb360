@@ -20,44 +20,53 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Object Auditing Options';
-DEF main_table = '&&dva_view_prefix.OBJ_AUDIT_OPTS';
+DEF main_table = '&&cdb_view_prefix.OBJ_AUDIT_OPTS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
        o.*
-  FROM &&dva_object_prefix.obj_audit_opts o
+       &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.obj_audit_opts o
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = o.con_id
  --WHERE (o.alt,o.aud,o.com,o.del,o.gra,o.ind,o.ins,o.loc,o.ren,o.sel,o.upd,o.ref,o.exe,o.fbk,o.rea) NOT IN 
  --      (SELECT d.alt,d.aud,d.com,d.del,d.gra,d.ind,d.ins,d.loc,d.ren,d.sel,d.upd,d.ref,d.exe,d.fbk,d.rea FROM all_def_audit_opts d)
  ORDER BY
        1, 2
+	   &&skip_noncdb.,o.con_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Statement Auditing Options';
-DEF main_table = '&&dva_view_prefix.STMT_AUDIT_OPTS';
+DEF main_table = '&&cdb_view_prefix.STMT_AUDIT_OPTS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       *
-  FROM &&dva_object_prefix.stmt_audit_opts
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.stmt_audit_opts x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       1 NULLS FIRST, 2 NULLS FIRST
+       1 NULLS FIRST, 2 NULLS FIRST, 3
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'System Privileges Auditing Options';
-DEF main_table = '&&dva_view_prefix.PRIV_AUDIT_OPTS';
+DEF main_table = '&&cdb_view_prefix.PRIV_AUDIT_OPTS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       *
-  FROM &&dva_object_prefix.priv_audit_opts
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.priv_audit_opts x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       1 NULLS FIRST, 2 NULLS FIRST
+       1 NULLS FIRST, 2 NULLS FIRST, 3
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /
@@ -93,50 +102,59 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Audit Configuration';
-DEF main_table = '&&dva_view_prefix.AUDIT_MGMT_CONFIG_PARAMS';
+DEF main_table = '&&cdb_view_prefix.AUDIT_MGMT_CONFIG_PARAMS';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       *
-  FROM &&dva_object_prefix.audit_mgmt_config_params
- ORDER BY 1,2
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.audit_mgmt_config_params x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY 1,2,3
+          &&skip_noncdb.,x.con_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Audit Trail Locations';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
        SUBSTR(owner||'.'||table_name,1,30) audit_trail, tablespace_name
-  FROM &&dva_object_prefix.tables
- --WHERE table_name IN ('AUD$','AUDIT$','FGA$','FGA_LOG$')
- WHERE table_name IN ('AUD$','FGA_LOG$')
-    OR table_name IN ('UNIFIED_AUDIT_TRAIL','CDB_UNIFIED_AUDIT_TRAIL','V_$UNIFIED_AUDIT_TRAIL','GV_$UNIFIED_AUDIT_TRAIL') -- 12c UAT
- ORDER BY 1,2
+	   &&skip_noncdb.,x.con_id , c.name con_name
+  FROM &&cdb_object_prefix.tables x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ --WHERE x.table_name IN ('AUD$','AUDIT$','FGA$','FGA_LOG$')
+ WHERE x.table_name IN ('AUD$','FGA_LOG$')
+    OR x.table_name IN ('UNIFIED_AUDIT_TRAIL','CDB_UNIFIED_AUDIT_TRAIL','V_$UNIFIED_AUDIT_TRAIL','GV_$UNIFIED_AUDIT_TRAIL') -- 12c UAT
+ ORDER BY 1
+          &&skip_noncdb.,x.con_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Object Level Privileges (Audit Trail)';
-DEF main_table = '&&dva_view_prefix.TAB_PRIVS';
+DEF main_table = '&&cdb_view_prefix.TAB_PRIVS';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       owner || '.' || table_name "TABLE", grantee, privilege, grantable
-  FROM &&dva_object_prefix.tab_privs
- WHERE (   table_name IN ('AUD$','AUDIT$','FGA$','FGA_LOG$')
-        OR table_name IN ('UNIFIED_AUDIT_TRAIL','CDB_UNIFIED_AUDIT_TRAIL','V_$UNIFIED_AUDIT_TRAIL','GV_$UNIFIED_AUDIT_TRAIL') -- 12c UAT
+       x.owner || '.' || x.table_name "TABLE", x.grantee, x.privilege, x.grantable
+	   &&skip_noncdb.,x.con_id , c.name con_name
+  FROM &&cdb_object_prefix.tab_privs x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE (   x.table_name IN ('AUD$','AUDIT$','FGA$','FGA_LOG$')
+        OR x.table_name IN ('UNIFIED_AUDIT_TRAIL','CDB_UNIFIED_AUDIT_TRAIL','V_$UNIFIED_AUDIT_TRAIL','GV_$UNIFIED_AUDIT_TRAIL') -- 12c UAT
        )
-   AND grantee NOT IN ('SYS','SYSTEM','DBA','AUDIT_ADMIN','AUDIT_VIEWER')
-   AND owner IN ('SYS','SYSTEM')
- ORDER BY table_name, owner, grantee, privilege
+   AND x.grantee NOT IN ('SYS','SYSTEM','DBA','AUDIT_ADMIN','AUDIT_VIEWER')
+   AND x.owner IN ('SYS','SYSTEM')
+ ORDER BY x.table_name, x.owner, x.grantee, x.privilege
+          &&skip_noncdb.,x.con_id
 ]';
 END;
 /

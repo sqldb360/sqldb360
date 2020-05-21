@@ -64,22 +64,25 @@ DEF abstract = '&&abstract_uom.';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       pool,
-       name,
-       inst_id,
-       bytes,
+       x.pool,
+       x.name,
+       x.inst_id,
+       x.bytes,
        CASE 
-       WHEN bytes > POWER(2,50) THEN ROUND(bytes/POWER(2,50),1)||' P'
-       WHEN bytes > POWER(2,40) THEN ROUND(bytes/POWER(2,40),1)||' T'
-       WHEN bytes > POWER(2,30) THEN ROUND(bytes/POWER(2,30),1)||' G'
-       WHEN bytes > POWER(2,20) THEN ROUND(bytes/POWER(2,20),1)||' M'
-       WHEN bytes > POWER(2,10) THEN ROUND(bytes/POWER(2,10),1)||' K'
-       ELSE bytes||' B' END approx
-  FROM &&gv_object_prefix.sgastat
+       WHEN x.bytes > POWER(2,50) THEN ROUND(x.bytes/POWER(2,50),1)||' P'
+       WHEN x.bytes > POWER(2,40) THEN ROUND(x.bytes/POWER(2,40),1)||' T'
+       WHEN x.bytes > POWER(2,30) THEN ROUND(x.bytes/POWER(2,30),1)||' G'
+       WHEN x.bytes > POWER(2,20) THEN ROUND(x.bytes/POWER(2,20),1)||' M'
+       WHEN x.bytes > POWER(2,10) THEN ROUND(x.bytes/POWER(2,10),1)||' K'
+       ELSE x.bytes||' B' END approx
+	   &&skip_noncdb.,x.con_id,c.name con_name
+  FROM &&gv_object_prefix.sgastat x
+       &&skip_noncdb.LEFT OUTER JOIN v$containers c ON c.con_id = x.con_id
  ORDER BY
-       pool NULLS FIRST,
-       name,
-       inst_id
+       x.pool NULLS FIRST,
+       x.name,
+	   &&skip_noncdb.x.con_id,
+       x.inst_id
 ]';
 END;
 /
@@ -91,23 +94,23 @@ DEF abstract = '&&abstract_uom.';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       inst_id,
-       name,
-       value,
-       unit,
-       CASE unit WHEN 'bytes' THEN 
+       x.inst_id,
+       x.name,
+       x.value,
+       x.unit,
+       CASE x.unit WHEN 'bytes' THEN 
        CASE
-       WHEN value > POWER(2,50) THEN ROUND(value/POWER(2,50),1)||' P'
-       WHEN value > POWER(2,40) THEN ROUND(value/POWER(2,40),1)||' T'
-       WHEN value > POWER(2,30) THEN ROUND(value/POWER(2,30),1)||' G'
-       WHEN value > POWER(2,20) THEN ROUND(value/POWER(2,20),1)||' M'
-       WHEN value > POWER(2,10) THEN ROUND(value/POWER(2,10),1)||' K'
-       ELSE value||' B' END 
+       WHEN x.value > POWER(2,50) THEN ROUND(x.value/POWER(2,50),1)||' P'
+       WHEN x.value > POWER(2,40) THEN ROUND(x.value/POWER(2,40),1)||' T'
+       WHEN x.value > POWER(2,30) THEN ROUND(x.value/POWER(2,30),1)||' G'
+       WHEN x.value > POWER(2,20) THEN ROUND(x.value/POWER(2,20),1)||' M'
+       WHEN x.value > POWER(2,10) THEN ROUND(x.value/POWER(2,10),1)||' K'
+       ELSE x.value||' B' END 
        END approx
-  FROM &&gv_object_prefix.pgastat
- ORDER BY
-       name,
-       inst_id
+  FROM &&gv_object_prefix.pgastat x
+ORDER BY
+       x.name,
+       x.inst_id
 ]';
 END;
 /
@@ -121,11 +124,10 @@ BEGIN
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
   FROM &&gv_object_prefix.memory_dynamic_components
-
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Target Advice';
 DEF main_table = '&&gv_view_prefix.MEMORY_TARGET_ADVICE';
@@ -139,7 +141,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'SGA Target Advice';
 DEF main_table = '&&gv_view_prefix.SGA_TARGET_ADVICE';
@@ -237,7 +239,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Current Resize Operations';
 DEF main_table = '&&gv_view_prefix.MEMORY_CURRENT_RESIZE_OPS';
@@ -254,7 +256,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Resize Operations Hist';
 DEF main_table = '&&awr_hist_prefix.MEMORY_RESIZE_OPS';
@@ -273,7 +275,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Target Advice Hist';
 DEF main_table = '&&awr_hist_prefix.MEMORY_TARGET_ADVICE';
@@ -293,7 +295,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

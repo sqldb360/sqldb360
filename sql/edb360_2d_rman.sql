@@ -38,79 +38,96 @@ BEGIN
 With -- requested by Gabriel Alonso
 CORR  As (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.e.con_id,
        e.owner, e.segment_type, e.segment_name, e.partition_name, c.file#
      , greatest(e.block_id, c.block#) corr_start_block#
      , least(e.block_id+e.blocks-1, c.block#+c.blocks-1) corr_end_block#
      , least(e.block_id+e.blocks-1, c.block#+c.blocks-1)
        - greatest(e.block_id, c.block#) + 1 blocks_corrupted
      , null description
-  FROM &&dva_object_prefix.extents e, &&v_object_prefix.database_block_corruption c
+  FROM &&cdb_object_prefix.extents e, &&v_object_prefix.database_block_corruption c
 WHERE e.file_id = c.file#
    AND e.block_id <= c.block# + c.blocks - 1
    AND e.block_id + e.blocks - 1 >= c.block#
+   &&skip_noncdb.AND e.con_id = c.con_id
 UNION
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.s.con_id,
        s.owner, s.segment_type, s.segment_name, s.partition_name, c.file#
      , header_block corr_start_block#
      , header_block corr_end_block#
      , 1 blocks_corrupted
      , 'Segment Header' description
-  FROM &&dva_object_prefix.segments s, &&v_object_prefix.database_block_corruption c
+  FROM &&cdb_object_prefix.segments s, &&v_object_prefix.database_block_corruption c
 WHERE s.header_file = c.file#
    AND s.header_block between c.block# and c.block# + c.blocks - 1
+   &&skip_noncdb.AND s.con_id = c.con_id
 UNION
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.f.con_id,
        null owner, null segment_type, null segment_name, null partition_name, c.file#
      , greatest(f.block_id, c.block#) corr_start_block#
      , least(f.block_id+f.blocks-1, c.block#+c.blocks-1) corr_end_block#
      , least(f.block_id+f.blocks-1, c.block#+c.blocks-1)
        - greatest(f.block_id, c.block#) + 1 blocks_corrupted
      , 'Free Block' description
-  FROM &&dva_object_prefix.free_space f, &&v_object_prefix.database_block_corruption c
+  FROM &&cdb_object_prefix.free_space f, &&v_object_prefix.database_block_corruption c
 WHERE f.file_id = c.file#
    AND f.block_id <= c.block# + c.blocks - 1
    AND f.block_id + f.blocks - 1 >= c.block#
-ORDER  BY file#, corr_start_block#
-),
-NOLOG As (
+   &&skip_noncdb.AND f.con_id = c.con_id
+),NOLOG As (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.e.con_id,
        e.owner, e.segment_type, e.segment_name, e.partition_name, c.file#
      , greatest(e.block_id, c.block#) corr_start_block#
      , least(e.block_id+e.blocks-1, c.block#+c.blocks-1) corr_end_block#
      , least(e.block_id+e.blocks-1, c.block#+c.blocks-1)
        - greatest(e.block_id, c.block#) + 1 blocks_corrupted
      , null description
-  FROM &&dva_object_prefix.extents e, &&v_object_prefix.nonlogged_block c
+  FROM &&cdb_object_prefix.extents e, &&v_object_prefix.nonlogged_block c
 WHERE e.file_id = c.file#
    AND e.block_id <= c.block# + c.blocks - 1
    AND e.block_id + e.blocks - 1 >= c.block#
+   &&skip_noncdb.AND e.con_id = c.con_id
 UNION
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.s.con_id,
        s.owner, s.segment_type, s.segment_name, s.partition_name, c.file#
      , header_block corr_start_block#
      , header_block corr_end_block#
      , 1 blocks_corrupted
      , 'Segment Header' description
-  FROM &&dva_object_prefix.segments s, &&v_object_prefix.nonlogged_block c
-WHERE s.header_file = c.file#
+  FROM &&cdb_object_prefix.segments s, &&v_object_prefix.nonlogged_block c
+ WHERE s.header_file = c.file#
    AND s.header_block between c.block# and c.block# + c.blocks - 1
+   &&skip_noncdb.AND s.con_id = c.con_id
 UNION
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.f.con_id,
        null owner, null segment_type, null segment_name, null partition_name, c.file#
      , greatest(f.block_id, c.block#) corr_start_block#
      , least(f.block_id+f.blocks-1, c.block#+c.blocks-1) corr_end_block#
      , least(f.block_id+f.blocks-1, c.block#+c.blocks-1)
        - greatest(f.block_id, c.block#) + 1 blocks_corrupted
      , 'Free Block' description
-  FROM &&dva_object_prefix.free_space f, &&v_object_prefix.nonlogged_block  c
+  FROM &&cdb_object_prefix.free_space f, &&v_object_prefix.nonlogged_block  c
 WHERE f.file_id = c.file#
    AND f.block_id <= c.block# + c.blocks - 1
    AND f.block_id + f.blocks - 1 >= c.block#
-Order  By file#, corr_start_block#
-)
+   &&skip_noncdb.AND f.con_id = c.con_id
+), x as (
 Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ * from corr
 Union 
 Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ * from nolog
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY
+       &&skip_noncdb.x.con_id,
+       x.file#, x.corr_start_block#
 ]';
 END;
 /
@@ -143,7 +160,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 -- skipped on 10g due to bug as per mos 420200.1
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'RMAN Backup Set Details';
 DEF main_table = '&&v_view_prefix.BACKUP_SET_DETAILS';
@@ -193,7 +210,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Restore Point';
 DEF main_table = '&&v_view_prefix.RESTORE_POINT';
@@ -542,140 +559,154 @@ EXEC :repo_seq := :repo_seq + 1;
 SELECT TO_CHAR(:repo_seq) report_sequence FROM DUAL;
 
 DEF title = 'NOLOGGING Objects';
-DEF main_table = '&&dva_view_prefix.TABLESPACES';
+DEF main_table = '&&cdb_view_prefix.TABLESPACES';
 BEGIN
   :sql_text := q'[
 WITH 
 objects AS (
 SELECT 1 record_type,
        'TABLESPACE' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        NULL owner,
        NULL name,
        NULL column_name,
        NULL partition,
        NULL subpartition
-  FROM &&dva_object_prefix.tablespaces
+  FROM &&cdb_object_prefix.tablespaces
  WHERE logging = 'NOLOGGING'
    AND contents != 'TEMPORARY'
 UNION ALL       
 SELECT 2 record_type,
        'TABLE' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        owner,
        table_name name,
        NULL column_name,
        NULL partition,
        NULL subpartition
-  FROM &&dva_object_prefix.all_tables
+  FROM &&cdb_object_prefix.all_tables
  WHERE logging = 'NO'
    AND temporary = 'N'
 UNION ALL       
 SELECT 3 record_type,
        'INDEX' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        owner,
        index_name name,
        NULL column_name,
        NULL partition,
        NULL subpartition
-  FROM &&dva_object_prefix.indexes
+  FROM &&CDB_object_prefix.indexes
  WHERE logging = 'NO'
    AND temporary = 'N'
 UNION ALL       
 SELECT 4 record_type,
        'LOB' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        owner,
        table_name name,
        SUBSTR(column_name, 1, 30) column_name,
        NULL partition,
        NULL subpartition
-  FROM &&dva_object_prefix.lobs
+  FROM &&CDB_object_prefix.lobs
  WHERE logging = 'NO'
 UNION ALL       
 SELECT 5 record_type,
        'TAB_PARTITION' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        table_owner owner,
        table_name name,
        NULL column_name,
        partition_name partition,
        NULL subpartition
-  FROM &&dva_object_prefix.tab_partitions
+  FROM &&cdb_object_prefix.tab_partitions
  WHERE logging = 'NO'
 UNION ALL       
 SELECT 6 record_type,
        'IND_PARTITION' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        index_owner owner,
        index_name name,
        NULL column_name,
        partition_name partition,
        NULL subpartition
-  FROM &&dva_object_prefix.ind_partitions
+  FROM &&cdb_object_prefix.ind_partitions
  WHERE logging = 'NO'
 UNION ALL       
 SELECT 7 record_type,
        'LOB_PARTITION' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        table_owner owner,
        table_name name,
        SUBSTR(column_name, 1, 30) column_name,
        partition_name partition,
        NULL subpartition
-  FROM &&dva_object_prefix.lob_partitions
+  FROM &&cdb_object_prefix.lob_partitions
  WHERE logging = 'NO'
 UNION ALL       
 SELECT 8 record_type,
        'TAB_SUBPARTITION' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        table_owner owner,
        table_name name,
        NULL column_name,
        partition_name partition,
        subpartition_name subpartition
-  FROM &&dva_object_prefix.tab_subpartitions
+  FROM &&cdb_object_prefix.tab_subpartitions
  WHERE logging = 'NO'
 UNION ALL       
 SELECT 9 record_type,
        'IND_SUBPARTITION' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        index_owner owner,
        index_name name,
        NULL column_name,
        partition_name partition,
        subpartition_name subpartition
-  FROM &&dva_object_prefix.ind_subpartitions
+  FROM &&cdb_object_prefix.ind_subpartitions
  WHERE logging = 'NO'
 UNION ALL       
 SELECT 10 record_type,
        'LOB_SUBPARTITION' object_type,
+       &&skip_noncdb.con_id,
        tablespace_name,
        table_owner owner,
        table_name name,
        SUBSTR(column_name, 1, 30) column_name,
        lob_partition_name partition,
        subpartition_name subpartition
-  FROM &&dva_object_prefix.lob_subpartitions
+  FROM &&cdb_object_prefix.lob_subpartitions
  WHERE logging = 'NO'
 )
-SELECT object_type,
-       tablespace_name,
-       owner,
-       name,
-       column_name,
-       partition,
-       subpartition
-  FROM objects
+SELECT x.object_type,
+       &&skip_noncdb.x.con_id,
+	   x.tablespace_name,
+       x.owner,
+       x.name,
+       x.column_name,
+       x.partition,
+       x.subpartition
+	   &&skip_noncdb.,c.name con_name
+  FROM objects x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       record_type,
-       tablespace_name,
-       owner,
-       name,
-       column_name,
-       partition,
-       subpartition
+       x.record_type,
+       &&skip_noncdb.con_id,
+	   x.tablespace_name,
+       x.owner,
+       x.name,
+       x.column_name,
+       x.partition,
+       x.subpartition
 ]';
 END;
 /
@@ -686,11 +717,13 @@ DEF main_table = '&&v_view_prefix.DATAFILE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&v_object_prefix.datafile
- WHERE unrecoverable_change# > 0
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&v_object_prefix.datafile x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE x.unrecoverable_change# > 0
  ORDER BY
-       file#
+       x.file#
 ]';
 END;
 /
@@ -704,12 +737,16 @@ BEGIN
 -- by Catherine Chow
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 df.name data_file_name, df.unrecoverable_time
-FROM &&v_object_prefix.datafile df, &&v_object_prefix.backup bk
-WHERE df.file#=bk.file#
-and df.unrecoverable_change#!=0
-and df.unrecoverable_time >  
-(select max(end_time) FROM &&v_object_prefix.rman_backup_job_details
-where INPUT_TYPE in ('DB FULL' ,'DB INCR') and status = 'COMPLETED')
+	   &&skip_noncdb.,df.con_id
+FROM   &&v_object_prefix.datafile df
+      ,&&v_object_prefix.backup bk
+WHERE  df.file#=bk.file#
+and    df.unrecoverable_change#!=0
+and    df.unrecoverable_time >  
+       (select max(end_time) 
+	    FROM   &&v_object_prefix.rman_backup_job_details
+        where  INPUT_TYPE in ('DB FULL' ,'DB INCR') 
+		and    status = 'COMPLETED')
 ]';
 END;
 /
@@ -722,18 +759,28 @@ BEGIN
 -- from http://www.pythian.com/blog/oracle-what-is-an-unrecoverable-data-file/
 -- by Catherine Chow
 select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-distinct dbo.owner,dbo.object_name, dbo.object_type, dfs.tablespace_name,
-dbt.logging table_level_logging, ts.logging tablespace_level_logging
-FROM &&v_object_prefix.segstat ss, &&dva_object_prefix.tablespaces ts, &&dva_object_prefix.objects dbo, &&dva_object_prefix.tables dbt,
-&&v_object_prefix.datafile df, &&dva_object_prefix.data_files dfs, &&v_object_prefix.tablespace vts
+       distinct &&skip_noncdb.dbo.con_id,
+	   dbo.owner,dbo.object_name, dbo.object_type, dfs.tablespace_name,
+       dbt.logging table_level_logging, ts.logging tablespace_level_logging
+	   &&skip_noncdb.,c.name con_name
+FROM   &&cdb_object_prefix.objects dbo
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = dbo.con_id
+      ,&&v_object_prefix.segstat ss, &&cdb_object_prefix.tablespaces ts, &&cdb_object_prefix.tables dbt,
+       &&v_object_prefix.datafile df, &&cdb_object_prefix.data_files dfs, &&v_object_prefix.tablespace vts
 where ss.statistic_name ='physical writes direct'
+&&skip_noncdb.AND dbo.con_id = ss.con_id
 and dbo.object_id = ss.obj#
+&&skip_noncdb.AND vts.con_id = ss.con_id
 and vts.ts# = ss.ts#
+&&skip_noncdb.AND ts.con_id = vts.con_id
 and ts.tablespace_name = vts.name
 and ss.value != 0
 and df.unrecoverable_change# != 0
+&&skip_noncdb.AND dfs.con_id = df.con_id
 and dfs.file_name = df.name
+&&skip_noncdb.AND ts.con_id = dfs.con_id
 and ts.tablespace_name = dfs.tablespace_name
+&&skip_noncdb.AND dbt.con_id = dbo.con_id
 and dbt.owner = dbo.owner
 and dbt.table_name = dbo.object_name
 ]';

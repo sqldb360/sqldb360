@@ -11,6 +11,7 @@ COL order_by NOPRI;
 COL metric FOR A16 HEA "Metric";
 COL instance_number FOR 9999 HEA "Inst|Num";
 COL on_cpu FOR 999990.0 HEA "Active|Sessions|ON CPU";
+COL resmgr FOR 999990.0 HEA "Active|Sessions|on RESMGR";
 COL on_cpu_and_resmgr FOR 9999990.0 HEA "Active|Sessions|ON CPU|or RESMGR";
 COL resmgr_cpu_quantum FOR 999999990.0 HEA "Active|Sessions|ON RESMGR|CPU quantum";
 COL begin_interval_time FOR A18 HEA "Begin Interval";
@@ -22,6 +23,15 @@ COL min_sample_time FOR A18 HEA "Begin Interval";
 COL max_sample_time FOR A18 HEA "End Interval";
 COL samples FOR 9999999999 HEA "Samples";
 COL hours FOR 9990.0 HEA "Hours|Hist";
+
+COL on_cpu_max     heading 'On CPU|Maximum'
+COL on_cpu_99p     heading 'On CPU|99th|Percentile'
+COL on_cpu_97p     heading 'On CPU|97th|Percentile'
+COL on_cpu_95p     heading 'On CPU|95th|Percentile'
+COL on_cpu_90p     heading 'On CPU|90th|Percentile'
+COL on_cpu_75p     heading 'On CPU|75th|Percentile'
+COL on_cpu_median  heading 'On CPU|Median'
+COL on_cpu_average heading 'On CPU|Average'
 
 DEF title = 'CPU Demand Percentiles (MEM)';
 DEF main_table = '&&gv_view_prefix.ACTIVE_SESSION_HISTORY';
@@ -1210,6 +1220,8 @@ SELECT TO_NUMBER(NULL) dbid,
 END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
+
+/*****************************************************************************************/
 
 DEF main_table = '&&awr_hist_prefix.SGA,&&awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
@@ -2876,3 +2888,12 @@ DEF skip_pch = 'Y';
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;
+
+COL on_cpu_max     clear
+COL on_cpu_99p     clear
+COL on_cpu_97p     clear
+COL on_cpu_95p     clear
+COL on_cpu_90p     clear
+COL on_cpu_75p     clear
+COL on_cpu_median  clear
+COL on_cpu_average clear

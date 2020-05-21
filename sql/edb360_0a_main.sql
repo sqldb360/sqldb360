@@ -84,8 +84,8 @@ SPO OFF;
 -- ash verification
 PRO Please stand by while the AWR/ASH is being checked. Further feedback from you may be needed...
 DEF edb360_estimated_hrs = '0';
-&&skip_diagnostics.@@&&ash_validation.verify_stats_wr_sys.sql
-&&skip_diagnostics.@@&&ash_validation.awr_ash_pre_check.sql
+@@&&skip_diagnostics.&&ash_validation.verify_stats_wr_sys.sql
+@@&&skip_diagnostics.&ash_validation.awr_ash_pre_check.sql
 
 SET HEA OFF TERM OFF;
 SPO edb360_pause.sql
@@ -158,6 +158,19 @@ PRO <br />
 SPO OFF;
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+REM Global Column Headings
+COL inst_id  heading 'Inst|ID'
+COL snap_id  heading 'Snap|ID'
+COL con_id   heading 'Con|ID'
+COL con_name heading 'Container|Name'
+COL percent  heading '%'
+COL rank_num heading 'Ranking'
+COL srank    heading 'Ranking'
+COL instance_number heading 'Instance|Number'
+COL instance_name   heading 'Instance|Name'
+COL sql_text format a100
+
+PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 DEF column_number = '1';
 
@@ -220,10 +233,10 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_4c.mem_stats.sql
 @@&&skip_diagnostics.&&edb360_4d.time_model.sql
 @@&&skip_diagnostics.&&edb360_4e.time_model_comp.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4f.io_waits.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4g.io_waits_top_histog.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4h.io_waits_top_trend.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4i.io_waits_top_relation.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4f.io_waits.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4g.io_waits_top_histog.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4h.io_waits_top_trend.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4i.io_waits_top_relation.sql
 @@&&edb360_4j.parallel_execution.sql
 @@&&skip_diagnostics.&&edb360_4k.sysmetric_history.sql
 @@&&skip_diagnostics.&&edb360_4l.sysmetric_summary.sql
@@ -267,7 +280,7 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_6i.ash_objects.sql
 @@&&skip_diagnostics.&&edb360_6j.ash_services.sql
 @@&&skip_diagnostics.&&edb360_6k.ash_phv.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_6l.ash_signature.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_6l.ash_signature.sql
 &&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
 &&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
 

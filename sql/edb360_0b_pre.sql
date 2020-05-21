@@ -34,9 +34,12 @@ SELECT CASE WHEN '&&tool_repo_user.' IS NULL THEN '&&awr_object_prefix.' ELSE '&
   FROM DUAL
 /
 
--- get dbid
+-- get dbid --in a CDB or PDB this will be the DBID of the container
 COL edb360_dbid NEW_V edb360_dbid;
 SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), dbid))) edb360_dbid FROM &&v_object_prefix.database;
+
+--dmk 31.1.2019 if in PDB work with DBID of PDB in v$database.CON_DBID if there are PDB specific snapshots
+&&skip_noncdb.SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), v.con_dbid))) edb360_dbid FROM &&v_object_prefix.database v, dba_hist_snapshot s WHERE s.dbid = v.con_id;
 
 -- snaps
 SELECT startup_time, dbid, instance_number, COUNT(*) snaps,
@@ -434,8 +437,19 @@ COL row_num NEW_V row_num HEA '#' PRI;
 COL db_version NEW_V db_version;
 SELECT version db_version FROM &&v_object_prefix.instance;
 
--- skip
+@@moat369_fc_oracle_version.sql
 
+COLUMN cdb_awr_hist_prefix   NEW_V cdb_awr_hist_prefix
+COLUMN cdb_awr_object_prefix NEW_V cdb_awr_object_prefix
+COLUMN cdb_view_prefix       NEW_V cdb_view_prefix
+COLUMN cdb_object_prefix     NEW_V cdb_object_prefix
+SELECT CASE WHEN '&&is_cdb' = 'Y' THEN 'CDB_HIST_' ELSE '&&awr_hist_prefix'   END cdb_awr_hist_prefix
+,      CASE WHEN '&&is_cdb' = 'Y' THEN 'cdb_hist_' ELSE '&&awr_object_prefix' END cdb_awr_object_prefix
+,      CASE WHEN '&&is_cdb' = 'Y' THEN 'CDB_'      ELSE '&&dva_view_prefix'   END cdb_view_prefix
+,      CASE WHEN '&&is_cdb' = 'Y' THEN 'cdb_'      ELSE '&&dva_object_prefix' END cdb_object_prefix
+FROM DUAL;
+
+-- skip
 --DEF skip_10g_column = '';
 --COL skip_10g_column NEW_V skip_10g_column;
 --DEF skip_10g_script = '';
@@ -483,8 +497,6 @@ SELECT ' -- skip non-repository ' skip_non_repo_column, ' echo skip non-reposito
 --DEF skip_19c_script = '';
 --COL skip_19c_script NEW_V skip_19c_script;
 --SELECT ' -- skip 19c ' skip_19c_column, ' echo skip 19c ' skip_19c_script FROM &&v_object_prefix.instance WHERE version LIKE '19%';
-
-@@moat369_fc_oracle_version.sql
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A6;
@@ -680,7 +692,7 @@ DEF ash_hints2 = ' FULL(h.INT$&&awr_hist_prefix.ACT_SESS_HISTORY.sn) FULL(h.INT$
 DEF ash_hints3 = ' USE_HASH(h.INT$&&awr_hist_prefix.ACT_SESS_HISTORY.sn h.INT$&&awr_hist_prefix.ACT_SESS_HISTORY.ash h.INT$&&awr_hist_prefix.ACT_SESS_HISTORY.evt) ';
 DEF def_max_rows = '10000';
 DEF max_rows = '1e4';
-DEF exclusion_list = "('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX_SSO','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','OUTLN','OWBSYS')";
+DEF exclusion_list = "('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX_180200','APEX_SSO','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','OUTLN','OWBSYS')";
 DEF exclusion_list2 = "('SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN','SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL','PERFSTAT','STDBYPERF','MGDSYS','OJVMSYS')";
 DEF skip_html = '';
 DEF skip_text = '';

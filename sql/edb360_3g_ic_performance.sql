@@ -168,8 +168,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.sends_dropped - LAG(h.sends_dropped) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) sends_dropped,
        h.send_buf_or - LAG(h.send_buf_or) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) send_buf_or,
        h.send_carrier_lost - LAG(h.send_carrier_lost) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) send_carrier_lost
-  FROM &&awr_object_prefix.ic_device_stats h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_object_prefix.ic_device_stats h,
+       &&cdb_awr_object_prefix.snapshot s
  WHERE h.instance_number = @instance_number@
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
@@ -180,6 +180,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
 ),
 per_instance AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time,
@@ -212,6 +213,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
     AND send_buf_or >= 0
     AND send_carrier_lost >= 0
  GROUP BY
+       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time,
@@ -220,6 +222,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ),
 per_cluster AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time,
@@ -237,14 +240,16 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(send_carrier_lost) send_carrier_lost
   FROM per_instance
  GROUP BY
+       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       dbid,
        snap_id
-       ,TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time
-       ,TO_CHAR(end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time
+       ,TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time
+       ,TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time
        #column01#
        #column02#
        #column03#
@@ -262,11 +267,12 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        ,0 dummy_15
   FROM per_cluster
  ORDER BY       
+       dbid,
        snap_id
 ]';
 END;
 /
-DEF main_table = '&&awr_hist_prefix.IC_DEVICE_STATS';
+DEF main_table = '&&cdb_awr_hist_prefix.IC_DEVICE_STATS';
 DEF vaxis = 'IC Device Statistics';
 DEF tit_01 = 'Packets Received';
 DEF tit_02 = 'Packets Sent';
@@ -362,8 +368,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        h.sends_dropped - LAG(h.sends_dropped) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) sends_dropped,
        h.send_buf_or - LAG(h.send_buf_or) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) send_buf_or,
        h.send_carrier_lost - LAG(h.send_carrier_lost) OVER (PARTITION BY h.dbid, h.instance_number, h.if_name ORDER BY h.snap_id) send_carrier_lost
-  FROM &&awr_object_prefix.ic_device_stats h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_object_prefix.ic_device_stats h,
+       &&cdb_awr_object_prefix.snapshot s
  WHERE h.instance_number = @instance_number@
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
