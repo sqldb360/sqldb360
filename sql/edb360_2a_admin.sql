@@ -912,8 +912,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE WHEN uniqueness LIKE 'NONUNIQUE%' THEN 1 ELSE 0 END) non_unique,
        SUM(CASE WHEN status LIKE 'VALID%' THEN 1 ELSE 0 END) valid,
        SUM(CASE WHEN status LIKE 'N/A%' THEN 1 ELSE 0 END) status_na,
-       &&skip_10g_column.SUM(CASE WHEN visibility LIKE 'VISIBLE%' THEN 1 ELSE 0 END) visible,
-       &&skip_10g_column.SUM(CASE WHEN visibility LIKE 'INVISIBLE%' THEN 1 ELSE 0 END) invisible,
+       &&skip_ver_le_10.SUM(CASE WHEN visibility LIKE 'VISIBLE%' THEN 1 ELSE 0 END) visible,
+       &&skip_ver_le_10.SUM(CASE WHEN visibility LIKE 'INVISIBLE%' THEN 1 ELSE 0 END) invisible,
        SUM(CASE WHEN status LIKE 'UNUSABLE%' THEN 1 ELSE 0 END) unusable
   FROM &&cdb_object_prefix.indexes
  WHERE table_owner NOT IN &&exclusion_list.
@@ -2215,7 +2215,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY 
        &&skip_noncdb.x.con_id,
 	   x.inst_id, x.sid, x.sql_id
-       &&skip_10g_column., x.sql_exec_id
+       &&skip_ver_le_10., x.sql_exec_id
 ]';
 END;
 /

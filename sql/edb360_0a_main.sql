@@ -159,16 +159,18 @@ SPO OFF;
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 REM Global Column Headings
-COL inst_id  heading 'Inst|ID'
-COL snap_id  heading 'Snap|ID'
-COL con_id   heading 'Con|ID'
-COL con_name heading 'Container|Name'
-COL percent  heading '%'
-COL rank_num heading 'Ranking'
-COL srank    heading 'Ranking'
-COL instance_number heading 'Instance|Number'
+COL con_id          heading 'Con|ID'
+COL con_name        heading 'Container|Name'
+col index_type      heading 'Index|Type'
+COL inst_id         heading 'Inst|ID'
 COL instance_name   heading 'Instance|Name'
-COL sql_text format a100
+COL instance_number heading 'Instance|Number'
+COL percent         heading '%'
+COL rank_num        heading 'Ranking'
+COL snap_id         heading 'Snap|ID'
+COL sql_text        format a100
+COL srank           heading 'Ranking'
+col table_owner     heading 'Table|Owner'
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

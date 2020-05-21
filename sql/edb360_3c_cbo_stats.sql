@@ -1023,7 +1023,6 @@ END;
 @@edb360_9a_pre_one.sql
 
 col owner            heading 'Table|Owner'
-col table_owner      heading 'Table|Owner'
 col table_name       heading 'Table|Name'
 col index_name       heading 'Index|Name'
 col column_name      heading 'Column|Name'
@@ -1139,7 +1138,6 @@ END;
 /
 @@edb360_9a_pre_one.sql
 col owner            heading clear
-col table_owner      heading clear
 col table_name       heading clear
 col index_name       heading clear
 col column_name      heading clear
