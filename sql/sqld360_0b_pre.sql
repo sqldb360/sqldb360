@@ -768,10 +768,10 @@ ALTER SESSION SET NLS_COMP = 'BINARY';
 -- to work around bug 12672969
 ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false;
 -- to work around bug 19567916
-ALTER SESSION SET "_optimizer_aggr_groupby_elim"=false;
+&&skip_ver_le_11.ALTER SESSION SET "_optimizer_aggr_groupby_elim"=false;
 -- workaround bug 21150273
-ALTER SESSION SET "_optimizer_dsdir_usage_control"=0;
-ALTER SESSION SET "_sql_plan_directive_mgmt_control" = 0;
+&&skip_ver_le_11.ALTER SESSION SET "_optimizer_dsdir_usage_control"=0;
+&&skip_ver_le_11.ALTER SESSION SET "_sql_plan_directive_mgmt_control" = 0;
 ALTER SESSION SET optimizer_dynamic_sampling = 0;
 -- workaround nigeria
 ALTER SESSION SET "_gby_hash_aggregation_enabled" = TRUE;

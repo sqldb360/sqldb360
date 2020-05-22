@@ -288,8 +288,7 @@ SELECT /*+ &&sq_fact_hints. */
 	   &&skip_noncdb.con_id,
        instance_number,
        name
-),
-calc2 AS (
+),calc2 AS (
 SELECT /*+ &&sq_fact_hints. */
        dbid,
 	   &&skip_noncdb.con_id,
@@ -301,8 +300,7 @@ SELECT /*+ &&sq_fact_hints. */
        dbid,
 	   &&skip_noncdb.con_id,
        name
-),
-ranked AS (
+),ranked AS (
 SELECT /*+ &&sq_fact_hints. */
        ROW_NUMBER () OVER (ORDER BY standard_dev DESC) srank,
        ROUND(standard_dev / 1024 / 1024, 1) mb_deviation,
@@ -310,24 +308,24 @@ SELECT /*+ &&sq_fact_hints. */
        name subpool_name
   FROM calc2
 )
-SELECT MIN(CASE srank WHEN 01 THEN subpool_name &&skip_noncdb.||':'||con_id
+SELECT MIN(CASE srank WHEN 01 THEN subpool_name &&skip_noncdb.||':'||con_id 
            END) subpool_01
       ,MIN(CASE srank WHEN 02 THEN subpool_name &&skip_noncdb.||':'||con_id
-	       END) subpool_02
+           END) subpool_02
       ,MIN(CASE srank WHEN 03 THEN subpool_name &&skip_noncdb.||':'||con_id
- 	       END) subpool_03
-      ,MIN(CASE srank WHEN 04 THEN subpool_name &&skip_noncdb.||':'||con_id
-	  	   END) subpool_04
-      ,MIN(CASE srank WHEN 05 THEN subpool_name &&skip_noncdb.||':'||con_id
-	  	   END) subpool_05
+           END) subpool_03
+      ,MIN(CASE srank WHEN 04 THEN subpool_name &&skip_noncdb.||':'||con_id 
+           END) subpool_04
+      ,MIN(CASE srank WHEN 05 THEN subpool_name &&skip_noncdb.||':'||con_id 
+	       END) subpool_05
       ,MIN(CASE srank WHEN 06 THEN subpool_name &&skip_noncdb.||':'||con_id
-	  	   END) subpool_06
-      ,MIN(CASE srank WHEN 07 THEN subpool_name &&skip_noncdb.||':'||con_id
-	  	   END) subpool_07
-      ,MIN(CASE srank WHEN 08 THEN subpool_name &&skip_noncdb.||':'||con_id
-	  	   END) subpool_08
-      ,MIN(CASE srank WHEN 09 THEN subpool_name &&skip_noncdb.||':'||con_id
-	  	   END) subpool_09
+	       END) subpool_06
+      ,MIN(CASE srank WHEN 07 THEN subpool_name &&skip_noncdb.||':'||con_id 
+	       END) subpool_07
+      ,MIN(CASE srank WHEN 08 THEN subpool_name &&skip_noncdb.||':'||con_id 
+	       END) subpool_08
+      ,MIN(CASE srank WHEN 09 THEN subpool_name &&skip_noncdb.||':'||con_id 
+	       END) subpool_09
       ,MIN(CASE srank WHEN 10 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_10
   FROM ranked;
@@ -393,8 +391,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
        dbid,
        instance_number
-),
-sgastat_denorm_2 AS (
+), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */
        &&skip_noncdb.h1.con_id,
        h1.snap_id,
@@ -578,8 +575,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
        name,
        instance_number
-),
-sgastat_denorm_2 AS (
+), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */
        &&skip_noncdb.h1.con_id,
        h1.snap_id,
