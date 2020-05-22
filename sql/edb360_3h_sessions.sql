@@ -227,21 +227,21 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        COUNT(DISTINCT h.snap_id||'.'||h.instance_number||'.'||h.session_id||'.'||h.session_serial#) DESC
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       MIN(CASE ROWNUM WHEN 01 THEN sql_id END) tit_01,
-       MIN(CASE ROWNUM WHEN 02 THEN sql_id END) tit_02,
-       MIN(CASE ROWNUM WHEN 03 THEN sql_id END) tit_03,
-       MIN(CASE ROWNUM WHEN 04 THEN sql_id END) tit_04,
-       MIN(CASE ROWNUM WHEN 05 THEN sql_id END) tit_05,
-       MIN(CASE ROWNUM WHEN 06 THEN sql_id END) tit_06,
-       MIN(CASE ROWNUM WHEN 07 THEN sql_id END) tit_07,
-       MIN(CASE ROWNUM WHEN 08 THEN sql_id END) tit_08,
-       MIN(CASE ROWNUM WHEN 09 THEN sql_id END) tit_09,
-       MIN(CASE ROWNUM WHEN 10 THEN sql_id END) tit_10,
-       MIN(CASE ROWNUM WHEN 11 THEN sql_id END) tit_11,
-       MIN(CASE ROWNUM WHEN 12 THEN sql_id END) tit_12,
-       MIN(CASE ROWNUM WHEN 13 THEN sql_id END) tit_13,
-       MIN(CASE ROWNUM WHEN 14 THEN sql_id END) tit_14,
-       MIN(CASE ROWNUM WHEN 15 THEN sql_id END) tit_15
+       NVL(MIN(CASE ROWNUM WHEN 01 THEN sql_id END),'not_sql_id_01') tit_01,
+       NVL(MIN(CASE ROWNUM WHEN 02 THEN sql_id END),'not_sql_id_02') tit_02,
+       NVL(MIN(CASE ROWNUM WHEN 03 THEN sql_id END),'not_sql_id_03') tit_03,
+       NVL(MIN(CASE ROWNUM WHEN 04 THEN sql_id END),'not_sql_id_04') tit_04,
+       NVL(MIN(CASE ROWNUM WHEN 05 THEN sql_id END),'not_sql_id_05') tit_05,
+       NVL(MIN(CASE ROWNUM WHEN 06 THEN sql_id END),'not_sql_id_06') tit_06,
+       NVL(MIN(CASE ROWNUM WHEN 07 THEN sql_id END),'not_sql_id_07') tit_07,
+       NVL(MIN(CASE ROWNUM WHEN 08 THEN sql_id END),'not_sql_id_08') tit_08,
+       NVL(MIN(CASE ROWNUM WHEN 09 THEN sql_id END),'not_sql_id_09') tit_09,
+       NVL(MIN(CASE ROWNUM WHEN 10 THEN sql_id END),'not_sql_id_10') tit_10,
+       NVL(MIN(CASE ROWNUM WHEN 11 THEN sql_id END),'not_sql_id_11') tit_11,
+       NVL(MIN(CASE ROWNUM WHEN 12 THEN sql_id END),'not_sql_id_12') tit_12,
+       NVL(MIN(CASE ROWNUM WHEN 13 THEN sql_id END),'not_sql_id_13') tit_13,
+       NVL(MIN(CASE ROWNUM WHEN 14 THEN sql_id END),'not_sql_id_14') tit_14,
+       NVL(MIN(CASE ROWNUM WHEN 15 THEN sql_id END),'not_sql_id_15') tit_15
   FROM ash
  WHERE ROWNUM < 16
 /
@@ -422,21 +422,21 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        SUM(executions_delta) DESC
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       MIN(CASE ROWNUM WHEN 01 THEN sql_id END) tit_01,
-       MIN(CASE ROWNUM WHEN 02 THEN sql_id END) tit_02,
-       MIN(CASE ROWNUM WHEN 03 THEN sql_id END) tit_03,
-       MIN(CASE ROWNUM WHEN 04 THEN sql_id END) tit_04,
-       MIN(CASE ROWNUM WHEN 05 THEN sql_id END) tit_05,
-       MIN(CASE ROWNUM WHEN 06 THEN sql_id END) tit_06,
-       MIN(CASE ROWNUM WHEN 07 THEN sql_id END) tit_07,
-       MIN(CASE ROWNUM WHEN 08 THEN sql_id END) tit_08,
-       MIN(CASE ROWNUM WHEN 09 THEN sql_id END) tit_09,
-       MIN(CASE ROWNUM WHEN 10 THEN sql_id END) tit_10,
-       MIN(CASE ROWNUM WHEN 11 THEN sql_id END) tit_11,
-       MIN(CASE ROWNUM WHEN 12 THEN sql_id END) tit_12,
-       MIN(CASE ROWNUM WHEN 13 THEN sql_id END) tit_13,
-       MIN(CASE ROWNUM WHEN 14 THEN sql_id END) tit_14,
-       MIN(CASE ROWNUM WHEN 15 THEN sql_id END) tit_15
+       NVL(MIN(CASE ROWNUM WHEN 01 THEN sql_id END),'not_sql_id_01') tit_01,
+       NVL(MIN(CASE ROWNUM WHEN 02 THEN sql_id END),'not_sql_id_02') tit_02,
+       NVL(MIN(CASE ROWNUM WHEN 03 THEN sql_id END),'not_sql_id_03') tit_03,
+       NVL(MIN(CASE ROWNUM WHEN 04 THEN sql_id END),'not_sql_id_04') tit_04,
+       NVL(MIN(CASE ROWNUM WHEN 05 THEN sql_id END),'not_sql_id_05') tit_05,
+       NVL(MIN(CASE ROWNUM WHEN 06 THEN sql_id END),'not_sql_id_06') tit_06,
+       NVL(MIN(CASE ROWNUM WHEN 07 THEN sql_id END),'not_sql_id_07') tit_07,
+       NVL(MIN(CASE ROWNUM WHEN 08 THEN sql_id END),'not_sql_id_08') tit_08,
+       NVL(MIN(CASE ROWNUM WHEN 09 THEN sql_id END),'not_sql_id_09') tit_09,
+       NVL(MIN(CASE ROWNUM WHEN 10 THEN sql_id END),'not_sql_id_10') tit_10,
+       NVL(MIN(CASE ROWNUM WHEN 11 THEN sql_id END),'not_sql_id_11') tit_11,
+       NVL(MIN(CASE ROWNUM WHEN 12 THEN sql_id END),'not_sql_id_12') tit_12,
+       NVL(MIN(CASE ROWNUM WHEN 13 THEN sql_id END),'not_sql_id_13') tit_13,
+       NVL(MIN(CASE ROWNUM WHEN 14 THEN sql_id END),'not_sql_id_14') tit_14,
+       NVL(MIN(CASE ROWNUM WHEN 15 THEN sql_id END),'not_sql_id_15') tit_15
   FROM totals
  WHERE ROWNUM < 16
 /

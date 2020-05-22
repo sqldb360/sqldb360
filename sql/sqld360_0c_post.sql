@@ -70,7 +70,7 @@ COMMIT;
 
 -- here we need to switch back to caller CONTAINER (CDB/PDB)
 -- It will error out in versions before 12c, safe to ignore
-ALTER SESSION SET CONTAINER=&&sqld360_container.;
+&&skip_noncdb.ALTER SESSION SET CONTAINER=&&sqld360_container.;
 
 
 --update plan table with zip file for eDB360 to pull
