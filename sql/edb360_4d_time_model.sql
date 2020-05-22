@@ -191,8 +191,8 @@ SELECT x.snap_id,
   FROM sys_time_model_denorm_4 x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       snap_id,
-	   &&skip_noncdb.x.con_id
+       snap_id
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /

@@ -169,7 +169,7 @@ SELECT x.*
        &&skip_noncdb.,c.name con_name
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
-ORDER BY x.hours_idle, x.type, x.status, &&skip_noncdb.x.con_id
+ORDER BY x.hours_idle, x.type, x.status &&skip_noncdb.,x.con_id
 ]';
 END;
 /

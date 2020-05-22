@@ -213,8 +213,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 SELECT NULL
   FROM ref_int_indexes i
  WHERE i.owner = x.owner
-   AND i.constraint_name = x.constraint_name
-   &&skip_noncdb.AND i.con_id = x.con_id)
+   &&skip_noncdb.AND i.con_id = x.con_id
+   AND i.constraint_name = x.constraint_name)
  ORDER BY
        1, 2, 3
        &&skip_noncdb., x.con_id

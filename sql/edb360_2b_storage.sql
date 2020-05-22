@@ -270,7 +270,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  WHERE x.username NOT IN &&exclusion_list.
    and x.username not in &&exclusion_list2.
-ORDER BY &&skip_noncdb.x.con_id
+ORDER BY &&skip_noncdb.x.con_id,
+       x.tablespace_name, x.username
 ]';
 END;
 /
@@ -1480,9 +1481,9 @@ from  &&cdb_object_prefix.tables t,
       &&cdb_object_prefix.tab_statistics s,
       &&cdb_object_prefix.tablespaces x
 where s.owner = t.owner 
-and   &&skip_noncdb.s.con_id = t.con_id 
+&&skip_noncdb.and   s.con_id = t.con_id 
 and   s.table_name = t.table_name 
-and   &&skip_noncdb.x.con_id = t.con_id 
+&&skip_noncdb.and   x.con_id = t.con_id 
 and   x.tablespace_name = t.tablespace_name 
 and   t.owner not in &&exclusion_list. 
 and   t.owner not in &&exclusion_list2.
