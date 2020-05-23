@@ -1061,7 +1061,8 @@ GROUP BY &&skip_noncdb.i.con_id,
          i.table_owner, i.table_name, i.owner, i.index_name, i.distinct_keys
 HAVING COUNT(*) > 1
 ), e as ( /*extended stats*/
-SELECT 	&&skip_noncdb.e.con_id,
+SELECT 	/*+ MATERIALIZE */
+        &&skip_noncdb.e.con_id,
         e.owner, e.table_name, e.extension_name
 ,       CAST(e.extension AS VARCHAR(1000)) extension
 ,       se.histogram, se.num_buckets, se.num_distinct

@@ -1921,18 +1921,18 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        t.avg_row_len
   FROM &&cdb_object_prefix.tab_columns c,
        &&cdb_object_prefix.tables t
- WHERE c.owner NOT IN &&exclusion_list.
-   AND c.owner NOT IN &&exclusion_list2.
-   AND c.table_name NOT LIKE 'BIN%'
+ WHERE t.owner NOT IN &&exclusion_list.
+   AND t.owner NOT IN &&exclusion_list2.
+   AND t.table_name NOT LIKE 'BIN%'
    &&skip_noncdb.AND t.con_id = c.con_id
    AND t.owner = c.owner 
    AND t.table_name = c.table_name
    AND NOT EXISTS
        (SELECT NULL 
         FROM &&cdb_object_prefix.views v 
-        WHERE v.owner = c.owner 
-        &&skip_noncdb.AND   v.con_id = c.con_id
-		AND   v.view_name = c.table_name)
+        WHERE v.owner = t.owner 
+        &&skip_noncdb.AND   v.con_id = t.con_id
+		AND   v.view_name = t.table_name)
  GROUP BY
        &&skip_noncdb.c.con_id,
        c.owner, c.table_name, t.avg_row_len
