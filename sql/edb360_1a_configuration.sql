@@ -291,7 +291,7 @@ ORDER BY pdb1.con_id
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Pluggable Databases Saved States';
 DEF main_table = '&&cdb_view_prefix.PDB_SAVED_STATES';
@@ -303,7 +303,7 @@ ORDER BY 1
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Database and Instance History';
 DEF main_table = '&&cdb_awr_hist_prefix.DATABASE_INSTANCE';
@@ -380,7 +380,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Registry History';
 DEF main_table = '&&cdb_view_prefix.REGISTRY_HISTORY';
@@ -676,7 +676,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'System Parameters Change Log';
 DEF main_table = '&&awr_object_prefix.PARAMETER';

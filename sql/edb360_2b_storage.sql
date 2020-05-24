@@ -31,7 +31,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Tablespace';
 DEF main_table = '&&v_view_prefix.TABLESPACE';
@@ -469,7 +469,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Log Writer I/O taking long';
 DEF main_table = '&&v_view_prefix.LGWRIO_OUTLIER';
@@ -483,7 +483,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'I/O taking long';
 DEF main_table = '&&v_view_prefix.IO_OUTLIER';
@@ -497,7 +497,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'SYSAUX Occupants';
 DEF main_table = '&&v_view_prefix.SYSAUX_OCCUPANTS';

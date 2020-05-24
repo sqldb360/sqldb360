@@ -283,8 +283,8 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_6j.ash_services.sql
 @@&&skip_diagnostics.&&edb360_6k.ash_phv.sql
 @@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_6l.ash_signature.sql
-&&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
-&&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
+@@&&skip_ver_le_11.&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
+@@&&skip_ver_le_11.&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

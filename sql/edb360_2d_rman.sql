@@ -29,7 +29,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Blocks with Corruption or Nonlogged';
 DEF main_table = '&&v_view_prefix.DATABASE_BLOCK_CORRUPTION';
@@ -131,7 +131,7 @@ FROM   x
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Block Change Tracking';
 DEF main_table = '&&v_view_prefix.BLOCK_CHANGE_TRACKING';

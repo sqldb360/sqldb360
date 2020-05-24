@@ -234,7 +234,7 @@ ORDER BY 1
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Role Privileges (not default)';
 DEF main_table ='&&cdb_view_prefix.ROLE_PRIVS';
@@ -257,7 +257,7 @@ ORDER BY 1,2
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'System Grants (not default)';
 DEF main_table='&&cdb_view_prefix.SYS_PRIVS';
@@ -283,7 +283,7 @@ WHERE  1=1
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

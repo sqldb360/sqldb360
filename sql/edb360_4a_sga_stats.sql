@@ -15,7 +15,7 @@ select * from x$ksmssinfo
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
 DEF chartype = 'LineChart';

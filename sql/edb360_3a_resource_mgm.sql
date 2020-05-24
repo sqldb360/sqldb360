@@ -131,7 +131,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Resource Plans for PDBs';
 DEF main_table = '&&cdb_view_prefix.CDB_RSRC_PLANS';
@@ -148,7 +148,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Active Resource Consumer Groups';
 DEF main_table = '&&gv_view_prefix.RSRC_CONSUMER_GROUP';

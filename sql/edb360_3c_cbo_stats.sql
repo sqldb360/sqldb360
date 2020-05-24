@@ -962,7 +962,7 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-&&skip_ver_le_11_1.@@edb360_3c_dbms_stats.sql
+@@&&skip_ver_le_11_1.edb360_3c_dbms_stats.sql
 
 DEF title = 'SYS Stats for WRH$, WRI$, WRM$ and WRR$ Tables';
 DEF main_table = '&&cdb_view_prefix.TABLES';

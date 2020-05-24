@@ -629,7 +629,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_ver_le_10.&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Indexes not recently used';
 DEF main_table = '&&cdb_view_prefix.INDEXES';
@@ -716,7 +716,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Redundant Indexes(1)';
 DEF main_table = '&&cdb_view_prefix.INDEXES';
@@ -1036,7 +1036,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Tables on KEEP Cell Flash Cache';
 DEF main_table = '&&cdb_view_prefix.TABLES';
@@ -1061,7 +1061,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Tables set for Compression';
 DEF main_table = '&&cdb_view_prefix.TABLES';
@@ -1087,7 +1087,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Partitions set for Compression';
 DEF main_table = '&&cdb_view_prefix.TAB_PARTITIONS';
@@ -1124,7 +1124,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 REM DMK 25.6.2018
 DEF title = 'Unindexed Partition Key Columns';
@@ -1261,7 +1261,7 @@ FROM   x
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Segments with non-default Buffer Pool';
 DEF main_table = '&&cdb_view_prefix.SEGMENTS';
@@ -1313,7 +1313,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Segments with non-default Cell Flash Cache';
 DEF main_table = '&&cdb_view_prefix.SEGMENTS';
@@ -1339,7 +1339,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Degree of Parallelism DOP on Tables';
 DEF main_table = '&&cdb_view_prefix.TABLES';
@@ -2079,7 +2079,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_ver_le_11_1.&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'SQL with over 2GB of PGA allocated memory';
 DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
@@ -2116,7 +2116,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_ver_le_11_1.&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Opened Cursors Current - Count per Session';
 DEF main_table = '&&gv_view_prefix.SESSTAT';
@@ -2655,7 +2655,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'ASH Info';
 DEF main_table = '&&gv_view_prefix.ASH_INFO';
@@ -2667,7 +2667,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'ASH Retention ';
 DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
@@ -2699,7 +2699,7 @@ AND c.dbid = a.dbid
 ]';
 END;
 /
-&&skip_diagnostics.@@edb360_9a_pre_one.sql
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'WRH$ Partitions ';
 DEF main_table = '&&cdb_view_prefix.TAB_PARTITIONS';
@@ -2862,7 +2862,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

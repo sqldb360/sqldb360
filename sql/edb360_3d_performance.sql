@@ -886,7 +886,7 @@ SELECT dbms_result_cache.status FROM dual
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Result Cache memory';
 DEF main_table = '&&gv_view_prefix.RESULT_CACHE_MEMORY';
@@ -900,7 +900,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Result Cache statistics';
 DEF main_table = '&&gv_view_prefix.RESULT_CACHE_STATISTICS';
@@ -914,7 +914,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Client Result Cache statistics';
 DEF main_table = 'CLIENT_RESULT_CACHE_STATS$';
@@ -928,7 +928,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'AAS for past minute';
 DEF main_table = '&&gv_view_prefix.WAITCLASSMETRIC';

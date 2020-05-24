@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-&&skip_tuning.&&skip_ver_le_11_1.@@edb360_3b_autotunereport.sql
+@@&&skip_tuning.&&skip_ver_le_11_1.edb360_3b_autotunereport.sql
 
 DEF title = 'SQL Patches';
 DEF main_table = '&&cdb_view_prefix.SQL_PATCHES';
@@ -37,7 +37,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_tuning.@@edb360_9a_pre_one.sql       
+@@&&skip_tuning.edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Profiles Summary by Type and Status';
 DEF main_table = '&&cdb_view_prefix.SQL_PROFILES';
@@ -69,7 +69,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_tuning.@@edb360_9a_pre_one.sql       
+@@&&skip_tuning.edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Profiles Summary by Creation Month';
 DEF main_table = '&&cdb_view_prefix.SQL_PROFILES';
@@ -96,7 +96,7 @@ FROM   x
 ]';
 END;
 /
-&&skip_tuning.@@edb360_9a_pre_one.sql       
+@@&&skip_tuning.edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Baselines';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_BASELINES';
@@ -243,7 +243,7 @@ SELECT d.dir_id,
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql       
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql       
 
 DEF title = 'SQL Plan Directives - Objects';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_DIR_OBJECTS';
@@ -257,7 +257,7 @@ SELECT x.*
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql       
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql       
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>
