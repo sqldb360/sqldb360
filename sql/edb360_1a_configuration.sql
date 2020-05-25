@@ -286,7 +286,7 @@ SELECT pdb1.*, pdb2.open_mode, pdb2.restricted, pdb2.open_time, pdb2.total_size,
 &&skip_noncdb.,c.name con_name
 FROM  &&cdb_object_prefix.pdbs pdb1 
  join &&v_object_prefix.pdbs pdb2 on pdb1.con_id=pdb2.con_id
- LEFT OUTER JOIN &&v_object_prefix.containers c ON c.pdb_id = pdb1.con_id
+ LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = pdb1.con_id
 ORDER BY pdb1.con_id
 ]';
 END;
