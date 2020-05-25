@@ -692,7 +692,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        i.index_name
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.indexes i
-       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = i.con_id
  WHERE (i.index_type LIKE 'NORMAL%' OR i.index_type = 'BITMAP' OR i.index_type LIKE 'FUNCTION%')
    AND i.table_owner NOT IN &&exclusion_list.
    AND i.table_owner NOT IN &&exclusion_list2.
