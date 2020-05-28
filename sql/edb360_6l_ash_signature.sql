@@ -13,7 +13,11 @@ BEGIN
 WITH
 hist AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
+<<<<<<< HEAD
        &&skip_ver_le_11.con_id,
+=======
+       &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
        force_matching_signature,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(DISTINCT sql_id) distinct_sql_id,
@@ -25,7 +29,11 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
    AND sql_id IS NOT NULL
    AND force_matching_signature > 0
  GROUP BY
+<<<<<<< HEAD
        &&skip_ver_le_11.con_id,
+=======
+       &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
        force_matching_signature
 ),
 total AS (
@@ -131,7 +139,11 @@ WITH
 hist AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
        /* &&section_id..&&report_sequence. */
+<<<<<<< HEAD
        &&skip_ver_le_11.con_id,
+=======
+       &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
        force_matching_signature,
        dbid,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
@@ -146,7 +158,11 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
+<<<<<<< HEAD
        &&skip_ver_le_11.con_id,
+=======
+       &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
        force_matching_signature,
        dbid
 ),
@@ -164,7 +180,11 @@ SELECT h.force_matching_signature||'('||h.distinct_sql_id||')' force_matching_si
        &&awr_object_prefix.sqltext s
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.min_sql_id AND s.dbid(+) = h.dbid
+<<<<<<< HEAD
    &&skip_ver_le_11.AND s.con_id(+) = h.con_id
+=======
+   &&skip_noncdb.AND s.con_id(+) = h.con_id
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
  UNION ALL
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,

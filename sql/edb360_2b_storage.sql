@@ -8,39 +8,42 @@ PRO <ol start="&&report_sequence.">
 SPO OFF;
 
 DEF title = 'Tablespace Usage Metrics';
-DEF main_table = 'CDB_TABLESPACE_USAGE_METRICS';
+DEF main_table = '&&cdb_view_prefix.TABLESPACE_USAGE_METRICS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       SUBSTR(c.pdb_name, 1, 30) pdb_name,
-       m.tablespace_name,
+       &&skip_noncdb.t.con_id,
+       t.tablespace_name,
        m.used_space,
        m.tablespace_size,
        ROUND(m.used_percent, 1) used_percent,
-       ROUND(m.used_space * p.block_size / POWER(2,30), 3) used_space_gb,
-       ROUND(m.tablespace_size * p.block_size / POWER(2,30), 3) tablespace_size_gb
-  FROM cdb_tablespace_usage_metrics m,
-       cdb_pdbs c,
-       cdb_tablespaces p
- WHERE c.con_id = m.con_id
-   AND p.con_id = m.con_id
-   AND p.tablespace_name = m.tablespace_name
+       ROUND(m.used_space * t.block_size / POWER(2,30), 3) used_space_gb,
+       ROUND(m.tablespace_size * t.block_size / POWER(2,30), 3) tablespace_size_gb
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.tablespace_usage_metrics m,
+       &&cdb_object_prefix.tablespaces t
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = t.con_id
+ WHERE t.con_id = m.con_id
+   AND t.tablespace_name = m.tablespace_name
  ORDER BY
-       c.pdb_name,
-       m.tablespace_name
+       &&skip_noncdb.t.con_id,
+       t.tablespace_name
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Tablespace';
 DEF main_table = '&&v_view_prefix.TABLESPACE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&v_object_prefix.tablespace
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&v_object_prefix.tablespace x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
+       &&skip_noncdb.x.con_id,
        ts#
 ]';
 END;
@@ -48,64 +51,91 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Tablespaces';
-DEF main_table = '&&dva_view_prefix.TABLESPACES';
+DEF main_table = '&&cdb_view_prefix.TABLESPACES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.tablespaces
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.tablespaces x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       tablespace_name
+       &&skip_noncdb.x.con_id,
+	   x.tablespace_name
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Tablespace Groups';
-DEF main_table = '&&dva_view_prefix.TABLESPACE_GROUPS';
+DEF main_table = '&&cdb_view_prefix.TABLESPACE_GROUPS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.tablespace_groups
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.tablespace_groups x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       group_name
+       &&skip_noncdb.x.con_id,
+	   x.group_name
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Default Tablespace Use';
-DEF main_table = '&&dva_view_prefix.USERS';
+DEF main_table = '&&cdb_view_prefix.USERS';
+COL number_of_users heading 'Number|of Users'
 BEGIN
   :sql_text := q'[
+WITH x as (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       default_tablespace, COUNT(*)
-  FROM &&dva_object_prefix.users
+       &&skip_noncdb.con_id,
+	   default_tablespace, COUNT(*) number_of_users
+  FROM &&cdb_object_prefix.users
  GROUP BY
-       default_tablespace
+       &&skip_noncdb.con_id,
+	   default_tablespace
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+ FROM  x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
+       &&skip_noncdb.x.con_id,
        default_tablespace
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
+COL temporary_tablespace heading 'Temporary|Tablespace'
 DEF title = 'Temporary Tablespace Use';
-DEF main_table = '&&dva_view_prefix.USERS';
+DEF main_table = '&&cdb_view_prefix.USERS';
 BEGIN
   :sql_text := q'[
+WITH x as (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       temporary_tablespace, COUNT(*)
-  FROM &&dva_object_prefix.users
+       &&skip_noncdb.con_id,
+	   temporary_tablespace, COUNT(*) number_of_users
+  FROM &&cdb_object_prefix.users
  GROUP BY
-       temporary_tablespace
+       &&skip_noncdb.con_id,
+	   temporary_tablespace
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+ FROM  x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
+       &&skip_noncdb.x.con_id,
        temporary_tablespace
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
+COL number_of_users CLEAR
 
 DEF title = 'UNDO Stat';
 DEF main_table = '&&gv_view_prefix.UNDOSTAT';
@@ -121,7 +151,7 @@ END;
 
 
 DEF title = 'Tablespace Usage';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 COL pct_used FOR 999990.0;
 BEGIN
   :sql_text := q'[
@@ -130,24 +160,29 @@ BEGIN
 WITH
 files AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        tablespace_name,
        SUM(DECODE(autoextensible, 'YES', maxbytes, bytes)) / POWER(10,9) Max_size_gb,
        SUM( bytes) / POWER(10,9) Size_gb
-  FROM &&dva_object_prefix.data_files
+  FROM &&cdb_object_prefix.data_files
  GROUP BY
+       &&skip_noncdb.con_id,
        tablespace_name
 ),
 segments AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       tablespace_name,
+       &&skip_noncdb.con_id,
+	   tablespace_name,
        SUM(bytes) / POWER(10,9) used_gb
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
  GROUP BY
+       &&skip_noncdb.con_id,
        tablespace_name
 ),
 tablespaces AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.files.con_id,
        files.tablespace_name,
        ROUND(files.size_gb, 1) size_gb,
        ROUND(segments.used_gb, 1) used_gb,
@@ -157,7 +192,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        segments
  WHERE files.size_gb > 0
    AND files.tablespace_name = segments.tablespace_name(+)
+   &&skip_noncdb.AND files.con_id = segments.con_id(+)
  ORDER BY
+       &&skip_noncdb.files.con_id,
        files.tablespace_name
 ),
 total AS (
@@ -169,14 +206,16 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        sum(max_size_gb) max_size_gb
   FROM tablespaces
 )
-SELECT tablespace_name,
+SELECT &&skip_noncdb.con_id,
+       tablespace_name,
        size_gb,
        used_gb,
        pct_used,
        max_size_gb
   FROM tablespaces
  UNION ALL
-SELECT tablespace_name,
+SELECT &&skip_noncdb.NULL,
+       tablespace_name,
        size_gb,
        used_gb,
        pct_used,
@@ -193,34 +232,46 @@ BEGIN
   :sql_text := q'[
 -- requested by Rodrigo Righetti
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-a.tablespace_name, round(A.AVAIL_SIZE_GB,1) AVAIL_SIZE_GB, 
-round(B.TOT_GBBYTES_CACHED,1) TOT_GBBYTES_CACHED , 
-round(B.TOT_GBBYTES_USED,1) TOT_GBBYTES_USED,
-ROUND(100*(B.TOT_GBBYTES_CACHED/A.AVAIL_SIZE_GB),1) PERC_CACHED,
-ROUND(100*(B.TOT_GBBYTES_USED/A.AVAIL_SIZE_GB),1) PERC_USED
-FROM
-(select  tablespace_name,sum(bytes)/POWER(10,9) AVAIL_SIZE_GB
-from &&dva_object_prefix.temp_files
-group by tablespace_name) A,
-(SELECT tablespace_name, 
-SUM(BYTES_CACHED)/POWER(10,9) TOT_GBBYTES_CACHED, 
-SUM(BYTES_USED)/POWER(10,9) TOT_GBBYTES_USED
-FROM &&gv_object_prefix.temp_extent_pool
-GROUP BY  TABLESPACE_NAME) B
-where a.tablespace_name=b.tablespace_name
+       a.tablespace_name, ROUND(A.AVAIL_SIZE_GB,1) AVAIL_SIZE_GB,
+       ROUND(B.TOT_GBBYTES_CACHED,1) TOT_GBBYTES_CACHED ,
+       ROUND(B.TOT_GBBYTES_USED,1) TOT_GBBYTES_USED,
+       ROUND(100*(B.TOT_GBBYTES_CACHED/A.AVAIL_SIZE_GB),1) PERC_CACHED,
+       ROUND(100*(B.TOT_GBBYTES_USED/A.AVAIL_SIZE_GB),1) PERC_USED
+FROM  (SELECT &&skip_noncdb.con_id,
+              tablespace_name,sum(bytes)/POWER(10,9) AVAIL_SIZE_GB
+       from   &&cdb_object_prefix.temp_files
+       group by &&skip_noncdb.con_id,
+	            tablespace_name
+      ) A,
+      (SELECT &&skip_noncdb.con_id,
+	          tablespace_name,
+              SUM(BYTES_CACHED)/POWER(10,9) TOT_GBBYTES_CACHED,
+              SUM(BYTES_USED)/POWER(10,9) TOT_GBBYTES_USED
+       FROM   &&gv_object_prefix.temp_extent_pool
+       GROUP BY &&skip_noncdb.con_id,
+	            TABLESPACE_NAME
+       ) B
+WHERE a.tablespace_name=b.tablespace_name
+&&skip_noncdb.AND   a.con_id = b.con_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Tablespace Quotas';
-DEF main_table = '&&dva_view_prefix.TS_QUOTAS';
+DEF main_table = '&&cdb_view_prefix.TS_QUOTAS';
 BEGIN
   :sql_text := q'[
 -- by berx
-select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ * from &&dva_object_prefix.ts_quotas
-WHERE username NOT IN &&exclusion_list.
-and username not in &&exclusion_list2.
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.ts_quotas x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE x.username NOT IN &&exclusion_list.
+   and x.username not in &&exclusion_list2.
+ORDER BY &&skip_noncdb.x.con_id,
+       x.tablespace_name, x.username
 ]';
 END;
 /
@@ -231,55 +282,62 @@ DEF main_table = '&&v_view_prefix.DATAFILE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&v_object_prefix.datafile
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&v_object_prefix.datafile x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       file#
+       x.file#
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Data Files';
-DEF main_table = '&&dva_view_prefix.DATA_FILES';
+DEF main_table = '&&cdb_view_prefix.DATA_FILES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.data_files
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.data_files x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       file_name
+       &&skip_noncdb.x.con_id,
+	   x.file_name
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Data Files Usage';
-DEF main_table = '&&dva_view_prefix.DATA_FILES';
+DEF main_table = '&&cdb_view_prefix.DATA_FILES';
 COL pct_used FOR 999990.0;
 COL pct_free FOR 999990.0;
 BEGIN
   :sql_text := q'[
-WITH
-alloc AS (
+WITH alloc AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        tablespace_name,
        COUNT(*) datafiles,
        ROUND(SUM(bytes)/POWER(10,9)) gb
-  FROM &&dva_object_prefix.data_files
+  FROM &&cdb_object_prefix.data_files
  GROUP BY
+       &&skip_noncdb.con_id,
        tablespace_name
-),
-free AS (
+),free AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       tablespace_name,
+       &&skip_noncdb.con_id,
+	   tablespace_name,
        ROUND(SUM(bytes)/POWER(10,9)) gb
-  FROM &&dva_object_prefix.free_space
+  FROM &&cdb_object_prefix.free_space
  GROUP BY
+       &&skip_noncdb.con_id,
        tablespace_name
-),
-tablespaces AS (
+),tablespaces AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.a.con_id,
        a.tablespace_name,
        a.datafiles,
        a.gb alloc_gb,
@@ -287,17 +345,51 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        f.gb free_gb
   FROM alloc a, free f
  WHERE a.tablespace_name = f.tablespace_name
+   &&skip_noncdb.AND a.con_id = f.con_id
  ORDER BY
+       &&skip_noncdb.a.con_id,
        a.tablespace_name
-),
-total AS (
+&&skip_noncdb.),pdb_total AS (
+&&skip_noncdb.SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+&&skip_noncdb.       con_id,
+&&skip_noncdb.	     SUM(alloc_gb) alloc_gb,
+&&skip_noncdb.       SUM(used_gb) used_gb,
+&&skip_noncdb.       SUM(free_gb) free_gb
+&&skip_noncdb.  FROM tablespaces
+&&skip_noncdb. GROUP BY con_id
+),total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(alloc_gb) alloc_gb,
        SUM(used_gb) used_gb,
        SUM(free_gb) free_gb
   FROM tablespaces
+), v as (
+SELECT &&skip_noncdb.con_id,
+       tablespace_name,
+       datafiles,
+       alloc_gb,
+       used_gb,
+       free_gb
+  FROM tablespaces
+&&skip_noncdb. UNION ALL
+&&skip_noncdb.SELECT con_id,
+&&skip_noncdb.       'PDB Total' tablespace_name,
+&&skip_noncdb.       TO_NUMBER(NULL) datafiles,
+&&skip_noncdb.       alloc_gb,
+&&skip_noncdb.       used_gb,
+&&skip_noncdb.       free_gb
+&&skip_noncdb.  FROM pdb_total
+ UNION ALL
+SELECT &&skip_noncdb.NULL,
+       'Total' tablespace_name,
+       TO_NUMBER(NULL) datafiles,
+       alloc_gb,
+       used_gb,
+       free_gb
+  FROM total
 )
-SELECT v.tablespace_name,
+SELECT &&skip_noncdb.v.con_id,
+       v.tablespace_name,
        v.datafiles,
        v.alloc_gb,
        v.used_gb,
@@ -308,21 +400,9 @@ SELECT v.tablespace_name,
        CASE WHEN v.alloc_gb > 0 THEN
        LPAD(TRIM(TO_CHAR(ROUND(100 * v.free_gb / v.alloc_gb, 1), '990.0')), 8)
        END pct_free
-  FROM (
-SELECT tablespace_name,
-       datafiles,
-       alloc_gb,
-       used_gb,
-       free_gb
-  FROM tablespaces
- UNION ALL
-SELECT 'Total' tablespace_name,
-       TO_NUMBER(NULL) datafiles,
-       alloc_gb,
-       used_gb,
-       free_gb
-  FROM total
-) v
+	   &&skip_noncdb.,c.name con_name
+  FROM v
+       &&skip_noncdb.LEFT OUTER JOIN v$containers c ON c.con_id = v.con_id
 ]';
 END;
 /
@@ -333,8 +413,10 @@ DEF main_table = '&&v_view_prefix.TEMPFILE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&v_object_prefix.tempfile
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&v_object_prefix.tempfile x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        file#
 ]';
@@ -343,13 +425,16 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Temp Files';
-DEF main_table = '&&dva_view_prefix.TEMP_FILES';
+DEF main_table = '&&cdb_view_prefix.TEMP_FILES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.temp_files
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.temp_files x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
+       &&skip_noncdb.x.con_id,
        file_name
 ]';
 END;
@@ -361,14 +446,16 @@ DEF main_table = '&&v_view_prefix.IOSTAT_FILE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&v_object_prefix.iostat_file
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&v_object_prefix.iostat_file x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        1
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Kernel I/O taking long';
 DEF main_table = '&&v_view_prefix.KERNEL_IO_OUTLIER';
@@ -382,7 +469,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Log Writer I/O taking long';
 DEF main_table = '&&v_view_prefix.LGWRIO_OUTLIER';
@@ -396,7 +483,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'I/O taking long';
 DEF main_table = '&&v_view_prefix.IO_OUTLIER';
@@ -410,13 +497,13 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'SYSAUX Occupants';
 DEF main_table = '&&v_view_prefix.SYSAUX_OCCUPANTS';
 BEGIN
   :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        v.*, ROUND(v.space_usage_kbytes / POWER(10,6), 3) space_usage_gbs
   FROM &&v_object_prefix.sysaux_occupants v
  ORDER BY 1
@@ -438,20 +525,49 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&v_object_prefix.datafile
  GROUP BY
        TO_CHAR(creation_time, 'YYYY-MM')
- ORDER BY
-       TO_CHAR(creation_time, 'YYYY-MM')
+ ORDER BY 1
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
-    
+
+DEF title = 'Database Growth per Month per CDB';
+DEF main_table = '&&v_view_prefix.DATAFILE';
+BEGIN
+  :sql_text := q'[
+-- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
+WITH x AS (
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
+	   TO_CHAR(creation_time, 'YYYY-MM') creation_month,
+       ROUND(SUM(bytes)/POWER(10,6)) mb_growth,
+       ROUND(SUM(bytes)/POWER(10,9)) gb_growth,
+       ROUND(SUM(bytes)/POWER(10,12), 1) tb_growth
+  FROM &&v_object_prefix.datafile
+ GROUP BY
+       &&skip_noncdb.con_id,
+	   TO_CHAR(creation_time, 'YYYY-MM')
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY
+       &&skip_noncdb.x.con_id,
+       TO_CHAR(creation_time, 'YYYY-MM')
+]';
+END;
+/
+@@&&skip_noncdb.edb360_9a_pre_one.sql
+
 DEF title = 'Largest 200 Objects';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 COL gb FOR 999990.000;
 BEGIN
   :sql_text := q'[
 WITH schema_object AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        segment_type,
        owner,
        segment_name,
@@ -460,9 +576,10 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(extents) extents,
        SUM(blocks) blocks,
        SUM(bytes) bytes
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
  GROUP BY
+       &&skip_noncdb.con_id,
        segment_type,
        owner,
        segment_name,
@@ -478,7 +595,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        ROWNUM rank, v1.*
        FROM (
-SELECT so.segment_type,
+SELECT &&skip_noncdb.so.con_id,
+       so.segment_type,
        so.owner,
        so.segment_name,
        so.tablespace_name,
@@ -499,14 +617,16 @@ SELECT so.segment_type,
 ), top_200 AS (
 SELECT p.*,
        (SELECT object_id
-          FROM &&dva_object_prefix.objects o
+          FROM &&cdb_object_prefix.objects o
          WHERE o.object_type = p.segment_type
+		   &&skip_noncdb.AND o.con_id = p.con_id
            AND o.owner = p.owner
            AND o.object_name = p.segment_name
            AND o.object_type NOT LIKE '%PARTITION%') object_id,
        (SELECT data_object_id
-          FROM &&dva_object_prefix.objects o
+          FROM &&cdb_object_prefix.objects o
          WHERE o.object_type = p.segment_type
+           &&skip_noncdb.AND o.con_id = p.con_id
            AND o.owner = p.owner
            AND o.object_name = p.segment_name
            AND o.object_type NOT LIKE '%PARTITION%') data_object_id,
@@ -550,6 +670,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 )
 SELECT v.rank,
        v.segment_type,
+	   &&skip_noncdb.v.con_id,
        v.owner,
        v.segment_name,
        v.object_id,
@@ -558,12 +679,16 @@ SELECT v.rank,
        CASE
        WHEN v.segment_type LIKE 'INDEX%' THEN
          (SELECT i.table_name
-            FROM &&dva_object_prefix.indexes i
-           WHERE i.owner = v.owner AND i.index_name = v.segment_name)       
+            FROM &&cdb_object_prefix.indexes i
+           WHERE i.owner = v.owner
+		     &&skip_noncdb.AND i.con_id = v.con_id
+		     AND i.index_name = v.segment_name)
        WHEN v.segment_type LIKE 'LOB%' THEN
          (SELECT l.table_name
-            FROM &&dva_object_prefix.lobs l
-           WHERE l.owner = v.owner AND l.segment_name = v.segment_name)
+            FROM &&cdb_object_prefix.lobs l
+           WHERE l.owner = v.owner
+		     &&skip_noncdb.AND l.con_id = v.con_id
+		     AND l.segment_name = v.segment_name)
        END table_name,
        v.segments,
        v.extents,
@@ -575,9 +700,11 @@ SELECT v.rank,
        LPAD(TO_CHAR(v.blocks_perc, '990.000'), 7) blocks_perc,
        LPAD(TO_CHAR(v.bytes_perc, '990.000'), 7) bytes_perc,
        LPAD(TO_CHAR(v.bytes_perc_cum, '990.000'), 7) perc_cum
+	   &&skip_noncdb.,c.name con_name
   FROM (
 SELECT d.rank,
        d.segment_type,
+	   &&skip_noncdb.d.con_id,
        d.owner,
        d.segment_name,
        d.object_id,
@@ -596,6 +723,7 @@ SELECT d.rank,
  UNION ALL
 SELECT TO_NUMBER(NULL) rank,
        NULL segment_type,
+	   &&skip_noncdb.NULL con_id,
        NULL owner,
        NULL segment_name,
        TO_NUMBER(NULL),
@@ -614,6 +742,7 @@ SELECT TO_NUMBER(NULL) rank,
  UNION ALL
 SELECT TO_NUMBER(NULL) rank,
        NULL segment_type,
+	   &&skip_noncdb.NULL con_id,
        NULL owner,
        NULL segment_name,
        TO_NUMBER(NULL),
@@ -632,6 +761,7 @@ SELECT TO_NUMBER(NULL) rank,
  UNION ALL
 SELECT TO_NUMBER(NULL) rank,
        NULL segment_type,
+	   &&skip_noncdb.NULL con_id,
        NULL owner,
        NULL segment_name,
        TO_NUMBER(NULL),
@@ -650,6 +780,7 @@ SELECT TO_NUMBER(NULL) rank,
  UNION ALL
 SELECT TO_NUMBER(NULL) rank,
        NULL segment_type,
+	   &&skip_noncdb.NULL con_id,
        NULL owner,
        NULL segment_name,
        TO_NUMBER(NULL),
@@ -665,6 +796,7 @@ SELECT TO_NUMBER(NULL) rank,
        100 bytes_perc,
        TO_NUMBER(NULL) bytes_perc_cum
   FROM totals t) v
+  &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = v.con_id
 ]';
 END;
 /
@@ -754,7 +886,7 @@ FROM   &&dva_view_prefix.tables t
   LEFT OUTER JOIN c
     ON c.owner = t.owner
    AND c.table_name = t.table_name
-  LEFT OUTER JOIN k 
+  LEFT OUTER JOIN k
     ON k.owner = c.owner
    AND k.name = c.table_name
    AND k.column_name = c.column_name
@@ -762,7 +894,7 @@ WHERE  t.blocks>0
 AND    t.owner NOT IN &&exclusion_list.
 AND    t.owner NOT IN &&exclusion_list.
 )
-select x.*
+SELECT x.*
 from x
 where ranking <= 100
 ORDER BY 1,2,3,4
@@ -789,184 +921,178 @@ column LIKE_PREDS         clear
 column NULL_PREDS         clear
 
 
-DEF title = 'Tables with one physical extent and no rows';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF title = 'Tables with one extent and no rows';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- requested by David Kurtz
--- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas, eg PeopleSoft Financials
-WITH t aS (
-SELECT  /*+MATERIALIZE*/ t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
-FROM    &&dva_object_prefix.tables t
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.owner not in &&exclusion_list.
-and     t.owner not in &&exclusion_list2.
-and     t.segment_created = 'YES'
-AND     (       t.num_rows = 0
-        OR       t.num_rows IS NULL     
-        )
-), s as (
-SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.tablespace_name, s.blocks
-FROM 	&&dva_object_prefix.segments s
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     s.owner not in &&exclusion_list.
-and     s.owner not in &&exclusion_list2.
-and     s.segment_type = 'TABLE'
-and     s.partition_name IS NULL
-and     s.extents =  1
-)
-SELECT  t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
-FROM    t
-,       s
-where   t.owner = s.owner
-and     t.table_name = s.segment_name
-and     t.tablespace_name = s.tablespace_name
-ORDER BY 1,2
-]';
-END;
-/
-BRE ON REPORT;
-COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
-COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
-CL BRE;
-CL COMP;
-
-DEF title = 'Partitions with one physical extent and no rows';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
-BEGIN
-  :sql_text := q'[
--- requested by David Kurtz
--- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas
-WITH t aS (
-SELECT  /*+MATERIALIZE*/ t.table_owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
-FROM    &&dva_object_prefix.tab_partitions t
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.table_owner not in &&exclusion_list.
-and     t.table_owner not in &&exclusion_list2.
-and     t.segment_created = 'YES'
-AND     (  t.num_rows = 0
-        OR t.num_rows IS NULL
-        )
-), s as (
-SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.partition_name, s.tablespace_name, s.blocks
-FROM 	&&dva_object_prefix.segments s
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     s.owner not in &&exclusion_list.
-and     s.owner not in &&exclusion_list2.
-and     s.segment_type = 'TABLE PARTITION'
-and     s.extents =  1
-)
-SELECT  t.table_owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
-FROM    t
-,       s
-WHERE   t.table_owner = s.owner
-and     t.table_name = s.segment_name
-and     t.tablespace_name = s.tablespace_name
-and     t.partition_name = s.partition_name
-ORDER BY 1,2,3
-]';
-END;
-/
-BRE ON REPORT;
-COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
-COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
-CL BRE;
-CL COMP;
-
-DEF title = 'Subpartitions with one physical extent and no rows';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
-BEGIN
-  :sql_text := q'[
--- requested by David Kurtz
--- 18.3.2020 dmk:queries on each table materialized to deal with very large schemas
-WITH t aS (
-SELECT  /*+MATERIALIZE*/ t.table_owner, t.table_name, t.partition_name, t.subpartition_name, t.tablespace_name, t.num_rows, t.blocks, t.last_analyzed
-FROM    &&dva_object_prefix.tab_subpartitions t
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     t.table_owner not in &&exclusion_list.
-and     t.table_owner not in &&exclusion_list2.
-and     t.segment_created = 'YES'
-AND     (  t.num_rows = 0
-        OR t.num_rows IS NULL
-        )
-), s as (
-SELECT 	/*+MATERIALIZE*/ s.owner, s.segment_name, s.partition_name, s.tablespace_name, s.blocks
-FROM 	&&dva_object_prefix.segments s
-WHERE   '&&edb360_conf_incl_segments.' = 'Y'
-and     s.owner not in &&exclusion_list.
-and     s.owner not in &&exclusion_list2.
-and     s.segment_type = 'TABLE SUBPARTITION'
-and     s.extents =  1
-)
 SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
-        t.table_owner, t.table_name, t.partition_name, t.subpartition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
-FROM    &&dva_object_prefix.tab_subpartitions t
-,       &&dva_object_prefix.segments s
-WHERE   t.table_owner = s.owner
-and     t.table_name = s.segment_name
-and     t.subpartition_name = s.partition_name
-and     t.tablespace_name = s.tablespace_name
-ORDER BY 1,2,3,4
+        &&skip_noncdb.t.con_id,
+		t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+		&&skip_noncdb.,c.name con_name
+FROM    &&cdb_object_prefix.tables t
+        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = t.con_id
+,       &&cdb_object_prefix.segments s
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+AND     t.owner not in &&exclusion_list.
+AND     t.owner not in &&exclusion_list2.
+AND     s.segment_type = 'TABLE'
+&&skip_noncdb.AND     t.con_id = s.con_id
+AND     t.owner = s.owner
+AND     t.table_name = s.segment_name
+AND     t.tablespace_name = s.tablespace_name
+AND     s.partition_name IS NULL
+AND     t.segment_created = 'YES'
+AND     (       t.num_rows = 0
+        OR       t.num_rows IS NULL
+        )
+AND     s.extents =  1
+ORDER BY
+        &&skip_noncdb.t.con_id,
+        t.owner, t.table_name
 ]';
 END;
 /
 BRE ON REPORT;
 COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
 COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
+CL BRE;
+CL COMP;
+
+DEF title = 'Partitions with one extent and no rows';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
+BEGIN
+  :sql_text := q'[
+-- requested by David Kurtz
+SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
+        &&skip_noncdb.t.con_id,
+        t.table_owner, t.table_name, t.partition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+        &&skip_noncdb.,c.name con_name
+FROM    &&cdb_object_prefix.tab_partitions t
+        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = t.con_id
+,       &&cdb_object_prefix.segments s
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+AND     t.table_owner not in &&exclusion_list.
+AND     t.table_owner not in &&exclusion_list2.
+AND     s.segment_type = 'TABLE PARTITION'
+&&skip_noncdb.AND     t.con_id = s.con_id
+AND     t.table_owner = s.owner
+AND     t.table_name = s.segment_name
+AND     t.tablespace_name = s.tablespace_name
+AND     t.partition_name = s.partition_name
+AND     t.segment_created = 'YES'
+AND     (  t.num_rows = 0
+        OR t.num_rows IS NULL
+        )
+AND     s.extents =  1
+ORDER BY
+        &&skip_noncdb.t.con_id,
+        t.table_owner, t.table_name, t.partition_name
+]';
+END;
+/
+BRE ON REPORT;
+COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
+COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
+CL BRE;
+CL COMP;
+
+DEF title = 'Subpartitions with one extent and no rows';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
+BEGIN
+  :sql_text := q'[
+-- requested by David Kurtz
+SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
+        &&skip_noncdb.t.con_id,
+        t.table_owner, t.table_name, t.partition_name, t.subpartition_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
+FROM    &&cdb_object_prefix.tab_subpartitions t
+        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = t.con_id
+,       &&cdb_object_prefix.segments s
+WHERE   '&&edb360_conf_incl_segments.' = 'Y'
+AND     t.table_owner not in &&exclusion_list.
+AND     t.table_owner not in &&exclusion_list2.
+AND     s.segment_type = 'TABLE SUBPARTITION'
+&&skip_noncdb.AND     t.con_id = s.con_id
+AND     t.table_owner = s.owner
+AND     t.table_name = s.segment_name
+AND     t.subpartition_name = s.partition_name
+AND     t.tablespace_name = s.tablespace_name
+AND     t.segment_created = 'YES'
+AND     (  t.num_rows = 0
+        OR t.num_rows IS NULL
+        )
+AND     s.extents =  1
+ORDER BY
+        &&skip_noncdb.t.con_id,
+        t.table_owner, t.table_name, t.partition_name, t.subpartition_name
+]';
+END;
+/
+BRE ON REPORT;
+COMP SUM LAB TOTAL OF hwm_blocks ON REPORT;
+COMP SUM LAB TOTAL OF seg_blocks ON REPORT;
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 CL BRE;
 CL COMP;
 
 DEF title = 'Tables and their indexes larger than 1 GB';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 COL gb FOR 999990.000;
 BEGIN
   :sql_text := q'[
 WITH
 tables AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        owner,
        segment_name,
        SUM(bytes) bytes,
        COUNT(*) segments
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND segment_type LIKE 'TABLE%'
 GROUP BY
+       &&skip_noncdb.con_id,
        owner,
        segment_name
 ),
 indexes AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        owner,
        segment_name,
        SUM(bytes) bytes,
        COUNT(*) segments
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND segment_type LIKE 'INDEX%'
 GROUP BY
+       &&skip_noncdb.con_id,
        owner,
        segment_name
 ),
 idx_tbl AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.d.con_id,
        d.table_owner,
        d.table_name,
        SUM(i.bytes) bytes,
        SUM(i.segments) segments
   FROM indexes i,
-       &&dva_object_prefix.indexes d
+       &&cdb_object_prefix.indexes d
 WHERE i.owner = d.owner
+  &&skip_noncdb.AND i.con_id = d.con_id
   AND i.segment_name = d.index_name
 GROUP BY
+       &&skip_noncdb.d.con_id,
        d.table_owner,
        d.table_name
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.t.con_id,
        t.owner,
        t.segment_name table_name,
        (t.bytes + NVL(i.bytes, 0)) bytes,
@@ -978,9 +1104,11 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM tables t,
        idx_tbl i
 WHERE t.owner = i.table_owner(+)
+   &&skip_noncdb.AND t.con_id = i.con_id(+)
    AND t.segment_name = i.table_name(+)
 )
-SELECT owner,
+SELECT &&skip_noncdb.con_id,
+       owner,
        table_name,
        ROUND(bytes / POWER(10,9), 3) total_gb,
        ROUND(table_bytes / POWER(10,9), 3) table_gb,
@@ -998,47 +1126,54 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Indexes larger than their Table';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 COL gb FOR 999990.000;
 BEGIN
   :sql_text := q'[
 WITH
 tables AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        owner,
        segment_name,
        SUM(bytes) bytes
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND segment_type LIKE 'TABLE%'
 GROUP BY
+       &&skip_noncdb.con_id,
        owner,
        segment_name
 ),
 indexes AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        owner,
        segment_name,
        SUM(bytes) bytes
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND segment_type LIKE 'INDEX%'
 GROUP BY
+       &&skip_noncdb.con_id,
        owner,
        segment_name
 ),
 idx_tbl AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.d.con_id,
        d.table_owner,
        d.table_name,
        d.owner,
        d.index_name,
        SUM(i.bytes) bytes
   FROM indexes i,
-       &&dva_object_prefix.indexes d
+       &&cdb_object_prefix.indexes d
 WHERE i.owner = d.owner
+   &&skip_noncdb.AND i.con_id = d.con_id
    AND i.segment_name = d.index_name
 GROUP BY
+       &&skip_noncdb.d.con_id,
        d.table_owner,
        d.table_name,
        d.owner,
@@ -1046,6 +1181,7 @@ GROUP BY
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.t.con_id,
        t.owner table_owner,
        t.segment_name table_name,
        t.bytes t_bytes,
@@ -1055,11 +1191,13 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM tables t,
        idx_tbl i
 WHERE t.owner = i.table_owner
+   &&skip_noncdb.AND t.con_id = i.con_id
    AND t.segment_name = i.table_name
    AND i.bytes > t.bytes
    AND t.bytes > POWER(10,7) /* 10M */
 )
-SELECT table_owner,
+SELECT &&skip_noncdb.con_id,
+       table_owner,
        table_name,
        ROUND(t_bytes / POWER(10,9), 3) table_gb,
        index_owner,
@@ -1069,6 +1207,7 @@ SELECT table_owner,
        ROUND(100 * (i_bytes - t_bytes) / t_bytes, 1) dif_perc
   FROM total
 ORDER BY
+       &&skip_noncdb.con_id,
       table_owner,
        table_name,
        index_owner,
@@ -1079,24 +1218,27 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Candidate Tables for Partitioning';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-   owner, table_name, blocks, block_size, 
-   round(blocks * block_size / POWER(10,6)) mb, 
-   num_rows, avg_row_len, degree, sample_size, last_analyzed
-from 
-   &&dva_object_prefix.tables, 
-   &&dva_object_prefix.tablespaces
-where
-   &&dva_object_prefix.tablespaces.tablespace_name = &&dva_object_prefix.tables.tablespace_name and
-   (blocks * block_size / POWER(10,6)) >= POWER(10,3) and
-   partitioned = 'NO' and
-   owner not in &&exclusion_list. and
-   owner not in &&exclusion_list2.
-order by owner, (blocks * block_size / POWER(10,6)) desc
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.t.con_id,
+	   t.owner, t.table_name, t.blocks, t.block_size,
+       ROUND(t.blocks * t.block_size / POWER(10,6)) mb,
+       num_rows, avg_row_len, degree, sample_size, last_analyzed
+	   &&skip_noncdb.,c.name con_name
+  from &&cdb_object_prefix.tables t
+      ,&&cdb_object_prefix.tablespaces s
+ where s.tablespace_name = t.tablespace_name
+   &&skip_noncdb.AND s.con_id = t.con_id
+   and (t.blocks * t.block_size / POWER(10,6)) >= POWER(10,3)
+   and t.partitioned = 'NO'
+   and t.owner not in &&exclusion_list.
+   and t.owner not in &&exclusion_list2.
+order by
+       &&skip_noncdb.t.con_id,
+	   t.owner, mb desc
 ]';
 END;
 /
@@ -1107,14 +1249,14 @@ DEF main_table = '&&dva_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- http://askdba.org/weblog/2009/07/cleanup-temporary-segments-in-permanent-tablespace/
-select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 tablespace_name, owner, segment_name,
-round(sum(bytes/POWER(10,6))) mega_bytes 
+ROUND(sum(bytes/POWER(10,6))) mega_bytes
 from &&dva_object_prefix.segments
 where '&&edb360_conf_incl_segments.' = 'Y'
-and segment_type = 'TEMPORARY' 
+and segment_type = 'TEMPORARY'
 group by tablespace_name, owner, segment_name
-having round(sum(bytes/POWER(10,6))) > 0
+having ROUND(sum(bytes/POWER(10,6))) > 0
 order by tablespace_name, owner, segment_name
 ]';
 END;
@@ -1122,13 +1264,15 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Segments in Reserved Tablespaces';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       s.owner, s.segment_type, s.tablespace_name, COUNT(1) segments
-  FROM &&dva_object_prefix.segments s
+WITH x AS (
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.s.con_id,
+	   s.owner, s.segment_type, s.tablespace_name, COUNT(1) segments
+  FROM &&cdb_object_prefix.segments s
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND s.owner NOT IN ('SYS','SYSTEM','OUTLN','AURORA$JIS$UTILITY$','OSE$HTTP$ADMIN','ORACACHE','ORDSYS',
                        'CTXSYS','DBSNMP','DMSYS','EXFSYS','MDSYS','OLAPSYS','SYSMAN','TSMSYS','WMSYS','XDB',
@@ -1136,13 +1280,20 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
                       )
    AND s.tablespace_name IN ('SYSTEM','SYSAUX','TEMP','TEMPORARY','RBS','ROLLBACK','ROLLBACKS','RBSEGS')
    AND s.tablespace_name NOT IN (SELECT tablespace_name
-                                   FROM &&dva_object_prefix.tablespaces
+                                   FROM &&cdb_object_prefix.tablespaces
                                   WHERE contents IN ('UNDO','TEMPORARY')
                                 )
-and s.owner not in &&exclusion_list.
-and s.owner not in &&exclusion_list2.
- GROUP BY s.owner, s.segment_type, s.tablespace_name
- ORDER BY 1,2,3
+   AND s.owner not in &&exclusion_list.
+   AND s.owner not in &&exclusion_list2.
+ GROUP BY &&skip_noncdb.s.con_id,
+          s.owner, s.segment_type, s.tablespace_name
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY &&skip_noncdb.x.con_id,
+          x.owner, x.segment_type, x.tablespace_name
 ]';
 END;
 /
@@ -1157,7 +1308,7 @@ DEF main_table = 'DBMS_SPACE';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
 FROM TABLE(dbms_space.asa_recommendations())
 Where segment_owner not in &&exclusion_list. and
@@ -1169,18 +1320,21 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Objects in Recycle Bin';
-DEF main_table = '&&dva_view_prefix.RECYCLEBIN';
+DEF main_table = '&&cdb_view_prefix.RECYCLEBIN';
 BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.recyclebin
- WHERE owner NOT IN &&exclusion_list.
-   AND owner NOT IN &&exclusion_list2.
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.recyclebin x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE x.owner NOT IN &&exclusion_list.
+   AND x.owner NOT IN &&exclusion_list2.
  ORDER BY
-       owner,
-       object_name
+       &&skip_noncdb.x.con_id,
+	   x.owner,
+       x.object_name
 ]';
 END;
 /
@@ -1191,15 +1345,24 @@ DEF main_table = '&&dva_view_prefix.RECYCLEBIN';
 BEGIN
   :sql_text := q'[
 -- requested by Dimas Chbane
+WITH x AS (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       ROUND(SUM(r.space * t.block_size) / POWER(10,6)) mb_space,
+       &&skip_noncdb.r.con_id,
+	   ROUND(SUM(r.space * t.block_size) / POWER(10,6)) mb_space,
        r.owner
-  FROM &&dva_object_prefix.recyclebin r,
-       &&dva_object_prefix.tablespaces t
+  FROM &&cdb_object_prefix.recyclebin r,
+       &&cdb_object_prefix.tablespaces t
  WHERE r.ts_name = t.tablespace_name
+   &&skip_noncdb.AND r.con_id = t.con_id
  GROUP BY
-       r.owner
+       &&skip_noncdb.r.con_id,
+	   r.owner
 HAVING ROUND(SUM(r.space * t.block_size) / POWER(10,6)) > 0
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        1 DESC, 2
 ]';
@@ -1214,10 +1377,10 @@ EXEC :file_seq := :file_seq + 1;
 SELECT LPAD(:file_seq, 5, '0')||'_&&common_edb360_prefix._&&section_id._&&report_sequence._tables_with_actual_size_greater_than_estimated' one_spool_filename FROM DUAL;
 SPO &&edb360_output_directory.&&one_spool_filename..txt
 
--- select only those tables with an estimated space saving percent greater than 25%
+-- SELECT only those tables with an estimated space saving percent greater than 25%
 VAR savings_percent NUMBER;
 EXEC :savings_percent := 25;
--- select only tables with current size (as per cbo stats) greater then 10MB
+-- SELECT only tables with current size (as per cbo stats) greater then 10MB
 VAR minimum_size_mb NUMBER;
 EXEC :minimum_size_mb := 10;
 
@@ -1245,8 +1408,8 @@ BEGIN
     LPAD('-', 20, '-')||' '||
     LPAD('-', 20, '-')||'  '||
     RPAD('-', 150, '-'));
-  FOR i IN (SELECT x.table_name, x.owner, 
-                   x.tablespace_name, MAX(s.avg_row_len) avg_row_len, SUM(s.num_rows) num_rows, x.pct_free,  
+  FOR i IN (SELECT x.table_name, x.owner,
+                   x.tablespace_name, MAX(s.avg_row_len) avg_row_len, SUM(s.num_rows) num_rows, x.pct_free,
                    SUM(s.blocks) * TO_NUMBER(p.value) table_size,
                    REPLACE(DBMS_METADATA.GET_DDL('TABLE',x.table_name,x.owner),CHR(10),CHR(32)) ddl
               FROM dba_tab_statistics s, dba_tables x, dba_users u, v$parameter p
@@ -1272,7 +1435,7 @@ BEGIN
                    table_size DESC)
   LOOP
     DBMS_SPACE.CREATE_TABLE_COST(i.tablespace_name,i.avg_row_len,i.num_rows,i.pct_free,l_used_bytes,l_alloc_bytes);
-    IF i.table_size * (100 - :savings_percent) / 100 > l_alloc_bytes THEN 
+    IF i.table_size * (100 - :savings_percent) / 100 > l_alloc_bytes THEN
       l_percent := 100 * (i.table_size - l_alloc_bytes) / i.table_size;
       DBMS_OUTPUT.PUT_LINE(
         RPAD(i.owner||'.'||i.table_name, 35)||' '||
@@ -1301,36 +1464,45 @@ SELECT TO_CHAR(:repo_seq) report_sequence FROM DUAL;
 /****************************************************************************************/
 
 DEF title = 'Tables with excessive wasted space';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-   (round(SUM(s.blocks) * x.block_size / POWER(10,6))) - 
-      (round(SUM(s.num_rows) * MAX(s.avg_row_len) * (1+(t.pct_free/100)) * decode (t.compression,'ENABLED',0.50,1.00) / POWER(10,6))) over_allocated_mb,
-   t.owner, t.table_name, SUM(s.blocks), x.block_size, t.pct_free,
-   round(SUM(s.blocks) * x.block_size / POWER(10,6)) actual_mb,
-   round(SUM(s.num_rows) * MAX(s.avg_row_len) * (1+(t.pct_free/100)) * decode (t.compression,'ENABLED',0.50,1.00) / POWER(10,6)) estimate_mb,
-   SUM(s.num_rows), MAX(s.avg_row_len), t.compression
-from
-   &&dva_object_prefix.tables t,
-   &&dva_object_prefix.tab_statistics s,
-   &&dva_object_prefix.tablespaces x
-where
-   s.owner = t.owner and
-   s.table_name = t.table_name and
-   x.tablespace_name = t.tablespace_name and
-   t.owner not in &&exclusion_list. and
-   t.owner not in &&exclusion_list2.
+WITH x AS (
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+      (ROUND(SUM(s.blocks) * x.block_size / POWER(10,6))) -
+      (ROUND(SUM(s.num_rows) * MAX(s.avg_row_len) * (1+(t.pct_free/100)) * DECODE(t.compression,'ENABLED',0.50,1.00) / POWER(10,6))) over_allocated_mb,
+      &&skip_noncdb.t.con_id,
+      t.owner, t.table_name, SUM(s.blocks), x.block_size, t.pct_free,
+      ROUND(SUM(s.blocks) * x.block_size / POWER(10,6)) actual_mb,
+      ROUND(SUM(s.num_rows) * MAX(s.avg_row_len) * (1+(t.pct_free/100)) * DECODE(t.compression,'ENABLED',0.50,1.00) / POWER(10,6)) estimate_mb,
+      SUM(s.num_rows), MAX(s.avg_row_len), t.compression
+from  &&cdb_object_prefix.tables t,
+      &&cdb_object_prefix.tab_statistics s,
+      &&cdb_object_prefix.tablespaces x
+where s.owner = t.owner
+&&skip_noncdb.and   s.con_id = t.con_id
+and   s.table_name = t.table_name
+&&skip_noncdb.and   x.con_id = t.con_id
+and   x.tablespace_name = t.tablespace_name
+and   t.owner not in &&exclusion_list.
+and   t.owner not in &&exclusion_list2.
 group by
+      &&skip_noncdb.t.con_id,
    t.owner, t.table_name, x.block_size, t.pct_free, t.compression
 having
-   (SUM(s.blocks) * x.block_size / POWER(10,6)) >= 100 and -- actual_mb 
-   abs(round(SUM(s.blocks) * x.block_size / POWER(10,6)) - round(SUM(s.num_rows) * MAX(s.avg_row_len) * (1+(t.pct_free/100)) * decode (t.compression,'ENABLED',0.50,1.00) / POWER(10,6))) / 
-      (round(SUM(s.blocks) * x.block_size / POWER(10,6))) >= 0.25
-order by 
-   1 desc,
-   t.owner, t.table_name
+   (SUM(s.blocks) * x.block_size / POWER(10,6)) >= 100 and -- actual_mb
+      abs(ROUND(SUM(s.blocks) * x.block_size / POWER(10,6)) - ROUND(SUM(s.num_rows) * MAX(s.avg_row_len) * (1+(t.pct_free/100)) * DECODE(t.compression,'ENABLED',0.50,1.00) / POWER(10,6))) /
+      (ROUND(SUM(s.blocks) * x.block_size / POWER(10,6))) >= 0.25
+	  )
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY
+       1 desc,
+	   &&skip_noncdb.x.con_id,
+       x.owner, x.table_name
 ]';
 END;
 /
@@ -1404,7 +1576,7 @@ BEGIN
                    index_size DESC)
   LOOP
     DBMS_SPACE.CREATE_INDEX_COST(i.ddl,l_used_bytes,l_alloc_bytes);
-    IF i.index_size * (100 - :savings_percent) / 100 > l_alloc_bytes THEN 
+    IF i.index_size * (100 - :savings_percent) / 100 > l_alloc_bytes THEN
       l_percent := 100 * (i.index_size - l_alloc_bytes) / i.index_size;
       DBMS_OUTPUT.PUT_LINE(
         RPAD(i.table_name, 30)||' '||
@@ -1454,7 +1626,7 @@ And    owner Not In ('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX
 And    owner Not In ('CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA')
 And    owner Not In ('ORDPLUGINS','ORDSYS','OUTLN','OWBSYS','SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN')
 And    owner Not In ('SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL','PERFSTAT','STDBYPERF','MGDSYS','OJVMSYS')
-order by blocks desc 
+order by blocks desc
 ]';
 END;
 /
@@ -1534,10 +1706,10 @@ BEGIN
   :sql_text := q'[
 -- from estimate_index_size.sql
 -- http://carlos-sierra.net/2014/07/18/free-script-to-very-quickly-and-cheaply-estimate-the-size-of-an-index-if-it-were-to-be-rebuilt/
-WITH 
+WITH
 indexes AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. * /
-       pt.object_owner, 
+       pt.object_owner,
        pt.object_name,
        TO_NUMBER(EXTRACTVALUE(VALUE(d), '/info')) estimated_bytes
   FROM plan_table pt,
@@ -1595,3 +1767,5 @@ DELETE plan_table WHERE statement_id IN (:random1, :random2);
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;
+
+COL temporary_tablespace clear

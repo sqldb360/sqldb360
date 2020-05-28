@@ -246,7 +246,23 @@ DEF tit_11 = '< 1.024s';
 DEF tit_12 = '< 2.048s';
 DEF tit_13 = '< 4.096s';
 DEF tit_14 = '< 8.192s';
-DEF tit_15 = '> 8.192s';
+DEF tit_15 = '>= 8.192s';
+
+COL less_1_ms HEADING '<|1ms'
+COL less_2_ms HEADING '<|2ms'
+COL less_4_ms HEADING '<|4ms'
+COL less_8_ms HEADING '<|8ms'
+COL less_16_ms HEADING '<|16ms'
+COL less_32_ms HEADING '<|32ms'
+COL less_64_ms HEADING '<|64ms'
+COL less_128_ms HEADING '<|128ms'
+COL less_256_ms HEADING '<|256ms'
+COL less_512_ms HEADING '<|512ms'
+COL less_1024_ms HEADING '<|1.024s'
+COL less_2048_ms HEADING '<|2.048s'
+COL less_4096_ms HEADING '<|4.192s'
+COL less_8192_ms HEADING '<|8.192s'
+COL more_8192_ms HEADING '>=|8.192s'
 
 BEGIN
   :sql_text_backup := q'[

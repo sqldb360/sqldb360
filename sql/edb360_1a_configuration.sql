@@ -28,9 +28,9 @@ DEF main_table = 'DUAL';
 DEF abstract = '&&abstract_uom.';
 BEGIN
   :sql_text := q'[
-WITH /* &&section_id..&&report_sequence. */ 
+WITH /* &&section_id..&&report_sequence. */
  rac AS (SELECT /*+ &&sq_fact_hints. */ COUNT(*) instances, CASE COUNT(*) WHEN 1 THEN 'Single-instance' ELSE COUNT(*)||'-node RAC cluster' END db_type FROM &&gv_object_prefix.instance),
-hrac AS (SELECT /*+ &&sq_fact_hints. */ CASE &&hosts_count. WHEN 1 THEN ' (historically Single-instance in AWR)' ELSE ' (historicly &&hosts_count.-node RAC cluster in AWR)' END db_type 
+hrac AS (SELECT /*+ &&sq_fact_hints. */ CASE &&hosts_count. WHEN 1 THEN ' (historically Single-instance in AWR)' ELSE ' (historicly &&hosts_count.-node RAC cluster in AWR)' END db_type
            FROM rac WHERE TO_CHAR(RAC.instances)<>&&hosts_count.),
 mem AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM &&gv_object_prefix.system_parameter2 WHERE name = 'memory_target'),
 sga AS (SELECT /*+ &&sq_fact_hints. */ SUM(value) target FROM &&gv_object_prefix.system_parameter2 WHERE name = 'sga_target'),
@@ -63,7 +63,7 @@ SELECT 'Datafiles:', data.files||' (on '||data.tablespaces||' tablespaces)' FROM
  UNION ALL
 SELECT 'Instance configuration:', rac.db_type||(select hrac.db_type FROM hrac ) FROM rac
  UNION ALL
-SELECT 'Database memory:', 
+SELECT 'Database memory:',
 CASE WHEN mem.target > 0 THEN 'MEMORY '||TRIM(TO_CHAR(ROUND(mem.target / POWER(2,30), 1), '999,990.0'))||' GB, ' END||
 CASE WHEN sga.target > 0 THEN 'SGA '   ||TRIM(TO_CHAR(ROUND(sga.target / POWER(2,30), 1), '999,990.0'))||' GB, ' END||
 CASE WHEN pga.target > 0 THEN 'PGA '   ||TRIM(TO_CHAR(ROUND(pga.target / POWER(2,30), 1), '999,990.0'))||' GB, ' END||
@@ -71,14 +71,14 @@ CASE WHEN mem.target > 0 THEN 'AMM' ELSE CASE WHEN sga.target > 0 THEN 'ASMM' EL
   FROM mem, sga, pga
  UNION ALL
 &&skip_ver_le_11_1. SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END|| 
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END|| 
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END|| 
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 or X-6 ' END|| 
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8160%' THEN 'X7-2 ' END|| 
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END|| 
-&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END|| 
-&&skip_ver_le_11_1. 'with '||cell.cnt||' storage servers' 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 or X-6 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8160%' THEN 'X7-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END||
+&&skip_ver_le_11_1. 'with '||cell.cnt||' storage servers'
 &&skip_ver_le_11_1. ELSE 'Unknown' END FROM cell
 &&skip_ver_le_11_1.  UNION ALL
 SELECT 'Processor:', '&&processor_model.' FROM DUAL
@@ -95,9 +95,22 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+COL maxval_max       heading 'MAXVAL|Maximum'
+COL maxval_avg       heading 'MAXVAL|Average'
+COL maxval_median    heading 'MAXVAL|Median'
+COL maxval_99th_perc heading 'MAXVAL|99th|Percentile'
+COL maxval_98th_perc heading 'MAXVAL|98th|Percentile'
+COL maxval_97th_perc heading 'MAXVAL|97th|Percentile'
+COL maxval_96th_perc heading 'MAXVAL|96th|Percentile'
+COL maxval_95th_perc heading 'MAXVAL|95th|Percentile'
+COL maxval_90th_perc heading 'MAXVAL|90th|Percentile'
+COL maxval_85th_perc heading 'MAXVAL|85th|Percentile'
+COL maxval_80th_perc heading 'MAXVAL|80th|Percentile'
+COL maxval_75th_perc heading 'MAXVAL|75th|Percentile'
+
 BEGIN
   :sql_text_backup := q'[
-WITH 
+WITH
 by_snap AS (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
@@ -158,7 +171,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY
        metric_id
 ]';
-END;				
+END;
 /
 
 DEF main_table = '&&awr_hist_prefix.SYSMETRIC_SUMMARY';
@@ -208,7 +221,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE p.inst_id = i.inst_id
    AND p.name = 'cpu_count'
 ]';
-END;				
+END;
 /
 @@edb360_9a_pre_one.sql
 
@@ -220,7 +233,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
   FROM &&v_object_prefix.version
 ]';
-END;				
+END;
 /
 @@edb360_9a_pre_one.sql
 
@@ -248,6 +261,9 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+COL version_legacy heading 'Version|Legacy'
+COL version_full   heading 'Version|Full'
+
 DEF title = 'Instance';
 DEF main_table = '&&gv_view_prefix.INSTANCE';
 BEGIN
@@ -263,50 +279,46 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Pluggable Databases';
-DEF main_table = '&&dva_view_prefix.PDBS';
+DEF main_table = '&&cdb_view_prefix.PDBS';
 BEGIN
   :sql_text := q'[
 SELECT pdb1.*, pdb2.open_mode, pdb2.restricted, pdb2.open_time, pdb2.total_size, pdb2.block_size, pdb2.recovery_status
-FROM  &&dva_object_prefix.pdbs pdb1 join &&v_object_prefix.pdbs pdb2
-  on pdb1.con_id=pdb2.con_id
+&&skip_noncdb.,c.name con_name
+FROM  &&cdb_object_prefix.pdbs pdb1
+ join &&v_object_prefix.pdbs pdb2 on pdb1.con_id=pdb2.con_id
+ LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = pdb1.con_id
 ORDER BY pdb1.con_id
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Pluggable Databases Saved States';
-DEF main_table = '&&dva_view_prefix.PDB_SAVED_STATES';
+DEF main_table = '&&cdb_view_prefix.PDB_SAVED_STATES';
 BEGIN
   :sql_text := q'[
 SELECT *
-FROM  &&dva_object_prefix.pdb_saved_states 
+FROM  &&cdb_object_prefix.pdb_saved_states
 ORDER BY 1
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Database and Instance History';
-DEF main_table = '&&awr_hist_prefix.DATABASE_INSTANCE';
+DEF main_table = '&&cdb_awr_hist_prefix.DATABASE_INSTANCE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       dbid,				
-       instance_number,	
-       startup_time,		
-       version,			
-       db_name,			
-       instance_name,		
-       host_name			
-       --platform_name not avail on 10g
-  FROM &&awr_object_prefix.database_instance
+       *
+  FROM &&cdb_awr_object_prefix.database_instance
  ORDER BY
-       dbid,				
-       instance_number,	
+       &&skip_noncdb.con_id,
+       dbid,
+       instance_number,
        startup_time
 ]';
-END;				
+END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
@@ -337,57 +349,66 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Registry';
-DEF main_table = '&&dva_view_prefix.REGISTRY';
+DEF main_table = '&&cdb_view_prefix.REGISTRY';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.registry
- ORDER BY
-       comp_id
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.registry x
+       &&skip_noncdb.LEFT OUTER JOIN v$containers c ON c.con_id = x.con_id
+ORDER BY
+       &&skip_noncdb.x.con_id,
+	   x.comp_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Registry SQL Patch';
-DEF main_table = '&&dva_view_prefix.REGISTRY_SQLPATCH';
+DEF main_table = '&&cdb_view_prefix.REGISTRY_SQLPATCH';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.registry_sqlpatch
- ORDER BY
-       1
+       x.*
+       &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.registry_sqlpatch x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY 1
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Registry History';
-DEF main_table = '&&dva_view_prefix.REGISTRY_HISTORY';
+DEF main_table = '&&cdb_view_prefix.REGISTRY_HISTORY';
 DEF abstract = 'Review MOS 1360790.1<br />';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.registry_history
- ORDER BY
-       1
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.registry_history x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY 1
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Registry Hierarchy';
-DEF main_table = '&&dva_view_prefix.REGISTRY_HIERARCHY';
+DEF main_table = '&&cdb_view_prefix.REGISTRY_HIERARCHY';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.registry_hierarchy
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.registry_hierarchy x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        1, 2, 3
 ]';
@@ -396,16 +417,23 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Feature Usage Statistics';
-DEF main_table = '&&dva_view_prefix.FEATURE_USAGE_STATISTICS';
+DEF main_table = '&&cdb_view_prefix.FEATURE_USAGE_STATISTICS';
+COL detected_usages heading 'Detected|Usages'
+COL total_samples   heading 'Total|Samples'
+COL aux_count       heading 'Aux|Count'
+col feature_info    format a100
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.feature_usage_statistics
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.feature_usage_statistics x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       name,
-       version
+       &&skip_noncdb.x.con_id,
+       x.name,
+       x.version
 ]';
 END;
 /
@@ -443,86 +471,104 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'HWM Statistics';
-DEF main_table = '&&dva_view_prefix.HIGH_WATER_MARK_STATISTICS';
+DEF main_table = '&&cdb_view_prefix.HIGH_WATER_MARK_STATISTICS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.high_water_mark_statistics
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.high_water_mark_statistics x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       dbid,
-       name
+       &&skip_noncdb.x.con_id,
+       x.dbid,
+       x.name
 ]';
 END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Database Links';
-DEF main_table = '&&dva_view_prefix.DB_LINKS';
+DEF main_table = '&&cdb_view_prefix.DB_LINKS';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.db_links
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.db_links x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       owner,
-       db_link
+       &&skip_noncdb.x.con_id,
+       x.owner,
+       x.db_link
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Application Schemas';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       owner, SUM(num_rows) num_rows, SUM(blocks) blocks, COUNT(*) tables
-  FROM &&dva_object_prefix.tables
- WHERE owner NOT IN &&exclusion_list.
-   AND owner NOT IN &&exclusion_list2.
+       &&skip_noncdb.x.con_id, c.name con_name,
+	   x.owner, SUM(x.num_rows) num_rows, SUM(x.blocks) blocks, COUNT(*) tables
+  FROM &&cdb_object_prefix.tables x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE x.owner NOT IN &&exclusion_list.
+   AND x.owner NOT IN &&exclusion_list2.
  GROUP BY
-       owner
-HAVING SUM(num_rows) > 0
+       &&skip_noncdb.x.con_id, c.name,
+       x.owner
+HAVING SUM(x.num_rows) > 0
  ORDER BY
-       2 DESC
+       num_rows DESC
 ]';
 END;
 /
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Application Schema Objects';
-DEF main_table = '&&dva_view_prefix.OBJECTS';
+DEF main_table = '&&cdb_view_prefix.OBJECTS';
 BEGIN
   :sql_text := q'[
+WITH x AS (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       owner,
-       SUM(CASE object_type WHEN 'TABLE' THEN 1 ELSE 0 END) tables,
-       SUM(CASE object_type WHEN 'TABLE PARTITION' THEN 1 ELSE 0 END) table_partitions,
-       SUM(CASE object_type WHEN 'TABLE SUBPARTITION' THEN 1 ELSE 0 END) table_subpartitions,
-       SUM(CASE object_type WHEN 'INDEX' THEN 1 ELSE 0 END) indexes,
-       SUM(CASE object_type WHEN 'INDEX PARTITION' THEN 1 ELSE 0 END) index_partitions,
-       SUM(CASE object_type WHEN 'INDEX SUBPARTITION' THEN 1 ELSE 0 END) index_subpartitions,
-       SUM(CASE object_type WHEN 'VIEW' THEN 1 ELSE 0 END) views,
-       SUM(CASE object_type WHEN 'MATERIALIZED VIEW' THEN 1 ELSE 0 END) materialized_views,
-       SUM(CASE object_type WHEN 'TRIGGER' THEN 1 ELSE 0 END) triggers,
-       SUM(CASE object_type WHEN 'PACKAGE' THEN 1 ELSE 0 END) packages,
-       SUM(CASE object_type WHEN 'PROCEDURE' THEN 1 ELSE 0 END) procedures,
-       SUM(CASE object_type WHEN 'FUNCTION' THEN 1 ELSE 0 END) functions,
-       SUM(CASE object_type WHEN 'LIBRARY' THEN 1 ELSE 0 END) libraries,
-       SUM(CASE object_type WHEN 'SYNONYM' THEN 1 ELSE 0 END) synonyms,
-       SUM(CASE object_type WHEN 'TYPE' THEN 1 ELSE 0 END) types,
-       SUM(CASE object_type WHEN 'SEQUENCE' THEN 1 ELSE 0 END) sequences
-  FROM &&dva_object_prefix.objects
- WHERE owner NOT IN &&exclusion_list.
-   AND owner NOT IN &&exclusion_list2.
-   AND object_type IN ('TABLE', 'TABLE PARTITION', 'TABLE SUBPARTITION', 'INDEX', 'INDEX PARTITION', 'INDEX SUBPARTITION', 'VIEW', 
+       &&skip_noncdb.x.con_id,
+	   x.owner,
+       SUM(CASE x.object_type WHEN 'TABLE' THEN 1 ELSE 0 END) tables,
+       SUM(CASE x.object_type WHEN 'TABLE PARTITION' THEN 1 ELSE 0 END) table_partitions,
+       SUM(CASE x.object_type WHEN 'TABLE SUBPARTITION' THEN 1 ELSE 0 END) table_subpartitions,
+       SUM(CASE x.object_type WHEN 'INDEX' THEN 1 ELSE 0 END) indexes,
+       SUM(CASE x.object_type WHEN 'INDEX PARTITION' THEN 1 ELSE 0 END) index_partitions,
+       SUM(CASE x.object_type WHEN 'INDEX SUBPARTITION' THEN 1 ELSE 0 END) index_subpartitions,
+       SUM(CASE x.object_type WHEN 'VIEW' THEN 1 ELSE 0 END) views,
+       SUM(CASE x.object_type WHEN 'MATERIALIZED VIEW' THEN 1 ELSE 0 END) materialized_views,
+       SUM(CASE x.object_type WHEN 'TRIGGER' THEN 1 ELSE 0 END) triggers,
+       SUM(CASE x.object_type WHEN 'PACKAGE' THEN 1 ELSE 0 END) packages,
+       SUM(CASE x.object_type WHEN 'PROCEDURE' THEN 1 ELSE 0 END) procedures,
+       SUM(CASE x.object_type WHEN 'FUNCTION' THEN 1 ELSE 0 END) functions,
+       SUM(CASE x.object_type WHEN 'LIBRARY' THEN 1 ELSE 0 END) libraries,
+       SUM(CASE x.object_type WHEN 'SYNONYM' THEN 1 ELSE 0 END) synonyms,
+       SUM(CASE x.object_type WHEN 'TYPE' THEN 1 ELSE 0 END) types,
+       SUM(CASE x.object_type WHEN 'SEQUENCE' THEN 1 ELSE 0 END) sequences
+  FROM &&cdb_object_prefix.objects x
+ WHERE x.owner NOT IN &&exclusion_list.
+   AND x.owner NOT IN &&exclusion_list2.
+   AND x.object_type IN ('TABLE', 'TABLE PARTITION', 'TABLE SUBPARTITION', 'INDEX', 'INDEX PARTITION', 'INDEX SUBPARTITION', 'VIEW',
                        'MATERIALIZED VIEW', 'TRIGGER', 'PACKAGE', 'PROCEDURE', 'FUNCTION', 'LIBRARY', 'SYNONYM', 'TYPE', 'SEQUENCE')
  GROUP BY
-       owner
+       &&skip_noncdb.x.con_id,
+       x.owner
+)
+SELECT x.*
+	   &skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       owner
+       &&skip_noncdb.x.con_id,
+	   x.owner
 ]';
 END;
 /
@@ -533,13 +579,16 @@ DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&gv_object_prefix.system_parameter2
- WHERE ismodified = 'MODIFIED'
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&gv_object_prefix.system_parameter2 x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE x.ismodified = 'MODIFIED'
  ORDER BY
-       name,
-       inst_id,
-       ordinal
+       &&skip_noncdb.x.con_id,
+       x.name,
+       x.inst_id,
+       x.ordinal
 ]';
 END;
 /
@@ -550,13 +599,15 @@ DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&gv_object_prefix.system_parameter2
- WHERE isdefault = 'FALSE'
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&gv_object_prefix.system_parameter2 x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       name,
-       inst_id,
-       ordinal
+       &&skip_noncdb.x.con_id,
+       x.name,
+       x.inst_id,
+       x.ordinal
 ]';
 END;
 /
@@ -567,12 +618,15 @@ DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&gv_object_prefix.system_parameter2
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&gv_object_prefix.system_parameter2 x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       name,
-       inst_id,
-       ordinal
+       &&skip_noncdb.x.con_id,
+       x.name,
+       x.inst_id,
+       x.ordinal
 ]';
 END;
 /
@@ -583,13 +637,16 @@ DEF main_table = '&&v_view_prefix.SPPARAMETER';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&v_object_prefix.spparameter
- WHERE isspecified = 'TRUE'
+       x.*
+	   &&skip_noncdb.,c.name con_name
+  FROM &&v_object_prefix.spparameter x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ WHERE x.isspecified = 'TRUE'
  ORDER BY
-       name,
-       sid,
-       ordinal
+       &&skip_noncdb.x.con_id,
+       x.name,
+       x.sid,
+       x.ordinal
 ]';
 END;
 /
@@ -619,13 +676,13 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'System Parameters Change Log';
-DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
+DEF main_table = '&&awr_object_prefix.PARAMETER';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 all_parameters AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        snap_id,
@@ -636,7 +693,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        value,
        isdefault,
        ismodified,
-       lag(value) OVER (PARTITION BY dbid, 
+       lag(value) OVER (PARTITION BY dbid,
        &&skip_ver_le_11.con_id,
        instance_number, parameter_hash ORDER BY snap_id) prior_value
   FROM &&awr_object_prefix.parameter
@@ -644,28 +701,31 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
    AND dbid = &&edb360_dbid.
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       TO_CHAR(s.begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
+       &&skip_ver_le_11.&&skip_noncdb.x.con_id,
+	   TO_CHAR(s.begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(s.end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time,
-       p.snap_id,
-       &&skip_ver_le_11.p.con_id,
-       --p.dbid,
-       p.instance_number,
-       p.parameter_name,
-       p.value,
-       p.isdefault,
-       p.ismodified,
-       p.prior_value
-  FROM all_parameters p,
-       &&awr_object_prefix.snapshot s
- WHERE p.value != p.prior_value
-   AND s.snap_id = p.snap_id
-   AND s.dbid = p.dbid
-   AND s.instance_number = p.instance_number
+       x.snap_id,
+       x.dbid,
+       x.instance_number,
+       x.parameter_name,
+       x.value,
+       x.isdefault,
+       x.ismodified,
+       x.prior_value
+	   &&skip_noncdb.,c.name con_name
+  FROM all_parameters x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+      ,&&awr_object_prefix.snapshot s
+ WHERE x.value != x.prior_value
+   AND s.snap_id = x.snap_id
+   AND s.dbid = x.dbid
+   AND s.instance_number = x.instance_number
  ORDER BY
        s.begin_interval_time DESC,
-       --p.dbid,
-       p.instance_number,
-       p.parameter_name
+	   &&skip_noncdb.x.con_id,
+       x.dbid,
+       x.instance_number,
+       x.parameter_name
 ]';
 END;
 /
@@ -673,6 +733,7 @@ END;
 
 COL spfile_value FOR A12;
 COL spfile_sid FOR A10;
+COL recommended_gb heading 'Recommended|GB' format a11
 DEF title = 'Memory Configuration';
 DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
 DEF foot = 'Recommended GB to be filled out during HC.';
@@ -765,3 +826,24 @@ END;
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;
+
+COL detected_usages  clear
+COL total_samples    clear
+COL aux_count        clear
+COL recommended_gb   clear
+
+COL maxval_max       clear
+COL maxval_avg       clear
+COL maxval_median    clear
+COL maxval_99th_perc clear
+COL maxval_98th_perc clear
+COL maxval_97th_perc clear
+COL maxval_96th_perc clear
+COL maxval_95th_perc clear
+COL maxval_90th_perc clear
+COL maxval_85th_perc clear
+COL maxval_80th_perc clear
+COL maxval_75th_perc clear
+
+COL version_legacy   clear
+COL version_full     clear

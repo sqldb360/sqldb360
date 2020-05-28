@@ -49,9 +49,13 @@ DECLARE
   l_count NUMBER := 0;
   CURSOR sql_cur IS
               WITH ranked_sql AS (
-            SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. *//*&&sq_fact_sql_sample_hints.*/
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
                    /* &&section_id..&&report_sequence. */
+<<<<<<< HEAD
                    &&skip_ver_le_11.con_id,
+=======
+                   &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    dbid,
                    sql_id,
                    MAX(user_id) user_id,
@@ -66,7 +70,11 @@ DECLARE
                AND dbid = &&edb360_dbid.
                AND '&&edb360_bypass.' IS NULL
              GROUP BY
+<<<<<<< HEAD
                    &&skip_ver_le_11.con_id,
+=======
+                   &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    dbid,
                    sql_id
             HAVING COUNT(*) > 60 -- >10min
@@ -95,14 +103,23 @@ DECLARE
                AND h.sql_id(+) = r.sql_id
             ),
             not_shared AS (
+<<<<<<< HEAD
             SELECT /*+ &&section_id..&&report_sequence. *//*&&sq_fact_sql_sample_hints.*/
                    &&skip_ver_le_11.con_id,
+=======
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
+                   &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    sql_id, COUNT(*) child_cursors,
                    RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS sql_rank
               FROM &&gv_object_prefix.sql_shared_cursor
              WHERE sql_id NOT IN (SELECT sql_id FROM top_sql)
              GROUP BY
+<<<<<<< HEAD
                    &&skip_ver_le_11.con_id,
+=======
+                   &&skip_noncdb.con_id,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    sql_id
             HAVING COUNT(*) > 100
             ),
@@ -116,7 +133,11 @@ DECLARE
                    REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(s.sql_fulltext, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
               FROM not_shared ns, &&gv_object_prefix.sql s
              WHERE s.sql_id(+) = ns.sql_id
+<<<<<<< HEAD
                &&skip_ver_le_11.AND s.con_id(+) = ns.con_id
+=======
+               &&skip_noncdb.AND s.con_id(+) = ns.con_id
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                AND ns.sql_rank <= &&edb360_conf_top_cur.
             ),
             by_signature AS (
@@ -169,10 +190,17 @@ DECLARE
                AND h.sql_id(+) = r.sample_sql_id
             )
             SELECT rank_num,
+<<<<<<< HEAD
                    &&skip_ver_le_11.con_id,
                    &&skip_ver_ge_12.TO_NUMBER(NULL) con_id,
                    &&skip_ver_le_11.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
                    &&skip_ver_ge_12.NULL pdb_name,
+=======
+                   &&skip_noncdb.con_id,
+                   &&skip_cdb.TO_NUMBER(NULL) con_id,
+                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ns.con_id) pdb_name,
+                   &&skip_cdb.NULL pdb_name,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    sql_id,
                    db_time_hrs, -- not null means Top as per DB time
                    cpu_time_hrs, -- not null means Top as per DB time
@@ -188,10 +216,17 @@ DECLARE
               FROM top_sql ts
              UNION ALL
             SELECT sql_rank rank_num,
+<<<<<<< HEAD
                    &&skip_ver_le_11.con_id,
                    &&skip_ver_ge_12.TO_NUMBER(NULL) con_id,
                    &&skip_ver_le_11.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ns.con_id) pdb_name,
                    &&skip_ver_ge_12.NULL pdb_name,
+=======
+                   &&skip_noncdb.con_id,
+                   &&skip_cdb.TO_NUMBER(NULL) con_id,
+                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ns.con_id) pdb_name,
+                   &&skip_cdb.NULL pdb_name,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
@@ -208,10 +243,17 @@ DECLARE
               FROM top_not_shared ns    
              UNION ALL
             SELECT rn rank_num,
+<<<<<<< HEAD
                    &&skip_ver_le_11.con_id,
                    &&skip_ver_ge_12.TO_NUMBER(NULL) con_id,
                    &&skip_ver_le_11.(SELECT pd.pdb_name FROM dba_pdbs pd WHERE pd.con_id = ts.con_id) pdb_name,
                    &&skip_ver_ge_12.NULL pdb_name,
+=======
+                   &&skip_noncdb.con_id,
+                   &&skip_cdb.TO_NUMBER(NULL) con_id,
+                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ns.con_id) pdb_name,
+                   &&skip_cdb.NULL pdb_name,
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
                    sample_sql_id sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
                    NULL cpu_time_hrs, -- not null means Top as per DB time
@@ -225,7 +267,7 @@ DECLARE
                    force_matching_signature signature, -- <> 0 means Top as per signature
                    distinct_sql_id -- <> 0 means Top as per signature
               FROM top_signature ts
-              ORDER BY 1, 10, 3 DESC, 2;
+              ORDER BY rank_num, top_type, db_time_hrs DESC, con_id;
   sql_rec sql_cur%ROWTYPE;
   PROCEDURE put_line(p_line IN VARCHAR2) IS
   BEGIN

@@ -187,7 +187,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
+<<<<<<< HEAD
 &&skip_ver_le_10.@@edb360_9a_pre_one.sql
+=======
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 
 DEF title = 'Parallel Parameters';
 DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';

@@ -15,6 +15,7 @@ WITH
 sys_time_model_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
+	   &&skip_noncdb.con_id,
        dbid,
        instance_number,
        SUM(CASE stat_name WHEN 'background elapsed time' THEN value / 1e6 ELSE 0 END) background_time,
@@ -32,7 +33,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE stat_name WHEN 'PL/SQL compilation elapsed time' THEN value / 1e6 ELSE 0 END) plsql_compilation,
        SUM(CASE stat_name WHEN 'Java execution elapsed time' THEN value / 1e6 ELSE 0 END) java_execution,
        SUM(CASE stat_name WHEN 'repeated bind elapsed time' THEN value / 1e6 ELSE 0 END) repeated_bind
-  FROM &&awr_object_prefix.sys_time_model
+  FROM &&cdb_awr_object_prefix.sys_time_model
  WHERE stat_name IN (
 'background elapsed time',
 'background cpu time',
@@ -55,12 +56,14 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND dbid = &&edb360_dbid.
  GROUP BY
        snap_id,
+	   &&skip_noncdb.con_id,
        dbid,
        instance_number
 ),
 sys_time_model_denorm_3 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.snap_id,
+	   &&skip_noncdb.h1.con_id,
        h1.dbid,
        h1.instance_number,
        s1.begin_interval_time,
@@ -83,9 +86,10 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        (h1.repeated_bind - h0.repeated_bind) repeated_bind
   FROM sys_time_model_denorm_2 h0,
        sys_time_model_denorm_2 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_object_prefix.snapshot s0,
+       &&cdb_awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
+   &&skip_noncdb.AND h1.con_id = h0.con_id
    AND h1.dbid = h0.dbid
    AND h1.instance_number = h0.instance_number
    AND s0.snap_id = h0.snap_id
@@ -105,6 +109,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 sys_time_model_denorm_4 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
+	   &&skip_noncdb.con_id,
        dbid,
        instance_number,
        TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
@@ -129,6 +134,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 sys_time_model_denorm_5 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
+	   &&skip_noncdb.con_id,
        begin_time,
        end_time,
        CASE instance_number WHEN 1 THEN @stat_name@ ELSE 0 END inst_01,
@@ -140,8 +146,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        CASE instance_number WHEN 7 THEN @stat_name@ ELSE 0 END inst_07,
        CASE instance_number WHEN 8 THEN @stat_name@ ELSE 0 END inst_08
   FROM sys_time_model_denorm_4
-)
+), x as (
 SELECT snap_id,
+       &&skip_noncdb.con_id,
        MIN(begin_time) begin_time,
        MIN(end_time) end_time,
        ROUND(SUM(inst_01), 3) inst_01,
@@ -162,8 +169,15 @@ SELECT snap_id,
   FROM sys_time_model_denorm_5
  GROUP BY
        snap_id
+	   &&skip_noncdb.,con_id
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       snap_id
+       x.snap_id
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /

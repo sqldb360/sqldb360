@@ -55,14 +55,14 @@ SELECT '+ADAPTIVE' format_adaptive FROM v$instance WHERE version >= '12.';
 DEF is_10g = '';
 COL is_10g NEW_V is_10g NOPRI;
 SELECT '--' is_10g FROM v$instance WHERE version LIKE '10%';
+-- is_11g
+DEF is_11g = '';
+COL is_11g NEW_V is_11g NOPRI;
+SELECT '--' is_11 FROM v$instance WHERE version LIKE '11%';
 -- is_11r1
 DEF is_11r1 = '';
 COL is_11r1 NEW_V is_11r1 NOPRI;
 SELECT '--' is_11r1 FROM v$instance WHERE version LIKE '11.1%';
--- is_11r2
-DEF is_11r2 = '';
-COL is_11r2 NEW_V is_11r2 NOPRI;
-SELECT '--' is_11r2 FROM v$instance WHERE version LIKE '11.2%';
 -- get current time
 COL current_time NEW_V current_time FOR A15;
 SELECT 'current_time: ' x, TO_CHAR(SYSDATE, 'YYYYMMDD_HH24MISS') current_time FROM DUAL;
@@ -1094,7 +1094,7 @@ PRO
 PRO SQL Plan Baselines
 PRO ~~~~~~~~~~~~~~~~~~
 SPO planx_&&sql_id._&&current_time..txt APP;
-SELECT created, plan_name, origin, enabled, accepted, fixed, reproduced, &&is_10g.&&is_11r1.adaptive,
+SELECT created, plan_name, origin, enabled, accepted, fixed, reproduced, &&is_10g.&&is_11g.adaptive,
        last_executed, last_modified, description
 FROM dba_sql_plan_baselines WHERE signature = :signature
 ORDER BY created, plan_name

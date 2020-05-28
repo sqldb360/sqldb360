@@ -9,16 +9,18 @@ SPO OFF;
 
 DEF title = 'Wait Statistics';
 DEF main_table = '&&gv_view_prefix.WAITSTAT';
+COL sql_plan_hash_value heading 'SQL Plan|Hash Value'
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&gv_object_prefix.waitstat
+       x.*
+  FROM &&gv_object_prefix.waitstat x
  WHERE count > 0
  ORDER BY
-       class,
-       inst_id
+       &&skip_noncdb.x.con_id,
+	   x.class,
+       x.inst_id
 ]';
 END;
 /
@@ -29,11 +31,12 @@ DEF main_table = '&&gv_view_prefix.SYSTEM_WAIT_CLASS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&gv_object_prefix.system_wait_class
+       x.*
+  FROM &&gv_object_prefix.system_wait_class x
  ORDER BY
-       inst_id,
-       time_waited DESC
+       &&skip_noncdb.x.con_id,
+	   x.inst_id,
+       x.time_waited DESC
 ]';
 END;
 /
@@ -43,12 +46,21 @@ DEF title = 'Segment Statistics';
 DEF main_table = '&&gv_view_prefix.SEGSTAT';
 BEGIN
   :sql_text := q'[
+WITH x as (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        statistic_name, SUM(value) value
   FROM &&gv_object_prefix.segstat
- GROUP BY 
+ GROUP BY
+       &&skip_noncdb.con_id,
+	   statistic_name
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ ORDER BY &&skip_noncdb.x.con_id,
        statistic_name
- ORDER BY 1
 ]';
 END;
 /
@@ -59,7 +71,9 @@ DEF abstract = 'Aggregated by SQL_ID and SQL Execution. Sorted by SQL_ID and Exe
 DEF main_table = '&&gv_view_prefix.SQL_MONITOR';
 BEGIN
   :sql_text := q'[
+WITH x as (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        sql_id,
        sql_exec_start,
        sql_exec_id,
@@ -100,18 +114,25 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.sql_monitor
  WHERE status LIKE 'DONE%'
  GROUP BY
+       &&skip_noncdb.con_id,
        sql_id,
        sql_exec_start,
        sql_exec_id
 HAVING MAX(sql_text) IS NOT NULL
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       sql_id,
-       sql_exec_start,
-       sql_exec_id
+       &&skip_noncdb.x.con_id,
+       x.sql_id,
+       x.sql_exec_start,
+       x.sql_exec_id
 ]';
 END;
 /
-&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Monitor Recent Executions Summary';
 DEF abstract = 'Aggregated by SQL_ID and sorted by Total Elapsed Time.<br />';
@@ -121,6 +142,7 @@ BEGIN
 WITH
 monitored_sql AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        sql_id,
        sql_exec_start,
        sql_exec_id,
@@ -161,12 +183,14 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.sql_monitor
  WHERE status LIKE 'DONE%'
  GROUP BY
+       &&skip_noncdb.con_id,
        sql_id,
        sql_exec_start,
        sql_exec_id
 HAVING MAX(sql_text) IS NOT NULL
-)
+), x as (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        sql_id,
        SUM(executions) executions,
        MIN(sql_exec_start) min_sql_exec_start,
@@ -223,14 +247,21 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        MAX(sql_text) sql_text
   FROM monitored_sql
  GROUP BY
-       sql_id
+       &&skip_noncdb.con_id,
+	   sql_id
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       sum_elapsed_time DESC,
-       sql_id
+	   x.sum_elapsed_time DESC,
+	   &&skip_noncdb.x.con_id,
+       x.sql_id
 ]';
 END;
 /
-&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Monitor Recent Executions DONE (ERROR)';
 DEF abstract = 'Aggregated by SQL_ID and Error.<br />';
@@ -238,6 +269,7 @@ DEF main_table = '&&gv_view_prefix.SQL_MONITOR';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        sql_id,
        error_number,
        error_facility,
@@ -246,12 +278,14 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.sql_monitor
  WHERE status = 'DONE (ERROR)'
  GROUP BY
+       &&skip_noncdb.con_id,
        sql_id,
        error_number,
        error_facility,
        error_message
 HAVING MAX(sql_text) IS NOT NULL
  ORDER BY
+       &&skip_noncdb.con_id,
        sql_id,
        error_number,
        error_facility,
@@ -259,13 +293,14 @@ HAVING MAX(sql_text) IS NOT NULL
 ]';
 END;
 /
-&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Monitor (QUEUED)';
 DEF main_table = '&&gv_view_prefix.SQL_MONITOR';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        sql_id,
        username,
        service_name,
@@ -281,16 +316,17 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.sql_monitor
  WHERE status = 'QUEUED'
  ORDER BY
+       &&skip_noncdb.con_id,
        sql_id,
        queuing_time
 ]';
 END;
 /
-&&skip_ver_le_10.@@&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.&&skip_tuning.&&edb360_skip_sql_mon.edb360_9a_pre_one.sql
 
 DEF title = 'SQL with changing Elapsed Time per Execution (list)';
 DEF abstract = 'SQL Statements with "Elapsed Time per Execution" changing over time.<br />';
-DEF main_table = '&&awr_hist_prefix.SQLSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 DEF days_of_history_accessed = '31';
 DEF captured_at_least_x_times = '10';
 DEF captured_at_least_x_days_apart = '5';
@@ -310,44 +346,49 @@ WITH
 per_time AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE) days_ago,
        SUM(h.elapsed_time_total) / SUM(h.executions_total) time_per_exec
-  FROM &&awr_object_prefix.sqlstat h, 
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_object_prefix.sqlstat h,
+       &&cdb_awr_object_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 0 
+   AND h.executions_total > 0
    AND h.plan_hash_value > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
-   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed. 
+   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed.
  GROUP BY
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE)
 ),
 avg_time AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ &&sq_fact_hints. */
        dbid,
-       sql_id, 
+	   &&skip_noncdb.con_id,
+       sql_id,
        MEDIAN(time_per_exec) med_time_per_exec,
        STDDEV(time_per_exec) std_time_per_exec,
        AVG(time_per_exec)    avg_time_per_exec,
        MIN(time_per_exec)    min_time_per_exec,
-       MAX(time_per_exec)    max_time_per_exec       
+       MAX(time_per_exec)    max_time_per_exec
   FROM per_time
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        sql_id
-HAVING COUNT(*) >= &&captured_at_least_x_times. 
+HAVING COUNT(*) >= &&captured_at_least_x_times.
    AND MAX(days_ago) - MIN(days_ago) >= &&captured_at_least_x_days_apart.
    AND MEDIAN(time_per_exec) > &&med_elap_microsecs_threshold.
 ),
 time_over_median AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ &&sq_fact_hints. */
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        h.days_ago,
        (h.time_per_exec / a.med_time_per_exec) time_per_exec_over_med,
@@ -358,11 +399,13 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        a.max_time_per_exec
   FROM per_time h, avg_time a
  WHERE a.sql_id = h.sql_id
+   &&skip_noncdb.AND a.con_id = h.con_id
 ),
 ranked AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ &&sq_fact_hints. */
        RANK () OVER (ORDER BY ABS(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago)) DESC) rank_num,
        t.dbid,
+	   &&skip_noncdb.t.con_id,
        t.sql_id,
        CASE WHEN REGR_SLOPE(t.time_per_exec_over_med, t.days_ago) > 0 THEN 'IMPROVING' ELSE 'REGRESSING' END change,
        ROUND(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago), 3) slope,
@@ -374,12 +417,14 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM time_over_median t
  GROUP BY
        t.dbid,
+	   &&skip_noncdb.t.con_id,
        t.sql_id
 HAVING ABS(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago)) > &&min_slope_threshold.
-)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+), x as (
+SELECT /*+ &&top_level_hints. */
        DISTINCT
        r.rank_num,
+	   &&skip_noncdb.r.con_id,
        r.sql_id,
        r.change,
        r.slope,
@@ -390,14 +435,19 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        r.max_secs_per_exec max_secs_per_exec,
        COUNT(DISTINCT p.plan_hash_value) plans,
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10)) sql_text
-  FROM ranked r,
-       &&awr_object_prefix.sqltext s,
-       &&awr_object_prefix.sql_plan p
+  FROM ranked r
+       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s
+	   ON s.dbid = r.dbid
+	   AND s.sql_id = r.sql_id
+	   &&skip_noncdb.AND s.con_id = r.con_id
+	   LEFT OUTER JOIN &&cdb_awr_object_prefix.sql_plan p
+	   ON p.dbid = r.dbid
+	   AND p.sql_id = r.sql_id
+	   &&skip_noncdb.AND p.con_id = r.con_id
  WHERE r.rank_num <= &&max_num_rows_x.
-   AND s.dbid(+) = r.dbid AND s.sql_id(+) = r.sql_id
-   AND p.dbid(+) = r.dbid AND p.sql_id(+) = r.sql_id
  GROUP BY
        r.rank_num,
+	   &&skip_noncdb.r.con_id,
        r.sql_id,
        r.change,
        r.slope,
@@ -407,8 +457,13 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        r.min_secs_per_exec,
        r.max_secs_per_exec,
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10))
+)
+SELECT /* &&section_id..&&report_sequence. */ x.*
+       &&skip_noncdb.,c.name con_name
+  FROM x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       r.rank_num
+       x.rank_num
 ]';
 END;
 /
@@ -416,7 +471,7 @@ END;
 
 DEF title = 'SQL with changing Elapsed Time per Execution (time series)';
 DEF abstract = 'SQL Statements with "Elapsed Time per Execution" changing over time.<br />';
-DEF main_table = '&&awr_hist_prefix.SQLSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 DEF days_of_history_accessed = '31';
 DEF captured_at_least_x_times = '10';
 DEF captured_at_least_x_days_apart = '5';
@@ -457,44 +512,49 @@ WITH
 per_time AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE) days_ago,
        SUM(h.elapsed_time_total) / SUM(h.executions_total) time_per_exec
-  FROM &&awr_object_prefix.sqlstat h, 
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_object_prefix.sqlstat h,
+       &&cdb_awr_object_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 0 
+   AND h.executions_total > 0
    AND h.plan_hash_value > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
-   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed. 
+   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed.
  GROUP BY
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE)
 ),
 avg_time AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
-       sql_id, 
+	   &&skip_noncdb.con_id,
+       sql_id,
        MEDIAN(time_per_exec) med_time_per_exec,
        STDDEV(time_per_exec) std_time_per_exec,
        AVG(time_per_exec)    avg_time_per_exec,
        MIN(time_per_exec)    min_time_per_exec,
-       MAX(time_per_exec)    max_time_per_exec       
+       MAX(time_per_exec)    max_time_per_exec
   FROM per_time
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        sql_id
-HAVING COUNT(*) >= &&captured_at_least_x_times. 
+HAVING COUNT(*) >= &&captured_at_least_x_times.
    AND MAX(days_ago) - MIN(days_ago) >= &&captured_at_least_x_days_apart.
    AND MEDIAN(time_per_exec) > &&med_elap_microsecs_threshold.
 ),
 time_over_median AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        h.days_ago,
        (h.time_per_exec / a.med_time_per_exec) time_per_exec_over_med,
@@ -505,11 +565,13 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        a.max_time_per_exec
   FROM per_time h, avg_time a
  WHERE a.sql_id = h.sql_id
+   &&skip_noncdb.AND a.con_id = h.con_id
 ),
 ranked AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        RANK () OVER (ORDER BY ABS(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago)) DESC) rank_num,
        t.dbid,
+	   &&skip_noncdb.t.con_id,
        t.sql_id,
        CASE WHEN REGR_SLOPE(t.time_per_exec_over_med, t.days_ago) > 0 THEN 'IMPROVING' ELSE 'REGRESSING' END change,
        ROUND(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago), 3) slope,
@@ -521,12 +583,14 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM time_over_median t
  GROUP BY
        t.dbid,
+	   &&skip_noncdb.t.con_id,
        t.sql_id
 HAVING ABS(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago)) > &&min_slope_threshold.
-)
+), x as (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
          r.rank_num
-       , h.sql_id
+       , r.sql_id
+	   &&skip_noncdb., r.con_id
        , h.instance_number instance_number_x
        , TO_CHAR(CAST(s.end_interval_time AS DATE), 'YYYY-MM-DD HH24:MI:SS') end_time_x
        , h.plan_hash_value plan_hash_value_x
@@ -546,29 +610,37 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_ver_le_11_1., ROUND(h.physical_read_requests_total   / h.executions_total) prr_per_exec
        &&skip_ver_le_11_1., ROUND(h.physical_read_bytes_total      / h.executions_total) prb_per_exec
        &&skip_ver_le_11_1., ROUND(h.physical_write_requests_total  / h.executions_total) pwr_per_exec
-       &&skip_ver_le_11_1., ROUND(h.physical_write_bytes_total     / h.executions_total) pwb_per_exec	
+       &&skip_ver_le_11_1., ROUND(h.physical_write_bytes_total     / h.executions_total) pwb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_offload_elig_bytes_total    / h.executions_total) ofb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_interconnect_bytes_total    / h.executions_total) icb_per_exec
        &&skip_ver_le_11_1., ROUND(h.optimized_physical_reads_total / h.executions_total) opr_per_exec
        &&skip_ver_le_11_1., ROUND(h.cell_uncompressed_bytes_total  / h.executions_total) unb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_offload_return_bytes_total  / h.executions_total) orb_per_exec
   FROM ranked r,
-       &&awr_object_prefix.sqlstat h, 
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_object_prefix.sqlstat h,
+       &&cdb_awr_object_prefix.snapshot s
  WHERE r.rank_num <= &&max_num_rows_x.
    AND h.sql_id = r.sql_id
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 0 
+   &&skip_noncdb.AND h.con_id = r.con_id
+   AND h.executions_total > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
+   &&skip_noncdb.AND s.con_id = h.con_id
    AND s.instance_number = h.instance_number
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       r.rank_num,
-       h.sql_id,
-       h.instance_number,
-       s.end_interval_time,
-       h.plan_hash_value
+       x.rank_num,
+	   &&skip_noncdb.x.con_id,
+       x.sql_id,
+       x.instance_number_x,
+       x.end_time_x,
+       x.plan_hash_value_x
 ]';
 END;
 /
@@ -576,7 +648,7 @@ END;
 
 DEF title = 'SQL with multiple Execution Plans';
 DEF abstract = 'SQL Statements with multiple Execution Plans performing significantly different<br />';
-DEF main_table = '&&awr_hist_prefix.SQLSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 DEF days_of_history_accessed = '31';
 DEF max_num_rows_x = '20';
 
@@ -587,14 +659,16 @@ COL std_secs_per_exec HEA 'Std Dev Secs|Per Exec';
 COL avg_secs_per_exec HEA 'Avg Secs|Per Exec';
 COL min_secs_per_exec HEA 'Min Secs|Per Exec';
 COL max_secs_per_exec HEA 'Max Secs|Per Exec';
+COL sql_text format a100
 BEGIN
   :sql_text := q'[
 WITH
 per_phv AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
-       h.plan_hash_value, 
+       h.plan_hash_value,
        MIN(s.begin_interval_time) min_time,
        MAX(s.end_interval_time) max_time,
        MEDIAN(h.elapsed_time_total / h.executions_total) med_time_per_exec,
@@ -605,18 +679,19 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        STDDEV(h.elapsed_time_total / h.executions_total) / AVG(h.elapsed_time_total / h.executions_total) std_dev,
        MAX(h.executions_total) executions_total,
        MEDIAN(h.elapsed_time_total / h.executions_total) * MAX(h.executions_total) total_elapsed_time
-  FROM &&awr_object_prefix.sqlstat h, 
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_object_prefix.sqlstat h,
+       &&cdb_awr_object_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 1 
+   AND h.executions_total > 1
    AND h.plan_hash_value > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
-   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed. 
+   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed.
  GROUP BY
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.sql_id,
        h.plan_hash_value
 ),
@@ -624,6 +699,7 @@ ranked1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        RANK () OVER (ORDER BY STDDEV(med_time_per_exec)/AVG(med_time_per_exec) DESC) rank_num1,
        dbid,
+	   &&skip_noncdb.con_id,
        sql_id,
        COUNT(*) plans,
        SUM(total_elapsed_time) total_elapsed_time,
@@ -632,6 +708,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
   FROM per_phv
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        sql_id
 HAVING COUNT(*) > 1
 ),
@@ -640,6 +717,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        RANK () OVER (ORDER BY r.total_elapsed_time DESC) rank_num2,
        r.rank_num1,
        r.sql_id,
+	   &&skip_noncdb.r.con_id,
        r.plans,
        p.plan_hash_value,
        TO_CHAR(CAST(p.min_time AS DATE), 'YYYY-MM-DD/HH24') min_time,
@@ -654,14 +732,16 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10)) sql_text
   FROM ranked1 r,
        per_phv p,
-       &&awr_object_prefix.sqltext s
+       &&cdb_awr_object_prefix.sqltext s
  WHERE r.rank_num1 <= &&max_num_rows_x. * 5
    AND p.dbid = r.dbid
+   &&skip_noncdb.AND p.con_id = r.con_id
    AND p.sql_id = r.sql_id
    AND s.dbid(+) = r.dbid AND s.sql_id(+) = r.sql_id
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        r.sql_id,
+	   &&skip_noncdb.r.con_id,
        r.plans,
        r.plan_hash_value,
        r.min_time,
@@ -674,58 +754,69 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        r.min_secs_per_exec,
        r.max_secs_per_exec,
        r.sql_text
+	   &&skip_noncdb.,c.name con_name
   FROM ranked2 r
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = r.con_id
  WHERE rank_num2 <= &&max_num_rows_x.
  ORDER BY
        r.rank_num2,
        r.sql_id,
+	   &&skip_noncdb.r.con_id,
        r.min_time,
        r.plan_hash_value
 ]';
 END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
-
+COL plan_top_sql_id heading 'Top SQL ID|for Plan'
+COL plan_samples heading 'Plan|Samples'
 DEF title = 'Top Plans';
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF abstract = 'Top Plans and their corresponding Top SQL in terms of ASH History<br />';
 BEGIN
   :sql_text := q'[
 -- provided by David Kurtz
-WITH
-hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+WITH hist AS (
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        h.sql_id,
+	   &&skip_noncdb.h.con_id,
        h.sql_plan_hash_value,
        h.dbid,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_object_prefix.active_sess_history h
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.sql_id IS NOT NULL
    AND h.sql_plan_hash_value > 0
 GROUP BY
        h.sql_id,
+	   &&skip_noncdb.h.con_id,
        h.sql_plan_hash_value,
        h.dbid
 ), hist2 as (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        DISTINCT
        h.sql_id
+	 &&skip_noncdb., h.con_id
      , h.sql_plan_hash_value
      , h.dbid
      , h.samples
-     , CASE WHEN s.rowid IS NOT NULL THEN samples ELSE 0 END sql_samples
-     , SUM(h.samples) over (partition by h.dbid, h.sql_plan_hash_value) plan_samples
+     , CASE WHEN s.sql_id IS NOT NULL THEN samples ELSE 0 END sql_samples
+     , SUM(h.samples) over (partition by h.dbid, h.sql_plan_hash_value
+	                       &&skip_noncdb., h.con_id
+	                       ) plan_samples
      , DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM hist h
-    LEFT OUTER JOIN &&awr_object_prefix.sqltext s
+    LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s
     ON s.sql_id = h.sql_id AND s.dbid = h.dbid
+	&&skip_noncdb.AND h.con_id = s.con_id
 ), hist3 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        hist2.*
-     , ROW_NUMBER() over (partition by dbid, sql_plan_hash_value order by sql_samples DESC) sql_id_rank
+     , ROW_NUMBER() over (partition by dbid
+	                                 &&skip_noncdb., con_id
+	                                 , sql_plan_hash_value order by sql_samples DESC) sql_id_rank
    FROM hist2
 ), hist4 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -736,8 +827,9 @@ WHERE sql_id_rank = 1
 ), total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(samples) samples FROM hist
-)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+), x as (
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.h.con_id,
        h.sql_id plan_top_sql_id,
        h.sql_plan_hash_value,
        h.plan_samples,
@@ -747,7 +839,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        total t
 WHERE h.samples >= t.samples / 1000 AND h.rn <= 14
 UNION ALL
-SELECT 'Others',
+SELECT &&skip_noncdb.TO_NUMBER(NULL),
+       'Others',
        TO_NUMBER(NULL),
        NVL(SUM(h.plan_samples), 0) samples,
        NVL(ROUND(100 * SUM(h.plan_samples) / AVG(t.samples), 1), 0) percent,
@@ -755,18 +848,26 @@ SELECT 'Others',
   FROM hist4 h,
        total t
 WHERE h.plan_samples < t.samples / 1000 OR rn > 14
-ORDER BY 3 DESC NULLS LAST
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+ORDER BY plan_samples DESC NULLS LAST
 ]';
 END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
+COL sql_text clear
+COL plan_top_sql_id clear
+COL plan_samples clear
 
 DEF title = 'Result Cache related parameters';
 DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id, name "PARAMETER", value, isdefault, ismodified
   FROM &&gv_object_prefix.system_parameter2
  WHERE name IN ('result_cache_mode','result_cache_max_size','result_cache_max_result')
@@ -785,49 +886,49 @@ SELECT dbms_result_cache.status FROM dual
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Result Cache memory';
 DEF main_table = '&&gv_view_prefix.RESULT_CACHE_MEMORY';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id, free, count(*)
   FROM &&gv_object_prefix.result_cache_memory
  GROUP BY inst_id, free
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Result Cache statistics';
 DEF main_table = '&&gv_view_prefix.RESULT_CACHE_STATISTICS';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id, name, value
   FROM &&gv_object_prefix.result_cache_statistics
  ORDER BY 1, 2
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'Client Result Cache statistics';
 DEF main_table = 'CLIENT_RESULT_CACHE_STATS$';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        stat_id, SUBSTR(name,1,20), value, cache_id
   FROM client_result_cache_stats$
  ORDER BY cache_id, stat_id
 ]';
 END;
 /
-&&skip_ver_le_11_1.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11_1.edb360_9a_pre_one.sql
 
 DEF title = 'AAS for past minute';
 DEF main_table = '&&gv_view_prefix.WAITCLASSMETRIC';
@@ -837,7 +938,7 @@ BEGIN
 -- inspired by Kyle Hailey blogs
 -- http://www.kylehailey.com/wait-event-and-wait-class-metrics-vs-vsystem_event/
 -- http://www.kylehailey.com/oracle-cpu-time/
-WITH 
+WITH
 ora_cpu_used AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        '2' row_type,
@@ -957,7 +1058,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_diagnostics.edb360_9a_pre_one.sql       
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Wait Class Metric for past minute';
 DEF main_table = '&&gv_view_prefix.WAITCLASSMETRIC';
@@ -970,7 +1071,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        wc.wait_class,
        wcm.*,
        ROUND(wcm.time_waited/wcm.intsize_csec, 3) aas,
-       CASE WHEN wc.wait_class = 'User I/O' THEN 
+       CASE WHEN wc.wait_class = 'User I/O' THEN
        ROUND(10 * wcm.time_waited  / wcm.wait_count, 3) END avg_io_ms
   FROM &&gv_object_prefix.waitclassmetric wcm,
        &&gv_object_prefix.system_wait_class wc
@@ -1056,6 +1157,7 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+COL sql_plan_hash_value clear
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;

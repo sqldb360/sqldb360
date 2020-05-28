@@ -356,8 +356,13 @@ COL skip_cdb     new_v skip_cdb     nopri
 COL skip_noncdb  new_v skip_noncdb  nopri
 
 select
+<<<<<<< HEAD
 decode('&&is_cdb.','Y','','N','--') skip_cdb,
 decode('&&is_cdb.','Y','--','N','') skip_noncdb
+=======
+decode('&&is_cdb.','Y','','N','--') skip_noncdb,
+decode('&&is_cdb.','Y','--','N','') skip_cdb
+>>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 from dual;
 
 COL skip_cdb    clear
