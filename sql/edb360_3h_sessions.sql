@@ -203,7 +203,7 @@ SELECT * from (
 	     LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
 		 ON t.dbid = &&edb360_dbid.
 		 AND t.sql_id = s.sql_id
-		 &&skip_ver_le_11.&&skip_noncdb.AND t.con_id = s.con_id
+		 &&skip_noncdb.AND t.con_id = s.con_id
  )
   WHERE ROWNUM < 101
 ]';

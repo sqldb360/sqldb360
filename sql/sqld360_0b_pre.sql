@@ -207,7 +207,7 @@ COL row_num NEW_V row_num HEA '#' PRI;
 
 -- get rdbms version
 COL db_version NEW_V db_version;
---SELECT version db_version FROM v$instance;
+SELECT version db_version FROM v$instance;
 --DEF skip_10g = '';
 --COL skip_10g NEW_V skip_10g;
 --SELECT '--' skip_10g FROM v$instance WHERE version LIKE '10%';
