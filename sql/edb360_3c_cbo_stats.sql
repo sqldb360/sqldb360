@@ -66,7 +66,7 @@ col MIN_LAST_ANALYZED 'Min Last|Analyzed'
 col MAX_LAST_ANALYZED 'Max Last|Analyzed'
 col MEDIAN_LAST_ANALYZE	'Median|Last|Analyzed'
 col LAST_ANALYZED_75_PERECENTILE 'Last Analyzed|75th Percentile'
-col LAST_ANALYZED_90_PERECENTILE 'Last Analyzed|90th Percentile'	
+col LAST_ANALYZED_90_PERECENTILE 'Last Analyzed|90th Percentile'
 col LAST_ANALYZED_95_PERECENTILE 'Last Analyzed|95th Percentile'
 col LAST_ANALYZED_99_PERECENTILE 'Last Analyzed|99th Percentile'
 
@@ -92,8 +92,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(DECODE(compression, 'ENABLED', 1, 0)) compression,
        &&skip_ver_le_10.SUM(DECODE(compress_for, 'BASIC', 1, 0)) compress_for_basic,
        &&skip_ver_le_10.SUM(DECODE(compress_for, 'OLTP', 1, 0)) compress_for_oltp,
-       &&skip_ver_le_10.SUM(CASE WHEN compress_for IN 
-       &&skip_ver_le_10.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW') 
+       &&skip_ver_le_10.SUM(CASE WHEN compress_for IN
+       &&skip_ver_le_10.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW')
        &&skip_ver_le_10.THEN 1 ELSE 0 END) compress_for_hcc,
        SUM(DECODE(dropped, 'YES', 1, 0)) dropped,
        &&skip_ver_le_11_1.SUM(DECODE(read_only, 'YES', 1, 0)) read_only,
@@ -338,8 +338,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(DECODE(compression, 'ENABLED', 1, 0)) compression,
        &&skip_ver_le_10.SUM(DECODE(compress_for, 'BASIC', 1, 0)) compress_for_basic,
        &&skip_ver_le_10.SUM(DECODE(compress_for, 'OLTP', 1, 0)) compress_for_oltp,
-       &&skip_ver_le_10.SUM(CASE WHEN compress_for IN 
-       &&skip_ver_le_10.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW') 
+       &&skip_ver_le_10.SUM(CASE WHEN compress_for IN
+       &&skip_ver_le_10.('ARCHIVE HIGH', 'ARCHIVE LOW', 'QUERY HIGH', 'QUERY LOW')
        &&skip_ver_le_10.THEN 1 ELSE 0 END) compress_for_hcc,
        SUM(num_rows) sum_num_rows,
        MAX(num_rows) max_num_rows,
@@ -421,13 +421,13 @@ END;
 REM dmk 14.11.2018 - report of partitioned tables, partitioning type and size
 col owner heading 'Table|Owner'
 col table_name heading 'Table|Name'
-col autolist heading 'Auto|List' 
-col autolist_Subpartition heading 'Auto|List|Subpart' 
-col interval_Subpartition heading 'Interval|Subpart' 
+col autolist heading 'Auto|List'
+col autolist_Subpartition heading 'Auto|List|Subpart'
+col interval_Subpartition heading 'Interval|Subpart'
 col partitioning_type heading 'Part|Type'
 col Subpartitioning_type heading 'Subpart|Type'
-col part_column_list heading 'Partition|Column|List' 
-col Subp_column_list heading 'Subpart|Column|List' 
+col part_column_list heading 'Partition|Column|List'
+col Subp_column_list heading 'Subpart|Column|List'
 col part_num_rows heading 'Part''n|Rows'
 col Subp_num_rows heading 'Subpart|Rows'
 col part_blocks heading 'Part''n|Blocks'
@@ -436,18 +436,18 @@ col part_tablespaces heading 'Distinct|Part''n|Tablespaces'
 col Subp_tablespaces heading 'Distinct|Subpart|Tablespaces'
 col part_segments_created heading 'Part''n|Segments|Created'
 col Subp_segments_created heading 'Subpart|Segments|Created'
-col part_compression_enabled heading 'Compress|Enabled|Parts' 
-col Subp_compression_enabled heading 'Compress|Enabled|Subparts' 
-col part_compressfor_basic heading 'Simple|Compress|Parts' 
-col Subp_compressfor_basic heading 'Simple|Compress|Subparts' 
-col part_compressfor_queryhigh   heading 'HCC|Query|High|Parts' 
-col Subp_compressfor_queryhigh   heading 'HCC|Query|High|Subparts' 
-col part_compressfor_querylow    heading 'HCC|Query|Low|Parts' 
-col Subp_compressfor_querylow    heading 'HCC|Query|Low|Subparts' 
-col part_compressfor_archivehigh heading 'HCC|Archive|High|Parts' 
-col Subp_compressfor_archivehigh heading 'HCC|Archive|High|Subparts' 
-col part_compressfor_archivelow  heading 'HCC|Archive|Low|Parts' 
-col Subp_compressfor_archivelow  heading 'HCC|Archive|Low|Subparts' 
+col part_compression_enabled heading 'Compress|Enabled|Parts'
+col Subp_compression_enabled heading 'Compress|Enabled|Subparts'
+col part_compressfor_basic heading 'Simple|Compress|Parts'
+col Subp_compressfor_basic heading 'Simple|Compress|Subparts'
+col part_compressfor_queryhigh   heading 'HCC|Query|High|Parts'
+col Subp_compressfor_queryhigh   heading 'HCC|Query|High|Subparts'
+col part_compressfor_querylow    heading 'HCC|Query|Low|Parts'
+col Subp_compressfor_querylow    heading 'HCC|Query|Low|Subparts'
+col part_compressfor_archivehigh heading 'HCC|Archive|High|Parts'
+col Subp_compressfor_archivehigh heading 'HCC|Archive|High|Subparts'
+col part_compressfor_archivelow  heading 'HCC|Archive|Low|Parts'
+col Subp_compressfor_archivelow  heading 'HCC|Archive|Low|Subparts'
 col part_intervals heading 'Part''n|Intervals'
 col Subp_intervals heading 'Subpart|Intervals'
 col part_count heading 'Number of|Parts'
@@ -462,7 +462,7 @@ SELECT &&skip_noncdb.con_id,
 ,      LISTAGG(column_name,', ') WITHIN GROUP (ORDER BY column_position) part_column_list
 FROM   &&cdb_object_prefix.part_key_columns
 WHERE  object_type = 'TABLE'
-GROUP BY 
+GROUP BY
        &&skip_noncdb.con_id,
        owner, name
 ), sc as (
@@ -471,7 +471,7 @@ SELECT &&skip_noncdb.con_id,
 ,      LISTAGG(column_name,', ') WITHIN GROUP (ORDER BY column_position) subp_column_list
 FROM   &&cdb_object_prefix.subpart_key_columns
 WHERE  object_type = 'TABLE'
-GROUP BY 
+GROUP BY
        &&skip_noncdb.con_id,
        owner, name
 ), tp as (
@@ -490,7 +490,7 @@ SELECT &&skip_noncdb.con_id,
 &&skip_ver_le_11_1.,      SUM(DECODE(interval,'YES',1)) part_intervals
 &&skip_ver_le_11_1.,      SUM(DECODE(segment_created,'YES',1)) part_segments_created
 FROM   &&cdb_object_prefix.tab_partitions
-GROUP BY 
+GROUP BY
        &&skip_noncdb.con_id,
 	   table_owner, table_name
 ), sp as (
@@ -509,7 +509,7 @@ SELECT &&skip_noncdb.con_id,
 &&skip_ver_le_11_1.,      SUM(DECODE(interval,'YES',1)) subp_intervals
 &&skip_ver_le_11_1.,      SUM(DECODE(segment_created,'YES',1)) subp_segments_created
 FROM   &&cdb_object_prefix.tab_subpartitions
-GROUP BY 
+GROUP BY
        &&skip_noncdb.con_id,
        table_owner, table_name
 )
@@ -735,7 +735,7 @@ SELECT NULL
   FROM &&cdb_object_prefix.external_tables e
  WHERE e.owner = s.owner
  &&skip_noncdb.AND e.con_id = s.con_id
-   AND e.table_name = s.table_name 
+   AND e.table_name = s.table_name
 )
  ORDER BY
        &&skip_noncdb.s.con_id,
@@ -771,7 +771,7 @@ SELECT NULL
   FROM &&cdb_object_prefix.external_tables e
  WHERE e.owner = s.owner
    &&skip_noncdb.AND e.con_id = s.con_id
-   AND e.table_name = s.table_name 
+   AND e.table_name = s.table_name
 )
  ORDER BY
        &&skip_noncdb.s.con_id,
@@ -807,7 +807,7 @@ SELECT NULL
   FROM &&cdb_object_prefix.external_tables e
  WHERE e.owner = s.owner
    &&skip_noncdb.AND e.con_id = s.con_id
-   AND e.table_name = s.table_name 
+   AND e.table_name = s.table_name
 )
  ORDER BY
        &&skip_noncdb.s.con_id,
@@ -828,7 +828,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&cdb_object_prefix.tab_statistics s
        LEFT OUTER JOIN &&cdb_object_prefix.external_tables e ON e.owner = s.owner AND e.table_name = s.table_name &&skip_noncdb.AND e.con_id = s.con_id
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
-      ,&&cdb_object_prefix.tables t       
+      ,&&cdb_object_prefix.tables t
  WHERE s.object_type = 'TABLE'
    AND s.owner NOT IN &&exclusion_list.
    AND s.owner NOT IN &&exclusion_list2.
@@ -899,7 +899,7 @@ SELECT NULL
   FROM &&cdb_object_prefix.external_tables e
  WHERE e.owner = s.owner
    &&skip_noncdb.AND e.con_id = s.con_id
-   AND e.table_name = s.table_name 
+   AND e.table_name = s.table_name
 )
  ORDER BY
        &&skip_noncdb.s.con_id,
@@ -962,17 +962,13 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-<<<<<<< HEAD
-&&skip_ver_le_11_1.@@edb360_3c_dbms_stats.sql
-=======
 @@&&skip_ver_le_11_1.edb360_3c_dbms_stats.sql
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 
 DEF title = 'SYS Stats for WRH$, WRI$, WRM$ and WRR$ Tables';
 DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
-select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.x.con_id,
 	   x.table_name, x.blocks, x.num_rows, x.sample_size, x.last_analyzed
 	   &&skip_noncdb.,c.name con_name
@@ -991,7 +987,7 @@ DEF title = 'SYS Stats for WRH$, WRI$, WRM$ and WRR$ Indexes';
 DEF main_table = '&&cdb_view_prefix.INDEXES';
 BEGIN
   :sql_text := q'[
-select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.x.con_id,
 	   x.table_name, x.index_name, x.blevel, x.leaf_blocks, x.distinct_keys, x.num_rows, x.sample_size, x.last_analyzed
 	   &&skip_noncdb.,c.name con_name
@@ -999,7 +995,7 @@ from   &&cdb_object_prefix.indexes x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 where  x.owner = 'SYS'
 and    x.table_name like 'WR_$%'
-order by 
+order by
        &&skip_noncdb.x.con_id,
 	   x.table_name, x.index_name
 ]';
@@ -1042,7 +1038,7 @@ col col_num_distinct heading 'Column|Number of|Distinct|Values'
 col col_num_buckets  heading 'Column|Number of|Buckets'
 col col_histogram    heading 'Column|Histogram|Type'
 DEF title = 'Columns with Histograms in Extended Statistics';
-REM dmk 29.11.2018 Columns with histograms that are part of a col group where the extended statistics do not have a histogram, 
+REM dmk 29.11.2018 Columns with histograms that are part of a col group where the extended statistics do not have a histogram,
 REM or part of a composite index where there is no corresponding extended histogram prevent use of extended statistics.  Need extended histograms.
 REM https://jonathanlewis.wordpress.com/2012/04/11/extended-stats/ - note Colgan comment
 REM https://antognini.ch/2014/02/extension-bypassed-because-of-missing-histogram/ - note fix control
@@ -1077,7 +1073,7 @@ WHERE	e.creator = 'USER'
 AND     se.owner = e.owner
 AND     se.table_name = e.table_name
 AND     se.column_name = e.extension_name
-AND     e.table_name NOT LIKE 'BIN$%' 
+AND     e.table_name NOT LIKE 'BIN$%'
 AND     e.owner NOT IN &&exclusion_list.
 AND     e.owner NOT IN &&exclusion_list2.
 ), x as (
@@ -1128,14 +1124,14 @@ AND NOT EXISTS( /*report index if no extension*/
         FROM    e
         WHERE   e.owner = i.table_owner
         AND     e.table_name = i.table_name
-        AND     e.extension = i.column_list      
+        AND     e.extension = i.column_list
         &&skip_noncdb.AND     e.con_id = i.con_id
         )
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
 FROM   x
-       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id    
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 ORDER BY &&skip_noncdb.x.con_id,
        x.owner, x.table_name, x.object_type, x.num_distinct
 ]';

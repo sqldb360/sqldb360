@@ -1629,7 +1629,6 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-<<<<<<< HEAD
 DEF title = 'Scheduler Jobs PDBs';
 DEF main_table = 'CDB_SCHEDULER_JOBS';
 BEGIN
@@ -2181,15 +2180,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND h.sql_id IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-<<<<<<< HEAD
-   AND s.sql_id(+) = h.sql_id AND s.dbid(+) = &&edb360_dbid.
-   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
-=======
    &&skip_noncdb.AND s.con_id(+) = h.con_id
    AND s.sql_id(+) = h.sql_id
    AND s.dbid(+) = &&edb360_dbid.
    &&skip_noncdb.AND s.con_id(+) = h.con_id
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
  GROUP BY
        &&skip_noncdb.h.con_id,
        h.sql_id,
@@ -2226,14 +2220,9 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND h.sql_id IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-<<<<<<< HEAD
-   AND s.sql_id(+) = h.sql_id AND s.dbid(+) = &&edb360_dbid.
-   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
-=======
    AND s.sql_id(+) = h.sql_id
    AND s.dbid(+) = &&edb360_dbid.
    &&skip_noncdb.AND s.con_id(+) = h.con_id
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
  GROUP BY
        &&skip_noncdb.h.con_id,
        h.sql_id,
@@ -2345,14 +2334,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.open_cursor x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-<<<<<<< HEAD
-       inst_id, sid, sql_id
-       &&skip_ver_le_10., sql_exec_id
-]';
-END;
-/
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
-=======
        &&skip_noncdb.x.con_id,
 	   x.inst_id, x.sid, x.sql_id
        &&skip_ver_le_10., x.sql_exec_id
@@ -2360,7 +2341,6 @@ END;
 END;
 /
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 
 DEF title = 'Session Cursor Cache Misses per Session';
 DEF main_table = '&&gv_view_prefix.SESSTAT';

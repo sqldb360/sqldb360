@@ -198,19 +198,12 @@ SELECT * from (
          s.max_action,
 		 &&skip_noncdb.c.name con_name,
          DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
-<<<<<<< HEAD
-    FROM ash s, &&awr_object_prefix.sqltext t
-   WHERE t.sql_id(+) = s.sql_id
-     AND t.dbid(+) = &&edb360_dbid.
-     &&skip_ver_le_11.AND t.con_id(+) = s.con_id
-=======
     FROM ash s
 	     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
 	     LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
 		 ON t.dbid = &&edb360_dbid.
 		 AND t.sql_id = s.sql_id
-		 &&skip_noncdb.AND t.con_id = s.con_id
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
+		 &&skip_ver_le_11.&&skip_noncdb.AND t.con_id = s.con_id
  )
   WHERE ROWNUM < 101
 ]';
@@ -399,12 +392,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.min_action,
        s.max_action,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
-<<<<<<< HEAD
-  FROM totals s, &&awr_object_prefix.sqltext t
- WHERE t.sql_id(+) = s.sql_id
-   AND t.dbid(+) = &&edb360_dbid.
-   &&skip_ver_le_11.AND t.con_id(+) = s.con_id
-=======
 	   &&skip_noncdb.,c.name con_name
   FROM totals s
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
@@ -412,7 +399,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        AND t.dbid = &&edb360_dbid.
        &&skip_ver_le_11.AND t.con_id = s.con_id
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
   ORDER BY s.executions DESC
  )
    WHERE ROWNUM < 101
@@ -616,10 +602,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
  WHERE s.executions>1
    AND (s.rows_processed/greatest(s.executions,1))<2
-<<<<<<< HEAD
-   &&skip_ver_le_11.AND t.con_id(+) = s.con_id
-=======
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
    ORDER BY s.executions DESC
    )
 WHERE ROWNUM < 101
@@ -753,11 +735,7 @@ order by sql_id, sql_child_number
 ]';
 END;
 /
-<<<<<<< HEAD
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
-=======
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 
 DEF title = 'Sessions Waiting';
 DEF main_table = '&&gv_view_prefix.SESSION';
@@ -858,11 +836,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-<<<<<<< HEAD
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
-=======
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 
 DEF title = 'SQL blocking SQL';
 DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';

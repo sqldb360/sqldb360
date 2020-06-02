@@ -11,23 +11,23 @@ DEF title = 'JDBC Connection usage per Module';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 WITH x AS (
 SELECT COUNT(*) sessions, /* &&section_id..&&report_sequence. */
 &&skip_noncdb.con_id,
 module,
-SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active, 
-SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive, 
-SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed, 
-SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached, 
-SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped, 
+SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active,
+SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive,
+SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed,
+SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached,
+SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped,
 MIN(last_call_et) min_last_call_secs,
 MAX(last_call_et) max_last_call_secs,
 MEDIAN(last_call_et) med_last_call_secs
-FROM &&gv_object_prefix.session 
-where program like '%JDBC%' 
+FROM &&gv_object_prefix.session
+where program like '%JDBC%'
 GROUP BY &&skip_noncdb.con_id,
-module 
+module
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
@@ -38,30 +38,30 @@ ORDER BY x.sessions DESC, &&skip_noncdb.x.con_id,
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Connection usage per Process and Module';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 WITH x AS (
 SELECT COUNT(*) sessions, /* &&section_id..&&report_sequence. */
 &&skip_noncdb.con_id,
-process, 
-module,  
-SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active, 
-SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive, 
-SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed, 
-SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached, 
-SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped, 
+process,
+module,
+SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active,
+SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive,
+SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed,
+SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached,
+SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped,
 MIN(last_call_et) min_last_call_secs,
 MAX(last_call_et) max_last_call_secs,
 MEDIAN(last_call_et) med_last_call_secs
-FROM  &&gv_object_prefix.session 
-WHERE program LIKE '%JDBC%' 
+FROM  &&gv_object_prefix.session
+WHERE program LIKE '%JDBC%'
 GROUP BY &&skip_noncdb.con_id,
-         process, module 
+         process, module
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
@@ -72,29 +72,29 @@ ORDER BY x.sessions DESC, &&skip_noncdb.x.con_id,
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Connection usage per JVM';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 WITH x AS (
 SELECT COUNT(*) sessions, /* &&section_id..&&report_sequence. */
 &&skip_noncdb.con_id,
-machine,  
-SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active, 
-SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive, 
-SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed, 
-SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached, 
-SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped, 
+machine,
+SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active,
+SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive,
+SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed,
+SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached,
+SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped,
 MIN(last_call_et) min_last_call_secs,
 MAX(last_call_et) max_last_call_secs,
 MEDIAN(last_call_et) med_last_call_secs
-FROM &&gv_object_prefix.session 
-where program like '%JDBC%' 
+FROM &&gv_object_prefix.session
+where program like '%JDBC%'
 GROUP BY &&skip_noncdb.con_id,
-         machine 
+         machine
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
@@ -105,30 +105,30 @@ ORDER BY x.sessions DESC, &&skip_noncdb.x.con_id,
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Connection usage per JVM Process';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 WITH x AS (
 SELECT COUNT(*) sessions, /* &&section_id..&&report_sequence. */
 &&skip_noncdb.con_id,
-machine, 
-process, 
-SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active, 
-SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive, 
-SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed, 
-SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached, 
-SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped, 
+machine,
+process,
+SUM(CASE status WHEN 'ACTIVE' THEN 1 ELSE 0 END) active,
+SUM(CASE status WHEN 'INACTIVE' THEN 1 ELSE 0 END) inactive,
+SUM(CASE status WHEN 'KILLED' THEN 1 ELSE 0 END) killed,
+SUM(CASE status WHEN 'CACHED' THEN 1 ELSE 0 END) cached,
+SUM(CASE status WHEN 'SNIPED' THEN 1 ELSE 0 END) sniped,
 MIN(last_call_et) min_last_call_secs,
 MAX(last_call_et) max_last_call_secs,
 MEDIAN(last_call_et) med_last_call_secs
-FROM &&gv_object_prefix.session 
-where program like '%JDBC%' 
+FROM &&gv_object_prefix.session
+where program like '%JDBC%'
 GROUP BY &&skip_noncdb.con_id,
-         machine, process 
+         machine, process
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
@@ -139,24 +139,24 @@ ORDER BY x.sessions DESC, &&skip_noncdb.x.con_id,
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Idle connections for more than N hours';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 WITH x AS (
 SELECT &&skip_noncdb.con_id,
 TRUNC(last_call_et/3600) hours_idle,status, /* &&section_id..&&report_sequence. */
 COUNT(*) sessions,
 CASE TRUNC(last_call_et/3600) WHEN 0 THEN ROUND(AVG(last_call_et)) END avg_secs,
 CASE TRUNC(last_call_et/3600) WHEN 0 THEN MEDIAN(last_call_et) END med_secs
-FROM     &&gv_object_prefix.session 
+FROM     &&gv_object_prefix.session
 where    program like '%JDBC%'
-AND      status <> 'ACTIVE' 
+AND      status <> 'ACTIVE'
 GROUP BY &&skip_noncdb.con_id,
-         status,TRUNC(last_call_et/3600) 
+         status,TRUNC(last_call_et/3600)
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
@@ -166,67 +166,49 @@ ORDER BY x.hours_idle, x.status
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Idle connections per Status, JVM and Program';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 WITH x AS (
 SELECT TRUNC(last_call_et/3600) hours_idle, /* &&section_id..&&report_sequence. */
 status,
 &&skip_noncdb.con_id,
-machine, 
+machine,
 program,
-COUNT(*) sessions, 
+COUNT(*) sessions,
 CASE TRUNC(last_call_et/3600) WHEN 0 THEN ROUND(AVG(last_call_et)) END avg_secs,
 CASE TRUNC(last_call_et/3600) WHEN 0 THEN MEDIAN(last_call_et) END med_secs
-FROM &&gv_object_prefix.session 
+FROM &&gv_object_prefix.session
 where program like '%JDBC%'
 --and  last_call_et > 3600
-and status <> 'ACTIVE' 
-GROUP BY TRUNC(last_call_et/3600), status, 
+and status <> 'ACTIVE'
+GROUP BY TRUNC(last_call_et/3600), status,
          &&skip_noncdb.con_id,
-		 machine, program 
+		 machine, program
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
-ORDER BY x.hours_idle, x.status, 
+ORDER BY x.hours_idle, x.status,
        &&skip_noncdb.x.con_id,
 	   x.machine, x.program
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Active connections';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 SELECT s.last_call_et last_call_et_secs,  /* &&section_id..&&report_sequence. */
-s.*,  t.sql_text current_sql, t2.sql_text prev_sql 
-<<<<<<< HEAD
-FROM &&gv_object_prefix.session s, &&gv_object_prefix.sql t, &&gv_object_prefix.sql t2
-where s.inst_id =t.inst_id(+)
-and s.sql_address =t.address(+)  
-and s.sql_hash_value =t.hash_value(+)
-and s.sql_id = t.sql_id(+)
-and s.sql_child_number = t.child_number(+)
-&&skip_ver_le_11.and s.con_id = t.con_id(+)
-and s.inst_id =t2.inst_id(+)
-and s.prev_sql_addr =t2.address(+)  
-and s.prev_hash_value =t2.hash_value(+)
-and s.prev_sql_id = t2.sql_id(+)
-and s.prev_child_number = t2.child_number(+)
-&&skip_ver_le_11.and s.con_id = t2.con_id(+)
-and s.program like '%JDBC%' 
-and s.status = 'ACTIVE' 
-order by last_call_et
-=======
+s.*,  t.sql_text current_sql, t2.sql_text prev_sql
      &&skip_noncdb.,c.name con_name
 FROM &&gv_object_prefix.session s
      &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
@@ -244,38 +226,21 @@ FROM &&gv_object_prefix.session s
      and s.prev_sql_id = t2.sql_id
      and s.prev_child_number = t2.child_number
      &&skip_noncdb.and s.con_id = t2.con_id
-WHERE s.program like '%JDBC%' 
-AND   s.status = 'ACTIVE' 
+WHERE s.program like '%JDBC%'
+AND   s.status = 'ACTIVE'
 ORDER BY last_call_et
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 DEF title = 'JDBC Idle connections';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
--- from monitor_jdbc_conn.sql 
+-- from monitor_jdbc_conn.sql
 SELECT s.last_call_et last_call_et_secs,  /* &&section_id..&&report_sequence. */
-s.*,  t.sql_text current_sql, t2.sql_text prev_sql 
-<<<<<<< HEAD
-FROM &&gv_object_prefix.session s, &&gv_object_prefix.sql t, &&gv_object_prefix.sql t2
-where s.inst_id =t.inst_id(+)
-and s.sql_address =t.address(+)  
-and s.sql_hash_value =t.hash_value(+)
-and s.sql_id = t.sql_id(+)
-and s.sql_child_number = t.child_number(+)
-&&skip_ver_le_11.and s.con_id = t.con_id(+)
-and s.inst_id =t2.inst_id(+)
-and s.prev_sql_addr =t2.address(+)  
-and s.prev_hash_value =t2.hash_value(+)
-and s.prev_sql_id = t2.sql_id(+)
-and s.prev_child_number = t2.child_number(+)
-&&skip_ver_le_11.and s.con_id = t2.con_id(+)
-and s.program like '%JDBC%' 
-=======
+s.*,  t.sql_text current_sql, t2.sql_text prev_sql
      &&skip_noncdb.,c.name con_name
 FROM &&gv_object_prefix.session s
      &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
@@ -293,14 +258,13 @@ FROM &&gv_object_prefix.session s
      and s.prev_sql_id = t2.sql_id
      and s.prev_child_number = t2.child_number
      &&skip_noncdb.and s.con_id = t2.con_id
-WHERE s.program like '%JDBC%' 
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
-and s.status <> 'ACTIVE' 
+WHERE s.program like '%JDBC%'
+and s.status <> 'ACTIVE'
 ORDER BY last_call_et
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql       
+@@edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

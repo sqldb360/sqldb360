@@ -15,11 +15,7 @@ select * from x$ksmssinfo
 ]';
 END;
 /
-<<<<<<< HEAD
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
-=======
 @@&&skip_ver_le_11.edb360_9a_pre_one.sql
->>>>>>> 0e6c9b4f409b68b8b4319d90cd44c916d57a7fe8
 
 DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
 DEF chartype = 'LineChart';
@@ -312,28 +308,28 @@ SELECT /*+ &&sq_fact_hints. */
        name subpool_name
   FROM calc2
 )
-SELECT MIN(CASE srank WHEN 01 THEN subpool_name &&skip_noncdb.||':'||con_id 
+SELECT MIN(CASE srank WHEN 01 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_01
       ,MIN(CASE srank WHEN 02 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_02
       ,MIN(CASE srank WHEN 03 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_03
-      ,MIN(CASE srank WHEN 04 THEN subpool_name &&skip_noncdb.||':'||con_id 
+      ,MIN(CASE srank WHEN 04 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_04
-      ,MIN(CASE srank WHEN 05 THEN subpool_name &&skip_noncdb.||':'||con_id 
+      ,MIN(CASE srank WHEN 05 THEN subpool_name &&skip_noncdb.||':'||con_id
 	       END) subpool_05
       ,MIN(CASE srank WHEN 06 THEN subpool_name &&skip_noncdb.||':'||con_id
 	       END) subpool_06
-      ,MIN(CASE srank WHEN 07 THEN subpool_name &&skip_noncdb.||':'||con_id 
+      ,MIN(CASE srank WHEN 07 THEN subpool_name &&skip_noncdb.||':'||con_id
 	       END) subpool_07
-      ,MIN(CASE srank WHEN 08 THEN subpool_name &&skip_noncdb.||':'||con_id 
+      ,MIN(CASE srank WHEN 08 THEN subpool_name &&skip_noncdb.||':'||con_id
 	       END) subpool_08
-      ,MIN(CASE srank WHEN 09 THEN subpool_name &&skip_noncdb.||':'||con_id 
+      ,MIN(CASE srank WHEN 09 THEN subpool_name &&skip_noncdb.||':'||con_id
 	       END) subpool_09
       ,MIN(CASE srank WHEN 10 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_10
   FROM ranked;
-  
+
 COL predexpr NEW_V predexpr
 COL predqexpr NEW_V predqexpr
 SELECT 'subpool' &&skip_noncdb.||'||'':''||con_id'
