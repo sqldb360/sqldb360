@@ -1629,22 +1629,6 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-DEF title = 'Scheduler Jobs PDBs';
-DEF main_table = 'CDB_SCHEDULER_JOBS';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_scheduler_jobs
- ORDER BY
-       con_id,
-       owner,
-       job_name
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
-
 DEF title = 'Scheduler Job Log for past 7 days';
 DEF main_table = '&&cdb_view_prefix.SCHEDULER_JOB_LOG';
 BEGIN
@@ -1664,23 +1648,6 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-DEF title = 'Scheduler Job Log for past 7 days PDBs';
-DEF main_table = 'CDB_SCHEDULER_JOB_LOG';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_scheduler_job_log
- WHERE log_date > SYSDATE - 7
- ORDER BY
-       con_id,
-       log_id DESC,
-       log_date DESC
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
-
 DEF title = 'Scheduler Windows';
 DEF main_table = '&&cdb_view_prefix.SCHEDULER_WINDOWS';
 BEGIN
@@ -1698,21 +1665,6 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-DEF title = 'Scheduler Windows PDBs';
-DEF main_table = 'CDB_SCHEDULER_WINDOWS';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_scheduler_windows
- ORDER BY
-       con_id,
-       window_name
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
-
 DEF title = 'Scheduler Window Group Members';
 DEF main_table = '&&cdb_view_prefix.SCHEDULER_WINGROUP_MEMBERS';
 BEGIN
@@ -1729,20 +1681,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 @@edb360_9a_pre_one.sql
-
-DEF title = 'Scheduler Window Group Members PDBs';
-DEF main_table = 'CDB_SCHEDULER_WINGROUP_MEMBERS';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_scheduler_wingroup_members
- ORDER BY
-       con_id, 1,2
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Advisor Parameters';
 DEF main_table = '&&cdb_view_prefix.ADVISOR_PARAMETERS';
@@ -1829,37 +1767,8 @@ END;
 /
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
-DEF title = 'Automated Maintenance Tasks PDBs';
-DEF main_table = 'CDB_AUTOTASK_CLIENT';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_autotask_client
- ORDER BY
-       con_id,
-       client_name
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
-
 DEF title = 'Automated Maintenance Task Tasks';
-DEF main_table = '&&dva_view_prefix.AUTOTASK_TASK';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&dva_object_prefix.autotask_task
- ORDER BY
-       client_name
-]';
-END;
-/
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql
-
-DEF title = 'Automated Maintenance Task Tasks PDBs';
-DEF main_table = 'CDB_AUTOTASK_TASK';
+DEF main_table = '&&cdb_view_prefix.AUTOTASK_TASK';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -1892,21 +1801,6 @@ END;
 /
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
-DEF title = 'Automated Maintenance Tasks History PDBs';
-DEF main_table = 'CDB_AUTOTASK_CLIENT_HISTORY';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_autotask_client_history
- ORDER BY
-       con_id,
-       window_start_time DESC
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
-
 DEF title = 'Auto Task Job History';
 DEF main_table = '&&cdb_view_prefix.AUTOTASK_JOB_HISTORY';
 BEGIN
@@ -1922,22 +1816,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
-
-DEF title = 'Auto Task Job History PDBs';
-DEF main_table = 'CDB_AUTOTASK_JOB_HISTORY';
-BEGIN
-  :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM cdb_autotask_job_history
- ORDER BY
-       con_id,
-       window_start_time DESC
-]';
-END;
-/
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Current Blocking Activity';
 DEF main_table = '&&gv_view_prefix.SESSION';
