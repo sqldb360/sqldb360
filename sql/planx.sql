@@ -45,6 +45,12 @@ BEGIN
   SELECT dbid INTO :dbid FROM v$database;
 END;
 /
+-- settings to allow planx to run standalone
+SET LIN 32767 PAGES 0 LONG 32767000 LONGC 32767 TRIMS ON AUTOT OFF;
+-- display adaptive plan
+COL format_adaptive NEW_V format_adaptive
+SELECT '+ADAPTIVE' format_adaptive FROM v$instance WHERE version >= '12.';
+
 -- is_10g
 DEF is_10g = '';
 COL is_10g NEW_V is_10g NOPRI;

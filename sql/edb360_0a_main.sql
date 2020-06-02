@@ -15,7 +15,7 @@ PRO owned by SYS (PLAN_TABLE$ table with a PUBLIC synonym PLAN_TABLE).
 PRO eDB360 requires the Oracle seeded PLAN_TABLE, consider dropping the one in this schema.
 WHENEVER SQLERROR EXIT;
 DECLARE
- is_plan_table_in_usr_schema NUMBER; 
+ is_plan_table_in_usr_schema NUMBER;
 BEGIN
  SELECT COUNT(*)
    INTO is_plan_table_in_usr_schema
@@ -32,7 +32,7 @@ WHENEVER SQLERROR CONTINUE;
 -- parameters (reset readme)
 SPO 00000_readme_first_&&my_sid..txt
 PRO
-PRO Parameter 1: 
+PRO Parameter 1:
 PRO If your Database is licensed to use the Oracle Tuning pack please enter T.
 PRO If you have a license for Diagnostics pack but not for Tuning pack, enter D.
 PRO If you have both Tuning and Diagnostics packs, enter T.
@@ -69,7 +69,7 @@ END;
 
 PRO
 PRO Parameter 2:
-PRO Name of an optional custom configuration file executed right after 
+PRO Name of an optional custom configuration file executed right after
 PRO sql/edb360_00_config.sql. If such file name is provided, then corresponding file
 PRO should exist under edb360-master/sql. Filename is case sensitivive and its existence
 PRO is not validated. Example: custom_config_01.sql

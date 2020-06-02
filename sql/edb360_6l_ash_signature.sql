@@ -129,7 +129,7 @@ BEGIN
   :sql_text_backup := q'[
 WITH
 hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        force_matching_signature,

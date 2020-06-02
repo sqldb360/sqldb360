@@ -40,7 +40,7 @@ SELECT h.sql_plan_hash_value||'('||h.distinct_sql_id||')' plan_hash_value,
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND v2.sql_id(+) = h.sample_sql_id
    &&skip_ver_le_11.AND v2.con_id(+) = h.con_id
- UNION 
+ UNION
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,
        NVL(ROUND(100 * SUM(h.samples) / AVG(t.samples), 1), 0) percent,
@@ -123,7 +123,7 @@ BEGIN
   :sql_text_backup := q'[
 WITH
 hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        sql_plan_hash_value,
@@ -156,7 +156,7 @@ SELECT h.sql_plan_hash_value||'('||h.distinct_sql_id||')' plan_hash_value,
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sample_sql_id AND s.dbid(+) = h.dbid
    &&skip_noncdb.AND s.con_id(+) = h.con_id
- UNION 
+ UNION
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,
        NVL(ROUND(100 * SUM(h.samples) / AVG(t.samples), 1), 0) percent,

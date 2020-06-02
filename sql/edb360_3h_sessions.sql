@@ -34,7 +34,7 @@ SELECT x.*
 FROM x
      &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       1 DESC, 
+       1 DESC,
 	   &&skip_noncdb.x.con_id,
 	   x.inst_id, x.type, x.server, x.status, x.state
 ]';
@@ -71,7 +71,7 @@ SELECT x.*
 FROM   x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       1 DESC, 
+       1 DESC,
 	   &&skip_noncdb.x.con_id,
 	   x.username, x.inst_id, x.type, x.server, x.status, x.state
 ]';
@@ -110,7 +110,7 @@ SELECT x.*
 FROM   x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       1 DESC, 
+       1 DESC,
 	   &&skip_noncdb.x.con_id,
 	   x.module, x.action, x.inst_id, x.type, x.server, x.status, x.state
 ]';
@@ -143,7 +143,7 @@ SELECT x.*
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  WHERE base_object_type IN ('DATABASE', 'SCHEMA')
  ORDER BY
-       x.base_object_type, 
+       x.base_object_type,
 	   &&skip_noncdb.x.con_id,
 	   x.owner, x.trigger_name
 ]';
@@ -156,9 +156,9 @@ DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 -- Exclude PX slave sessions and Jobs
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 ash AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_ver_le_11.con_id,
        NVL(h.sql_id, 'null_sql_id') sql_id,
@@ -174,8 +174,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        COUNT(DISTINCT h.snap_id||'.'||h.instance_number||'.'||h.session_id||'.'||h.session_serial#) sessions
   FROM &&cdb_awr_object_prefix.active_sess_history h
  WHERE h.session_type = 'FOREGROUND'
-   AND h.program not like '%(J%' 
-   AND h.qc_session_id is null 
+   AND h.program not like '%(J%'
+   AND h.qc_session_id is null
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
  GROUP BY
@@ -202,8 +202,8 @@ SELECT * from (
 	     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
 	     LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
 		 ON t.dbid = &&edb360_dbid.
-		 AND t.sql_id = s.sql_id 
-		 &&skip_noncdb.AND t.con_id = s.con_id
+		 AND t.sql_id = s.sql_id
+		 &&skip_ver_le_11.&&skip_noncdb.AND t.con_id = s.con_id
  )
   WHERE ROWNUM < 101
 ]';
@@ -211,9 +211,9 @@ END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-WITH 
+WITH
 ash AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        NVL(h.sql_id, 'null_sql_id') sql_id
   FROM &&cdb_awr_object_prefix.active_sess_history h
@@ -256,9 +256,9 @@ DEF vbaseline = '';
 
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 ash AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.h.con_id,
        h.snap_id,
@@ -270,22 +270,22 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
  WHERE h.session_type = 'FOREGROUND'
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND NVL(h.sql_id, 'null_sql_id') IN 
-       ('&&tit_01.', 
-        '&&tit_02.', 
-        '&&tit_03.', 
-        '&&tit_04.', 
-        '&&tit_05.', 
-        '&&tit_06.', 
-        '&&tit_07.', 
-        '&&tit_08.', 
-        '&&tit_09.', 
-        '&&tit_10.', 
-        '&&tit_11.', 
-        '&&tit_12.', 
-        '&&tit_13.', 
+   AND NVL(h.sql_id, 'null_sql_id') IN
+       ('&&tit_01.',
+        '&&tit_02.',
+        '&&tit_03.',
+        '&&tit_04.',
+        '&&tit_05.',
+        '&&tit_06.',
+        '&&tit_07.',
+        '&&tit_08.',
+        '&&tit_09.',
+        '&&tit_10.',
+        '&&tit_11.',
+        '&&tit_12.',
+        '&&tit_13.',
         '&&tit_14.',
-        '&&tit_15.') 
+        '&&tit_15.')
  GROUP BY
        &&skip_noncdb.h.con_id,
        h.snap_id,
@@ -327,9 +327,9 @@ DEF title = 'Most executed SQL';
 DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 totals AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        /* &&section_id..&&report_sequence. */
        &&skip_ver_le_11.con_id,
        sql_id,
@@ -350,12 +350,12 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        ROUND(SUM(javexec_time_delta)/1e6) java_secs,
        COUNT(DISTINCT plan_hash_value) plans,
        ROUND(AVG(optimizer_cost)) avg_cost,
-       COUNT(DISTINCT module) modules,       
+       COUNT(DISTINCT module) modules,
        MIN(module) min_module,
        MAX(module) max_module,
-       COUNT(DISTINCT action) actions,       
+       COUNT(DISTINCT action) actions,
        MIN(action) min_action,
-       MAX(action) max_action       
+       MAX(action) max_action
   FROM &&cdb_awr_object_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -385,31 +385,31 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.java_secs,
        s.plans,
        s.avg_cost,
-       s.modules,       
+       s.modules,
        s.min_module,
        s.max_module,
-       s.actions,       
+       s.actions,
        s.min_action,
-       s.max_action,       
+       s.max_action,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
 	   &&skip_noncdb.,c.name con_name
   FROM totals s
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
-	   ON t.sql_id = s.sql_id 
+	   ON t.sql_id = s.sql_id
        AND t.dbid = &&edb360_dbid.
        &&skip_ver_le_11.AND t.con_id = s.con_id
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
-  ORDER BY s.executions DESC 
+  ORDER BY s.executions DESC
  )
-   WHERE ROWNUM < 101 
+   WHERE ROWNUM < 101
 ]';
 END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-WITH 
+WITH
 totals AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        /* &&section_id..&&report_sequence. */
        NVL(sql_id, 'null_sql_id') sql_id
   FROM &&cdb_awr_object_prefix.sqlstat
@@ -451,9 +451,9 @@ DEF vbaseline = '';
 
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 stat AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        snap_id,
@@ -462,22 +462,22 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
   FROM &&cdb_awr_object_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND NVL(sql_id, 'null_sql_id') IN 
-       ('&&tit_01.', 
-        '&&tit_02.', 
-        '&&tit_03.', 
-        '&&tit_04.', 
-        '&&tit_05.', 
-        '&&tit_06.', 
-        '&&tit_07.', 
-        '&&tit_08.', 
-        '&&tit_09.', 
-        '&&tit_10.', 
-        '&&tit_11.', 
-        '&&tit_12.', 
-        '&&tit_13.', 
+   AND NVL(sql_id, 'null_sql_id') IN
+       ('&&tit_01.',
+        '&&tit_02.',
+        '&&tit_03.',
+        '&&tit_04.',
+        '&&tit_05.',
+        '&&tit_06.',
+        '&&tit_07.',
+        '&&tit_08.',
+        '&&tit_09.',
+        '&&tit_10.',
+        '&&tit_11.',
+        '&&tit_12.',
+        '&&tit_13.',
         '&&tit_14.',
-        '&&tit_15.') 
+        '&&tit_15.')
  GROUP BY
        &&skip_noncdb.con_id,
 	   snap_id,
@@ -528,9 +528,9 @@ DEF title = 'SQL executed row-by-row';
 DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 totals AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        /* &&section_id..&&report_sequence. */
        &&skip_ver_le_11.con_id,
        sql_id,
@@ -551,12 +551,12 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        ROUND(SUM(javexec_time_delta)/1e6) java_secs,
        COUNT(DISTINCT plan_hash_value) plans,
        ROUND(AVG(optimizer_cost)) avg_cost,
-       COUNT(DISTINCT module) modules,       
+       COUNT(DISTINCT module) modules,
        MIN(module) min_module,
        MAX(module) max_module,
-       COUNT(DISTINCT action) actions,       
+       COUNT(DISTINCT action) actions,
        MIN(action) min_action,
-       MAX(action) max_action       
+       MAX(action) max_action
   FROM &&cdb_awr_object_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -586,17 +586,17 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.java_secs,
        s.plans,
        s.avg_cost,
-       s.modules,       
+       s.modules,
        s.min_module,
        s.max_module,
-       s.actions,       
+       s.actions,
        s.min_action,
-       s.max_action,       
+       s.max_action,
 	   &&skip_noncdb.c.name con_name,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
   FROM totals s
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
-       ON t.sql_id = s.sql_id 
+       ON t.sql_id = s.sql_id
        AND t.dbid = &&edb360_dbid.
 	   &&skip_ver_le_11.AND t.con_id = s.con_id
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
@@ -604,7 +604,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND (s.rows_processed/greatest(s.executions,1))<2
    ORDER BY s.executions DESC
    )
-WHERE ROWNUM < 101 
+WHERE ROWNUM < 101
 ]';
 END;
 /
@@ -673,7 +673,7 @@ DEF title = 'Active Sessions (detail)';
 DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
-SELECT /* active_sessions */ 
+SELECT /* active_sessions */
        se.*, sq.sql_text
   FROM &&gv_object_prefix.session se,
        &&gv_object_prefix.sql sq
@@ -684,7 +684,7 @@ SELECT /* active_sessions */
    &&skip_ver_le_11.and sq.con_id = se.con_id
    AND sq.sql_text NOT LIKE 'SELECT /* active_sessions */%'
  ORDER BY
-       se.inst_id, se.sid, se.serial#   
+       se.inst_id, se.sid, se.serial#
 ]';
 END;
 /
@@ -695,16 +695,16 @@ DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
 -- provided by Frits Hoogland
-select /*+ rule as.sql */ 
+select /*+ rule as.sql */
     &&skip_noncdb.a.con_id,
-	a.sid||','||a.serial#||',@'||a.inst_id as sid_serial_inst, 
-	d.spid as ospid, 
-	substr(a.program,1,19) prog, 
+	a.sid||','||a.serial#||',@'||a.inst_id as sid_serial_inst,
+	d.spid as ospid,
+	substr(a.program,1,19) prog,
 	a.module, a.action, a.client_info,
 	'SQL:'||b.sql_id as sql_id, child_number child, plan_hash_value, executions execs,
 	(elapsed_time/decode(nvl(executions,0),0,1,executions))/1000000 avg_etime,
-	decode(a.plsql_object_id,null,sql_text,sqla.object_name||'.'||sqlb.procedure_name) sql_text, 
-	(c.wait_time_micro/1000000) wait_s, 
+	decode(a.plsql_object_id,null,sql_text,sqla.object_name||'.'||sqlb.procedure_name) sql_text,
+	(c.wait_time_micro/1000000) wait_s,
 	decode(a.plsql_object_id,null,decode(c.wait_time,0,decode(a.blocking_session,null,c.event,c.event||'> Blocked by (inst:sid): '||a.final_blocking_instance||':'||a.final_blocking_session),'ON CPU:SQL'),'ON CPU:PLSQL:'||o.object_name) as wait_or_cpu
 	&&skip_noncdb.,c.name con_name
 FROM &&gv_object_prefix.session a
@@ -712,8 +712,8 @@ FROM &&gv_object_prefix.session a
 	 ON sqla.object_id=a.plsql_object_id
 	 &&skip_noncdb.AND sqla.con_id = a.con_id
 	 LEFT OUTER JOIN &&cdb_object_prefix.procedures sqlb
-	 ON sqlb.object_id = a.plsql_object_id 
-     and sqlb.subprogram_id = a.plsql_subprogram_id 
+	 ON sqlb.object_id = a.plsql_object_id
+     and sqlb.subprogram_id = a.plsql_subprogram_id
 	 &&skip_noncdb.AND sqlb.con_id = a.con_id
 	 LEFT OUTER JOIN &&cdb_object_prefix.objects o
 	 ON o.object_id=a.plsql_object_id
@@ -746,8 +746,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.x.con_id,
 	   x.inst_id, x.sid, x.event,
        ROUND(seconds_in_wait,2)  waiting_seconds,
-       ROUND(wait_time/100,2)    waited_seconds, 
-       p1,p2,p3, BLOCKING_SESSION 
+       ROUND(wait_time/100,2)    waited_seconds,
+       p1,p2,p3, BLOCKING_SESSION
 FROM &&gv_object_prefix.session x
 where event not in
 (
@@ -759,7 +759,7 @@ and state = 'WAITING'
 and username not in &&exclusion_list.
 and username not in &&exclusion_list2.
 and (seconds_in_wait > 1 OR wait_time > 100)
-order by 
+order by
       &&skip_noncdb.x.con_id,
       x.inst_id, x.sid
 ]';
@@ -786,7 +786,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        b.client_identifier b_client_identifier,
        b.event b_event,
        TO_CHAR(b.logon_time, 'DD-MON-YY HH24:MI:SS') b_logon_time,
-       TO_CHAR(b.sql_exec_start, 'DD-MON-YY HH24:MI:SS') b_sql_exec_start, 
+       TO_CHAR(b.sql_exec_start, 'DD-MON-YY HH24:MI:SS') b_sql_exec_start,
        SUBSTR(bs.sql_text, 1, 500) b_sql_text,
        w.inst_id w_inst_id,
        w.sql_id w_sql_id,
@@ -801,7 +801,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        w.client_identifier w_client_identifier,
        w.event w_event,
        TO_CHAR(w.logon_time, 'DD-MON-YY HH24:MI:SS') w_logon_time,
-       TO_CHAR(w.sql_exec_start, 'DD-MON-YY HH24:MI:SS') w_sql_exec_start, 
+       TO_CHAR(w.sql_exec_start, 'DD-MON-YY HH24:MI:SS') w_sql_exec_start,
        SUBSTR(ws.sql_text, 1, 500) w_sql_text
   FROM &&gv_object_prefix.session_blockers sb,
        &&gv_object_prefix.session w,
@@ -844,7 +844,7 @@ BEGIN
   :sql_text := q'[
 WITH
 w AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.h.con_id,
        h.dbid,
@@ -874,7 +874,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        TRUNC(h.sample_time, 'HH')
 ),
 b AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.w.con_id,
        w.dbid,
@@ -883,10 +883,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS b_rank,
        h.sql_id b_sql_id,
        COUNT(*) b_samples
-       FROM w, 
+       FROM w,
        &&cdb_awr_object_prefix.active_sess_history h
  WHERE w.w_rank < 101
-   AND h.dbid = w.dbid   
+   AND h.dbid = w.dbid
    AND h.session_id = w.blocking_session
    AND h.session_serial# = w.blocking_session_serial#
    AND TRUNC(h.sample_time, 'HH') = w.sample_hh
@@ -938,15 +938,15 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        b.b_sql_id,
 	   &&skip_noncdb.c.name con_name,
        DBMS_LOB.SUBSTR(s1.sql_text, 1000) w_sql_text,
-       DBMS_LOB.SUBSTR(s2.sql_text, 1000) b_sql_text        
+       DBMS_LOB.SUBSTR(s2.sql_text, 1000) b_sql_text
   FROM w2
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = w2.con_id
 	   LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s1
-       ON s1.sql_id = w2.w_sql_id 
+       ON s1.sql_id = w2.w_sql_id
        AND s1.dbid = w2.dbid
 	  ,b
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s2
-       ON s2.sql_id = b.b_sql_id 
+       ON s2.sql_id = b.b_sql_id
        AND s2.dbid = b.dbid
 	  ,w3
  WHERE b.dbid = w2.dbid
@@ -961,19 +961,19 @@ END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-column hold_module heading 'Holding Module' 
-column hold_action heading 'Holding Action' 
-column hold_program heading 'Holding Program' 
-column hold_event heading 'Holding Event' 
-column wait_event  heading 'Waiting Event'  
+column hold_module heading 'Holding Module'
+column hold_action heading 'Holding Action'
+column hold_program heading 'Holding Program'
+column hold_event heading 'Holding Event'
+column wait_event  heading 'Waiting Event'
 DEF title = 'Profile of Blocking Sessions';
 DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text := q'[
 -- developed by David Kurtz
 WITH w AS ( --waiting sessions
-	SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
-	       /* &&section_id..&&report_sequence. */ 
+	SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+	       /* &&section_id..&&report_sequence. */
 		        &&skip_noncdb.con_id,
 	            dbid
 		,       instance_number
@@ -984,9 +984,9 @@ WITH w AS ( --waiting sessions
         ,       sql_id, sql_plan_hash_value, sql_plan_line_id
 --simplified program name removing anything after first @ or dot until open a bracket
         ,       regexp_substr(program,'[^\.@]+',1,1)||' '||
-                regexp_replace(regexp_substR(regexp_substr(program,'[\.@].+',1,1),'[\(].+',1,1),'[[:digit:]]','n',1,0) wait_program 
+                regexp_replace(regexp_substR(regexp_substr(program,'[\.@].+',1,1),'[\(].+',1,1),'[[:digit:]]','n',1,0) wait_program
         ,       module wait_module
-        ,       CASE WHEN upper(program) LIKE 'ORACLE%' 
+        ,       CASE WHEN upper(program) LIKE 'ORACLE%'
                      THEN REGEXP_REPLACE(action,'[[:digit:]]+','nnn',1,1)
                      ELSE action END wait_action
         ,       NVL(event,'CPU+CPU wait')  wait_event
@@ -998,20 +998,20 @@ WITH w AS ( --waiting sessions
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
 ), x as (
-SELECT /*+ &&sq_fact_hints. */ 
-       /* &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
-       /* &&section_id..&&report_sequence. */       
+SELECT /*+ &&sq_fact_hints. */
+       /* &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+       /* &&section_id..&&report_sequence. */
         w.*
 ,       h.sample_id hold_sample_id
 ,       h.sample_time hold_Sample_time
 ,       h.session_Type hold_session_type
 ,       CASE WHEN h.sample_id IS NULL THEN 'Idle Blocker'
-             ELSE NVL(h.event,'CPU+CPU Wait') 
+             ELSE NVL(h.event,'CPU+CPU Wait')
         END as   hold_event
 ,       regexp_substr(h.program,'[^\.@]+',1,1)||' '||
         regexp_replace(regexp_substR(regexp_substr(h.program,'[\.@].+',1,1),'[\(].+',1,1),'[[:digit:]]','n',1,0) hold_program
 ,       h.module hold_module
-,       CASE WHEN upper(h.program) LIKE 'ORACLE%' 
+,       CASE WHEN upper(h.program) LIKE 'ORACLE%'
              THEN REGEXP_REPLACE(h.action,'[[:digit:]]+','nnn',1,1)
              ELSE h.action END hold_action
 ,       h.xid hold_xid
@@ -1023,14 +1023,14 @@ FROM    w
         AND h.snap_id = w.snap_id
         AND h.sample_time >= w.sample_time -2/86400
         AND h.sample_time <  w.sample_time +2/86400 --rough match cross instance
-        AND (h.sample_id = w.sample_id OR h.instance_number != w.instance_number) --exact match local instance 
+        AND (h.sample_id = w.sample_id OR h.instance_number != w.instance_number) --exact match local instance
         AND h.session_id = w.blocking_Session
         AND h.session_serial# = w.blocking_Session_serial#
 --add same dbid/date/snap_id criteria here
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
 ), y as (
-SELECT  
+SELECT
   &&skip_noncdb.con_id,
   hold_program, hold_module, hold_action, wait_event, hold_event
 , ci
@@ -1059,8 +1059,8 @@ BEGIN
   :sql_text := q'[
 -- developed by David Kurtz
 WITH w AS ( --waiting sessions
-	SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
-	       /* &&section_id..&&report_sequence. */ 
+	SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+	       /* &&section_id..&&report_sequence. */
 	            &&skip_noncdb.con_id
 	    ,       dbid, instance_number
         ,       snap_id
@@ -1070,9 +1070,9 @@ WITH w AS ( --waiting sessions
         ,       sql_id, sql_plan_hash_value, sql_plan_line_id
 --simplified program name removing anything after first @ or dot until open a bracket
         ,       regexp_substr(program,'[^\.@]+',1,1) ||' '||
-                regexp_replace(regexp_substR(regexp_substr(program,'[\.@].+',1,1),'[\(].+',1,1),'[[:digit:]]','n',1,0) wait_program 
+                regexp_replace(regexp_substR(regexp_substr(program,'[\.@].+',1,1),'[\(].+',1,1),'[[:digit:]]','n',1,0) wait_program
         ,       CASE WHEN module=program THEN '[not set]' ELSE module END as wait_module
-        ,       CASE WHEN upper(program) LIKE 'ORACLE%' OR 1=1 
+        ,       CASE WHEN upper(program) LIKE 'ORACLE%' OR 1=1
                      THEN REGEXP_REPLACE(action,'[[:digit:]]+','nnn',1,1)
                      ELSE action END wait_action
         ,       NVL(event,'CPU+CPU wait')  wait_event
@@ -1084,8 +1084,8 @@ WITH w AS ( --waiting sessions
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
 ), x as (
-SELECT  /*+ &&sq_fact_hints. */ 
-        /* &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT  /*+ &&sq_fact_hints. */
+        /* &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
         /* &&section_id..&&report_sequence. */
       w.*
 ,       h.sample_id hold_sample_id
@@ -1094,7 +1094,7 @@ SELECT  /*+ &&sq_fact_hints. */
 ,       h.sql_id hold_sql_id
 ,       h.sql_plan_hash_Value hold_sql_plan_hash_Value
 ,       CASE WHEN h.sample_id IS NULL THEN 'Idle Blocker'
-             ELSE NVL(h.event,'CPU+CPU Wait') 
+             ELSE NVL(h.event,'CPU+CPU Wait')
         END as   hold_event
 ,       regexp_substr(h.program,'[^\.@]+',1,1)||' '||
         regexp_replace(regexp_substR(regexp_substr(h.program,'[\.@].+',1,1),'[\(].+',1,1),'[[:digit:]]','n',1,0) hold_program
@@ -1111,7 +1111,7 @@ FROM    w
         AND h.snap_id = w.snap_id
         AND h.sample_time >= w.sample_time -2/86400
         AND h.sample_time <  w.sample_time +2/86400 --rough match cross instance
-        AND (h.sample_id = w.sample_id OR h.instance_number != w.instance_number) --exact match local instance 
+        AND (h.sample_id = w.sample_id OR h.instance_number != w.instance_number) --exact match local instance
         AND h.session_id = w.blocking_Session
         AND h.session_serial# = w.blocking_Session_serial#
 --add same dbid/date/snap_id criteria here
@@ -1173,7 +1173,7 @@ WITH
 by_instance_and_snap AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        r.snap_id,
-       r.instance_number,	
+       r.instance_number,
        s.begin_interval_time,
        s.end_interval_time,
        MAX(r.current_utilization) current_utilization,
@@ -1218,11 +1218,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY
        snap_id
 ]';
-END;				
+END;
 /
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Processes Time Series for Cluster';
@@ -1288,7 +1288,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '8');
 
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions Time Series for Cluster';

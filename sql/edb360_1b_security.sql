@@ -17,7 +17,7 @@ DEF main_table = '&&cdb_view_prefix.USERS';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.users x
@@ -34,7 +34,7 @@ DEF main_table = '&&cdb_view_prefix.PROFILES';
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.profiles x
@@ -53,10 +53,10 @@ BEGIN
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
-       &&skip_noncdb.,c.name con_name 
+       &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.role_privs x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
- WHERE (x.granted_role in 
+ WHERE (x.granted_role in
 ('AQ_ADMINISTRATOR_ROLE','DELETE_CATALOG_ROLE','DBA','DM_CATALOG_ROLE','EXECUTE_CATALOG_ROLE',
 'EXP_FULL_DATABASE','GATHER_SYSTEM_STATISTICS','HS_ADMIN_ROLE','IMP_FULL_DATABASE',
    'JAVASYSPRIV','JAVA_ADMIN','JAVA_DEPLOY','LOGSTDBY_ADMINISTRATOR',
@@ -68,7 +68,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    and (x.grantee
        &&skip_noncdb.,x.con_id
 	   ) IN (SELECT u.username
-	              &&skip_noncdb., u.con_id 
+	              &&skip_noncdb., u.con_id
 		     FROM &&cdb_object_prefix.users u)
 order by x.grantee, x.granted_role
 &&skip_noncdb.,x.con_id
@@ -84,11 +84,11 @@ BEGIN
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 &&skip_noncdb.WITH c AS (SELECT value FROM &&v_view_prefix.system_parameter2 WHERE name = 'common_user_prefix')
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       x.* 
+       x.*
        &&skip_noncdb.,c.name con_name
 FROM   &&cdb_object_prefix.users x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id, c
-WHERE  (x.default_tablespace in ('SYSAUX','SYSTEM') 
+WHERE  (x.default_tablespace in ('SYSAUX','SYSTEM')
 or (x.temporary_tablespace
    &&skip_noncdb.,x.con_id
    ) not in
@@ -97,12 +97,12 @@ or (x.temporary_tablespace
    from &&cdb_object_prefix.tablespaces t
    where t.contents = 'TEMPORARY'
    and t.status = 'ONLINE'))
-and NVL((SELECT COUNT(*) 
-         FROM &&cdb_object_prefix.tablespace_groups g, &&cdb_object_prefix.tablespaces t 
-         WHERE g.group_name = x.temporary_tablespace 
+and NVL((SELECT COUNT(*)
+         FROM &&cdb_object_prefix.tablespace_groups g, &&cdb_object_prefix.tablespaces t
+         WHERE g.group_name = x.temporary_tablespace
 		 &&skip_noncdb.AND g.con_id = x.con_id
-		 &&skip_noncdb.AND t.con_id = g.con_id 
-         AND t.tablespace_name = g.tablespace_name 
+		 &&skip_noncdb.AND t.con_id = g.con_id
+         AND t.tablespace_name = g.tablespace_name
          AND t.contents IN ('PERMANENT', 'UNDO')), 0) != 0
 and x.username not in &&exclusion_list.
 and x.username not in &&exclusion_list2.
@@ -132,7 +132,7 @@ BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
 WITH p AS (
-SELECT * FROM &&cdb_view_prefix.profiles 
+SELECT * FROM &&cdb_view_prefix.profiles
 WHERE  resource_name = 'PASSWORD_VERIFY_FUNCTION'
 ), expanded_profiles AS (
 SELECT /*+  NO_MERGE  */
@@ -151,7 +151,7 @@ SELECT /*+  NO_MERGE  */
        profile,
        count(*) cnt
   FROM &&cdb_view_prefix.users
- GROUP BY 
+ GROUP BY
        &&skip_noncdb.con_id,
        profile
 )
@@ -164,9 +164,9 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        o.status,
        NVL(TO_CHAR(u.cnt),'<NONE>') assigned_users
        &&skip_noncdb.,c.name con_name
-  FROM 
+  FROM
        expanded_profiles x
-	   LEFT OUTER JOIN &&cdb_view_prefix.objects o ON x.top_limit = o.object_name &&skip_noncdb.AND x.con_id = o.con_id 
+	   LEFT OUTER JOIN &&cdb_view_prefix.objects o ON x.top_limit = o.object_name &&skip_noncdb.AND x.con_id = o.con_id
 	   LEFT OUTER JOIN users_with_profile u ON x.profile = u.profile &&skip_noncdb.AND x.con_id = u.con_id
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  WHERE NOT (x.limit = 'DEFAULT' AND x.top_limit = 'DEFAULT')
@@ -181,8 +181,8 @@ DEF main_table = '&&cdb_view_prefix.USERS';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ DISTINCT 
-       &&skip_noncdb.d.con_id, 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ DISTINCT
+       &&skip_noncdb.d.con_id,
        d.username "SCHEMA", d.account_status
        &&skip_noncdb.,c.name con_name
   FROM SYS.user$ u
@@ -219,16 +219,16 @@ DEF main_table ='&&cdb_view_prefix.ROLES';
 BEGIN
   :sql_text := q'[
 -- by berx
-select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-x.* 
+select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+x.*
 &&skip_noncdb.,c.name con_name
 FROM   &&cdb_object_prefix.roles x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 WHERE  (x.role
        &&skip_noncdb.,x.con_id
        ) not in (SELECT ROLE
-                       &&skip_noncdb., con_id 
-                   FROM &&cdb_object_prefix.roles WHERE ORACLE_MAINTAINED='Y') 
+                       &&skip_noncdb., con_id
+                   FROM &&cdb_object_prefix.roles WHERE ORACLE_MAINTAINED='Y')
 ORDER BY 1
        &&skip_noncdb., x.con_id
 ]';
@@ -241,8 +241,8 @@ DEF main_table ='&&cdb_view_prefix.ROLE_PRIVS';
 BEGIN
   :sql_text := q'[
 -- by berx
-select  /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-x.*  
+select  /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+x.*
 &&skip_noncdb.,c.name con_name
 from   &&cdb_object_prefix.role_privs x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
@@ -250,8 +250,8 @@ where  1=1
   AND (x.GRANTED_ROLE
       &&skip_noncdb.,x.con_id
       ) not in (SELECT ROLE
-                       &&skip_noncdb., con_id 
-                  FROM &&cdb_object_prefix.roles WHERE ORACLE_MAINTAINED='Y') 
+                       &&skip_noncdb., con_id
+                  FROM &&cdb_object_prefix.roles WHERE ORACLE_MAINTAINED='Y')
 ORDER BY 1,2
        &&skip_noncdb., x.con_id
 ]';
@@ -264,21 +264,21 @@ DEF main_table='&&cdb_view_prefix.SYS_PRIVS';
 BEGIN
   :sql_text := q'[
 -- by berx
-select  /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-x.*  
+select  /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+x.*
 &&skip_noncdb.,c.name con_name
 FROM   &&cdb_object_prefix.sys_privs x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 WHERE  1=1
   AND (x.GRANTEE
       &&skip_noncdb.,x.con_id
-      ) not in (SELECT ROLE 
-                      &&skip_noncdb., con_id 
+      ) not in (SELECT ROLE
+                      &&skip_noncdb., con_id
                 FROM   &&cdb_object_prefix.roles WHERE ORACLE_MAINTAINED='Y')
   AND (x.GRANTEE
       &&skip_noncdb.,x.con_id
-      ) not in (SELECT USERNAME 
-                      &&skip_noncdb., con_id 
+      ) not in (SELECT USERNAME
+                      &&skip_noncdb., con_id
                 FROM   &&cdb_object_prefix.users WHERE ORACLE_MAINTAINED='Y')
 ]';
 END;

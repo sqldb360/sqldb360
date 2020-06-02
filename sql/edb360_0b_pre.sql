@@ -368,6 +368,7 @@ HOS dcli -g ~/dbs_group -l $whoami mount >> &&edb360_log3..txt
 -- Exadata
 ALTER SESSION SET "_serial_direct_read" = ALWAYS;
 ALTER SESSION SET "_small_table_threshold" = 1001;
+ALTER SESSION SET "_px_cdb_view_enabled" = FALSE;
 -- nls
 ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ".,";
 ALTER SESSION SET NLS_DATE_FORMAT = '&&edb360_date_format.';

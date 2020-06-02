@@ -11,7 +11,7 @@ SET TERM ON;
 CL SCR;
 PRO Searching for top SQL ...
 PRO Please wait ...
-SET TERM OFF; 
+SET TERM OFF;
 
 COL call_sqld360_bitmask NEW_V call_sqld360_bitmask FOR A6;
 SELECT SUBSTR(
@@ -39,7 +39,7 @@ SELECT ' echo timeout ' edb360_bypass FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :
 /
 
 -- to avoid in 12cR2 and 18c ORA-32034: unsupported use of WITH clause
-def sq_fact_sql_sample_hints="inline" 
+def sq_fact_sql_sample_hints="inline"
 def &&skip_ver_eq_12_2.&&skip_ver_eq_18. sq_fact_sql_sample_hints="&&sq_fact_hints."
 
 COL hh_mm_ss NEW_V hh_mm_ss NOPRI FOR A8;
@@ -49,7 +49,7 @@ DECLARE
   l_count NUMBER := 0;
   CURSOR sql_cur IS
               WITH ranked_sql AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+            SELECT /*+ &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
                    /* &&section_id..&&report_sequence. */
                    &&skip_noncdb.con_id,
                    dbid,
@@ -83,7 +83,7 @@ DECLARE
                    NVL((SELECT u.username FROM &&dva_object_prefix.users u WHERE u.user_id = r.user_id), TO_CHAR(r.user_id)) username,
                    r.module,
                    --h.sql_text,
-                   CASE 
+                   CASE
                    WHEN h.sql_text IS NULL THEN 'unknown'
                    ELSE REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(h.sql_text, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;')
                    END sql_text_1000
@@ -120,7 +120,7 @@ DECLARE
                AND ns.sql_rank <= &&edb360_conf_top_cur.
             ),
             by_signature AS (
-            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
                    /* &&section_id..&&report_sequence. */
                    &&skip_ver_le_11.h.con_id,
                    h.force_matching_signature,
@@ -157,7 +157,7 @@ DECLARE
                    r.distinct_sql_id,
                    r.sample_sql_id,
                    r.samples,
-                   CASE 
+                   CASE
                    WHEN h.sql_text IS NULL THEN 'unknown'
                    ELSE REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(h.sql_text, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;')
                    END sql_text_1000
@@ -205,7 +205,7 @@ DECLARE
                    child_cursors, -- <> 0 means Top as per number of cursors
                    0 signature, -- <> 0 means Top as per signature
                    0 distinct_sql_id -- <> 0 means Top as per signature
-              FROM top_not_shared ns    
+              FROM top_not_shared ns
              UNION ALL
             SELECT rn rank_num,
                    &&skip_noncdb.con_id,
@@ -449,14 +449,14 @@ HOS zip -j &&edb360_zip_filename. &&edb360_output_directory.99930_&&common_edb36
 
 SET TERM ON;
 PRO Please wait ...
-SET TERM OFF; 
+SET TERM OFF;
 
 -- execute dynamic script with sqld360 and others
 @&&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql;
 
 SET TERM ON;
 PRO Please wait ...
-SET TERM OFF; 
+SET TERM OFF;
 
 -- closing
 SET VER OFF FEED OFF SERVEROUT ON HEAD OFF PAGES 50000 LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF;
@@ -520,14 +520,14 @@ HOS zip -j &&edb360_zip_filename. &&edb360_output_directory.99950_&&common_edb36
 
 SET TERM ON;
 PRO Please wait ...
-SET TERM OFF; 
+SET TERM OFF;
 
 -- execute dynamic script to rename sqld360 files and copy them into main zip
 @&&edb360_output_directory.99950_&&common_edb360_prefix._top_sql_driver.sql;
 
 SET TERM ON;
 PRO Please wait ...
-SET TERM OFF; 
+SET TERM OFF;
 
 -- closing
 @@&&edb360_0g.tkprof.sql

@@ -207,7 +207,7 @@ COL row_num NEW_V row_num HEA '#' PRI;
 
 -- get rdbms version
 COL db_version NEW_V db_version;
-SELECT version db_version FROM v$instance;
+--SELECT version db_version FROM v$instance;
 --DEF skip_10g = '';
 --COL skip_10g NEW_V skip_10g;
 --SELECT '--' skip_10g FROM v$instance WHERE version LIKE '10%';
@@ -509,10 +509,10 @@ SELECT CASE '&&sqld360_conf_incl_bubble.' WHEN 'N' THEN '--' END sqld360_skip_bu
 SELECT CASE '&&sqld360_conf_incl_scatt.'  WHEN 'N' THEN '--' END sqld360_skip_scatt  FROM DUAL;
 
 COL sqld360_skip_awrrpt NEW_V sqld360_skip_awrrpt;
-SELECT CASE WHEN '&&from_edb360.' = '--' 
+SELECT CASE WHEN '&&from_edb360.' = '--'
             THEN CASE WHEN '&&sqld360_conf_incl_awrrpt.'='N' THEN '--' END
             ELSE CASE WHEN '&&sqld360_conf_incl_plot_awr.'='N' AND '&&sqld360_conf_incl_awrrpt.'='N' THEN '--' END
-        END sqld360_skip_awrrpt 
+        END sqld360_skip_awrrpt
 FROM DUAL;
 
 COL sqld360_skip_ashrpt NEW_V sqld360_skip_ashrpt;
@@ -854,7 +854,7 @@ HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/sql-formatter.js
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/googlecode.css
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/vs.css
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/highlight.pack.js
-HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/edb360_dlp.js 
+HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/edb360_dlp.js
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/edb360_awr_points.js
 
 --WHENEVER SQLERROR CONTINUE;

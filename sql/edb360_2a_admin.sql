@@ -13,8 +13,8 @@ BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 select v.*
-from 
-  (select 
+from
+  (select
       name, inst_id,
       gets,
       misses,
@@ -112,7 +112,7 @@ DEF main_table = '&&cdb_view_prefix.CONSTRAINTS';
 COL constraint_columns FOR A200;
 BEGIN
   :sql_text := q'[
--- based on "Oracle Database Transactions and Locking Revealed" book by Thomas Kyte  
+-- based on "Oracle Database Transactions and Locking Revealed" book by Thomas Kyte
 WITH
 ref_int_constraints AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -245,7 +245,7 @@ SELECT &&skip_noncdb.con_id,
    AND index_owner NOT IN &&exclusion_list2.
 UNION ALL
 SELECT &&skip_noncdb.con_id,
-       owner,index_name,index_type,null,null   
+       owner,index_name,index_type,null,null
   FROM &&cdb_object_prefix.indexes
  WHERE status = 'UNUSABLE'
    AND owner NOT IN &&exclusion_list.
@@ -351,7 +351,7 @@ DEF title = 'Fat Indexes';
 DEF main_table = '&&cdb_view_prefix.IND_COLUMNS';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 indexes_list AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
@@ -367,40 +367,40 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        owner,
        SUM(CASE columns WHEN  1 THEN 1 ELSE 0 END) "1 Col",
-       SUM(CASE columns WHEN  2 THEN 1 ELSE 0 END) "2 Cols",     
-       SUM(CASE columns WHEN  3 THEN 1 ELSE 0 END) "3 Cols",     
-       SUM(CASE columns WHEN  4 THEN 1 ELSE 0 END) "4 Cols",     
-       SUM(CASE columns WHEN  5 THEN 1 ELSE 0 END) "5 Cols",     
+       SUM(CASE columns WHEN  2 THEN 1 ELSE 0 END) "2 Cols",
+       SUM(CASE columns WHEN  3 THEN 1 ELSE 0 END) "3 Cols",
+       SUM(CASE columns WHEN  4 THEN 1 ELSE 0 END) "4 Cols",
+       SUM(CASE columns WHEN  5 THEN 1 ELSE 0 END) "5 Cols",
        SUM(CASE columns WHEN  6 THEN 1 ELSE 0 END) "6 Cols",
        SUM(CASE columns WHEN  7 THEN 1 ELSE 0 END) "7 Cols",
        SUM(CASE columns WHEN  8 THEN 1 ELSE 0 END) "8 Cols",
        SUM(CASE columns WHEN  9 THEN 1 ELSE 0 END) "9 Cols",
        SUM(CASE columns WHEN 10 THEN 1 ELSE 0 END) "10 Cols",
        SUM(CASE columns WHEN 11 THEN 1 ELSE 0 END) "11 Cols",
-       SUM(CASE columns WHEN 12 THEN 1 ELSE 0 END) "12 Cols",     
-       SUM(CASE columns WHEN 13 THEN 1 ELSE 0 END) "13 Cols",     
-       SUM(CASE columns WHEN 14 THEN 1 ELSE 0 END) "14 Cols",     
-       SUM(CASE columns WHEN 15 THEN 1 ELSE 0 END) "15 Cols",     
+       SUM(CASE columns WHEN 12 THEN 1 ELSE 0 END) "12 Cols",
+       SUM(CASE columns WHEN 13 THEN 1 ELSE 0 END) "13 Cols",
+       SUM(CASE columns WHEN 14 THEN 1 ELSE 0 END) "14 Cols",
+       SUM(CASE columns WHEN 15 THEN 1 ELSE 0 END) "15 Cols",
        SUM(CASE columns WHEN 16 THEN 1 ELSE 0 END) "16 Cols",
        SUM(CASE columns WHEN 17 THEN 1 ELSE 0 END) "17 Cols",
        SUM(CASE columns WHEN 18 THEN 1 ELSE 0 END) "18 Cols",
        SUM(CASE columns WHEN 19 THEN 1 ELSE 0 END) "19 Cols",
        SUM(CASE columns WHEN 20 THEN 1 ELSE 0 END) "20 Cols",
        SUM(CASE columns WHEN 21 THEN 1 ELSE 0 END) "21 Cols",
-       SUM(CASE columns WHEN 22 THEN 1 ELSE 0 END) "22 Cols",     
-       SUM(CASE columns WHEN 23 THEN 1 ELSE 0 END) "23 Cols",     
-       SUM(CASE columns WHEN 24 THEN 1 ELSE 0 END) "24 Cols",     
-       SUM(CASE columns WHEN 25 THEN 1 ELSE 0 END) "25 Cols",     
+       SUM(CASE columns WHEN 22 THEN 1 ELSE 0 END) "22 Cols",
+       SUM(CASE columns WHEN 23 THEN 1 ELSE 0 END) "23 Cols",
+       SUM(CASE columns WHEN 24 THEN 1 ELSE 0 END) "24 Cols",
+       SUM(CASE columns WHEN 25 THEN 1 ELSE 0 END) "25 Cols",
        SUM(CASE columns WHEN 26 THEN 1 ELSE 0 END) "26 Cols",
        SUM(CASE columns WHEN 27 THEN 1 ELSE 0 END) "27 Cols",
        SUM(CASE columns WHEN 28 THEN 1 ELSE 0 END) "28 Cols",
        SUM(CASE columns WHEN 29 THEN 1 ELSE 0 END) "29 Cols",
        SUM(CASE columns WHEN 30 THEN 1 ELSE 0 END) "30 Cols",
        SUM(CASE columns WHEN 31 THEN 1 ELSE 0 END) "31 Cols",
-       SUM(CASE columns WHEN 32 THEN 1 ELSE 0 END) "32 Cols",     
-       SUM(CASE columns WHEN 33 THEN 1 ELSE 0 END) "33 Cols",     
-       SUM(CASE columns WHEN 34 THEN 1 ELSE 0 END) "34 Cols",     
-       SUM(CASE columns WHEN 35 THEN 1 ELSE 0 END) "35 Cols",     
+       SUM(CASE columns WHEN 32 THEN 1 ELSE 0 END) "32 Cols",
+       SUM(CASE columns WHEN 33 THEN 1 ELSE 0 END) "33 Cols",
+       SUM(CASE columns WHEN 34 THEN 1 ELSE 0 END) "34 Cols",
+       SUM(CASE columns WHEN 35 THEN 1 ELSE 0 END) "35 Cols",
        SUM(CASE columns WHEN 36 THEN 1 ELSE 0 END) "36 Cols",
        SUM(CASE columns WHEN 37 THEN 1 ELSE 0 END) "37 Cols",
        SUM(CASE columns WHEN 38 THEN 1 ELSE 0 END) "38 Cols",
@@ -438,7 +438,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND x.char_length > 32
    AND x.avg_col_len > 6
    AND x.data_length > 32
- ORDER BY 
+ ORDER BY
        &&skip_noncdb.x.con_id,
        x.owner, x.table_name, x.column_id
 ]';
@@ -489,13 +489,13 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 @@edb360_9a_pre_one.sql
-       
+
 DEF title = 'Tables not recently used';
 DEF main_table = '&&cdb_view_prefix.TABLES';
 DEF abstract = 'Be aware of false positives. List of tables not referenced in &&history_days. days.<br />';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 obj AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
@@ -510,7 +510,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND owner NOT IN &&exclusion_list2.
 ),
 ash AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.h.con_id,
        h.current_obj#,
@@ -576,7 +576,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        owner,
        object_name
- UNION 
+ UNION
 SELECT &&skip_noncdb.obj.con_id,
        obj.owner,
        obj.object_name table_name,
@@ -587,19 +587,19 @@ SELECT &&skip_noncdb.obj.con_id,
        &&skip_noncdb.obj.con_id,
        obj.owner,
        obj.object_name
- UNION 
+ UNION
 SELECT &&skip_noncdb.con_id,
        owner,
        table_name,
        last_analyzed last_date
   FROM sta1
- UNION 
+ UNION
 SELECT &&skip_noncdb.con_id,
        owner,
        table_name,
        last_analyzed last_date
   FROM sta2
- UNION 
+ UNION
 SELECT &&skip_noncdb.con_id,
        owner,
        table_name,
@@ -623,7 +623,7 @@ SELECT x.*
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       x.last_date, 
+       x.last_date,
        &&skip_noncdb.x.con_id,
        x.owner, x.table_name
 ]';
@@ -652,17 +652,17 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ash_mem AS (
 SELECT /*+ &&sq_fact_hints. * /
        DISTINCT &&skip_noncdb.con_id,
-       current_obj# 
+       current_obj#
   FROM &&gv_object_prefix.active_session_history
  WHERE sql_plan_operation = 'INDEX'
    AND current_obj# > 0
 ),
 */
 ash_awr AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        DISTINCT &&skip_noncdb.h.con_id,
-       h.current_obj# 
+       h.current_obj#
   FROM &&cdb_awr_object_prefix.active_sess_history h
  WHERE h.sql_plan_operation = 'INDEX'
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -674,7 +674,7 @@ sql_mem AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. * /
        DISTINCT &&skip_noncdb.con_id,
        object_owner, object_name
-  FROM &&gv_object_prefix.sql_plan 
+  FROM &&gv_object_prefix.sql_plan
 WHERE operation = 'INDEX'
 ),
 */
@@ -699,9 +699,9 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    --AND (i.owner, i.index_name) NOT IN ( SELECT o.owner, o.object_name FROM ash_mem a, objects o WHERE o.object_id = a.current_obj# )
    AND (&&skip_noncdb.i.con_id,
         i.owner, i.index_name) NOT IN ( SELECT &&skip_noncdb.o.con_id,
-	                                           o.owner, o.object_name 
-							            FROM ash_awr a, objects o 
-										WHERE o.object_id = a.current_obj# 
+	                                           o.owner, o.object_name
+							            FROM ash_awr a, objects o
+										WHERE o.object_id = a.current_obj#
 										&&skip_noncdb. AND o.con_id = a.con_id
 										)
    --AND (i.owner, i.index_name) NOT IN ( SELECT object_owner, object_name FROM sql_mem)
@@ -803,7 +803,7 @@ BEGIN
   :sql_text := q'[
 -- requested by David Kurtz
 WITH f AS ( /*function expressions*/
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        owner, table_name, extension, extension_name
 FROM   &&cdb_object_prefix.stat_extensions
@@ -820,7 +820,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        END column_name
   FROM &&cdb_object_prefix.indexes i
      , &&cdb_object_prefix.ind_columns c
-       LEFT OUTER JOIN f 
+       LEFT OUTER JOIN f
        ON f.owner = c.table_owner
 	   &&skip_noncdb.AND f.con_id = c.con_id
        AND f.table_name = c.table_name
@@ -842,7 +842,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        '('||listagg('"'||ic.column_name||'"',',') within group (ORDER BY ic.column_position)||')' AS extension,
        count(*) num_columns
 FROM ic
-GROUP BY 
+GROUP BY
        &&skip_noncdb.ic.con_id,
        ic.table_owner, ic.table_name,
        ic.index_owner, ic.index_name,
@@ -853,7 +853,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        owner, table_name, CAST(SUBSTR(extension,1,128) AS VARCHAR2(128)) extension, extension_name
 FROM   &&cdb_object_prefix.stat_extensions
 WHERE  creator = 'USER' /*extended stats not function based indexes*/
-) 
+)
 SELECT &&skip_noncdb.r.con_id,
        r.table_owner, r.table_name,
        i.index_name||' ('||i.column_list||')' superset_index,
@@ -918,18 +918,18 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&cdb_object_prefix.indexes
  WHERE table_owner NOT IN &&exclusion_list.
    AND table_owner NOT IN &&exclusion_list2.
- GROUP BY 
+ GROUP BY
        &&skip_noncdb.con_id,
        table_owner,
        table_name
-HAVING COUNT(*) > 5 
+HAVING COUNT(*) > 5
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       x.indexes DESC, 
+       x.indexes DESC,
        &&skip_noncdb.x.con_id,
        x.table_owner, x.table_name
 ]';
@@ -1139,7 +1139,7 @@ column part_level  heading 'Partition|Level'
 column locality    heading 'Locality'
 column partitioning_type    heading 'Partition|Type'
 column partition_count      heading 'Partition|Count'
-column part_column_position heading 'Part|Col|Pos' 
+column part_column_position heading 'Part|Col|Pos'
 column part_column_name     heading 'Partitioning|Column Name'
 BEGIN
   :sql_text := q'[
@@ -1147,7 +1147,7 @@ WITH k as (
 SELECT k.*, 'Partition' part_level
 FROM   &&cdb_object_prefix.part_key_columns k
 union all
-SELECT k.*, 'Subpartition' 
+SELECT k.*, 'Subpartition'
 FROM   &&cdb_object_prefix.subpart_key_columns k
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -1158,7 +1158,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ,      i.index_type
 ,      'Partition' part_level
 ,      pi.locality
-,      pi.partitioning_type 
+,      pi.partitioning_type
 ,      pi.partition_count
 ,      k.column_position part_column_position
 ,      k.column_name part_column_name
@@ -1195,7 +1195,7 @@ AND    pi.table_name = i.table_name
 AND    not exists (
 	SELECT  'x'
 	FROM 	&&cdb_object_prefix.ind_columns ic
-	WHERE	ic.index_owner = i.owner 
+	WHERE	ic.index_owner = i.owner
 	&&skip_noncdb.AND     ic.con_id      = i.con_id
 	AND 	ic.index_name  = i.index_name
 	AND     ic.table_owner = i.table_owner
@@ -1204,7 +1204,7 @@ AND    not exists (
 ORDER BY
        &&skip_noncdb.i.con_id,
        i.table_owner, i.table_name
-,      i.owner 
+,      i.owner
 ,      i.index_name
 ,      i.index_type
 ]';
@@ -1509,7 +1509,7 @@ DEF title = 'Columns with multiple Data Types';
 DEF main_table = '&&cdb_view_prefix.TAB_COLUMNS';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 tables AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.t.con_id,
@@ -1535,8 +1535,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ), table_columns AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.c.con_id,
-       c.column_name, COUNT(*) typ_cnt, c.data_type,  
-       MIN(c.owner||'.'||c.table_name) min_table_name, 
+       c.column_name, COUNT(*) typ_cnt, c.data_type,
+       MIN(c.owner||'.'||c.table_name) min_table_name,
        MAX(c.owner||'.'||c.table_name) max_table_name
   FROM columns c,
        tables t
@@ -1629,6 +1629,22 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+DEF title = 'Scheduler Jobs PDBs';
+DEF main_table = 'CDB_SCHEDULER_JOBS';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_scheduler_jobs
+ ORDER BY
+       con_id,
+       owner,
+       job_name
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
+
 DEF title = 'Scheduler Job Log for past 7 days';
 DEF main_table = '&&cdb_view_prefix.SCHEDULER_JOB_LOG';
 BEGIN
@@ -1648,6 +1664,23 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+DEF title = 'Scheduler Job Log for past 7 days PDBs';
+DEF main_table = 'CDB_SCHEDULER_JOB_LOG';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_scheduler_job_log
+ WHERE log_date > SYSDATE - 7
+ ORDER BY
+       con_id,
+       log_id DESC,
+       log_date DESC
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
+
 DEF title = 'Scheduler Windows';
 DEF main_table = '&&cdb_view_prefix.SCHEDULER_WINDOWS';
 BEGIN
@@ -1664,6 +1697,21 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 @@edb360_9a_pre_one.sql
+
+DEF title = 'Scheduler Windows PDBs';
+DEF main_table = 'CDB_SCHEDULER_WINDOWS';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_scheduler_windows
+ ORDER BY
+       con_id,
+       window_name
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Scheduler Window Group Members';
 DEF main_table = '&&cdb_view_prefix.SCHEDULER_WINGROUP_MEMBERS';
@@ -1682,6 +1730,20 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+DEF title = 'Scheduler Window Group Members PDBs';
+DEF main_table = 'CDB_SCHEDULER_WINGROUP_MEMBERS';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_scheduler_wingroup_members
+ ORDER BY
+       con_id, 1,2
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
+
 DEF title = 'Advisor Parameters';
 DEF main_table = '&&cdb_view_prefix.ADVISOR_PARAMETERS';
 BEGIN
@@ -1691,7 +1753,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.advisor_parameters x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
-ORDER BY 
+ORDER BY
        &&skip_noncdb.x.con_id,
        x.owner, x.task_id
 ]';
@@ -1708,7 +1770,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.advisor_execution_types x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
-ORDER BY 
+ORDER BY
        &&skip_noncdb.x.con_id,
        x.advisor_name, x.execution_type
 ]';
@@ -1767,8 +1829,37 @@ END;
 /
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
+DEF title = 'Automated Maintenance Tasks PDBs';
+DEF main_table = 'CDB_AUTOTASK_CLIENT';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_autotask_client
+ ORDER BY
+       con_id,
+       client_name
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
+
 DEF title = 'Automated Maintenance Task Tasks';
-DEF main_table = '&&cdb_view_prefix.AUTOTASK_TASK';
+DEF main_table = '&&dva_view_prefix.AUTOTASK_TASK';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM &&dva_object_prefix.autotask_task
+ ORDER BY
+       client_name
+]';
+END;
+/
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
+
+DEF title = 'Automated Maintenance Task Tasks PDBs';
+DEF main_table = 'CDB_AUTOTASK_TASK';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -1795,11 +1886,26 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        &&skip_noncdb.x.con_id,
-       x.window_start_time DESC 
+       x.window_start_time DESC
 ]';
 END;
 /
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
+
+DEF title = 'Automated Maintenance Tasks History PDBs';
+DEF main_table = 'CDB_AUTOTASK_CLIENT_HISTORY';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_autotask_client_history
+ ORDER BY
+       con_id,
+       window_start_time DESC
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Auto Task Job History';
 DEF main_table = '&&cdb_view_prefix.AUTOTASK_JOB_HISTORY';
@@ -1812,11 +1918,26 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        &&skip_noncdb.x.con_id,
-       x.window_start_time DESC 
+       x.window_start_time DESC
 ]';
 END;
 /
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
+
+DEF title = 'Auto Task Job History PDBs';
+DEF main_table = 'CDB_AUTOTASK_JOB_HISTORY';
+BEGIN
+  :sql_text := q'[
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       *
+  FROM cdb_autotask_job_history
+ ORDER BY
+       con_id,
+       window_start_time DESC
+]';
+END;
+/
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'Current Blocking Activity';
 DEF main_table = '&&gv_view_prefix.SESSION';
@@ -1824,7 +1945,7 @@ BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       a.inst_id, a.sid, a.sql_id sql_id_a, a.state, a.blocking_session, b.sql_id sql_id_b, b.prev_sql_id, 
+       a.inst_id, a.sid, a.sql_id sql_id_a, a.state, a.blocking_session, b.sql_id sql_id_b, b.prev_sql_id,
        a.blocking_session_status, a.seconds_in_wait
 	   &&skip_noncdb.,a.con_id
 	   &&skip_noncdb.,c.name con_name
@@ -1853,7 +1974,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE s.sequence_owner not in &&exclusion_list.
    AND s.sequence_owner not in &&exclusion_list2.
    AND s.max_value > 0
-ORDER BY 
+ORDER BY
        &&skip_noncdb.s.con_id,
        s.sequence_owner, s.sequence_name
 ]';
@@ -1876,7 +1997,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND s.sequence_owner not in &&exclusion_list2.
    AND s.max_value > 0
    AND ROUND(100 * (s.last_number - s.min_value) / GREATEST((s.max_value - s.min_value), 1), 1) > 20
-ORDER BY 
+ORDER BY
        ROUND(100 * (s.last_number - s.min_value) / GREATEST((s.max_value - s.min_value), 1), 1) DESC, /* requested by Mike Moehlman */
        &&skip_noncdb.s.con_id,
 s.sequence_owner, s.sequence_name
@@ -1890,7 +2011,7 @@ DEF main_table = '&&cdb_view_prefix.SEQUENCES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       (s.last_number - CASE WHEN s.increment_by > 0 THEN s.min_value ELSE s.max_value END) / s.increment_by times_used, 
+       (s.last_number - CASE WHEN s.increment_by > 0 THEN s.min_value ELSE s.max_value END) / s.increment_by times_used,
        s.*
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.sequences s
@@ -1913,7 +2034,7 @@ DEF abstract = 'Tables with more than 255 Columns are subject to intra-block cha
 BEGIN
   :sql_text := q'[
 WITH x AS (
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        COUNT(*) columns,
        &&skip_noncdb.c.con_id,
        c.owner,
@@ -1925,12 +2046,12 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND t.owner NOT IN &&exclusion_list2.
    AND t.table_name NOT LIKE 'BIN%'
    &&skip_noncdb.AND t.con_id = c.con_id
-   AND t.owner = c.owner 
+   AND t.owner = c.owner
    AND t.table_name = c.table_name
    AND NOT EXISTS
-       (SELECT NULL 
-        FROM &&cdb_object_prefix.views v 
-        WHERE v.owner = t.owner 
+       (SELECT NULL
+        FROM &&cdb_object_prefix.views v
+        WHERE v.owner = t.owner
         &&skip_noncdb.AND   v.con_id = t.con_id
 		AND   v.view_name = t.table_name)
  GROUP BY
@@ -1943,7 +2064,7 @@ SELECT x.*
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       x.columns DESC, 
+       x.columns DESC,
        &&skip_noncdb.x.con_id,
        x.owner,
        x.table_name
@@ -1972,8 +2093,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        force_matching_signature
 HAVING COUNT(*) > 99
 )
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       DISTINCT lit.cnt, s.force_matching_signature, 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       DISTINCT lit.cnt, s.force_matching_signature,
        &&skip_noncdb.s.con_id,
        s.parsing_schema_name owner,
        CASE WHEN o.object_name IS NOT NULL THEN o.object_name||'('||s.program_line#||')' END source,
@@ -1990,8 +2111,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE s.force_matching_signature = lit.force_matching_signature
    AND s.sql_id = lit.min_sql_id
    &&skip_noncdb.AND s.con_id = lit.con_id
- ORDER BY 
-       lit.cnt DESC, 
+ ORDER BY
+       lit.cnt DESC,
 	   &&skip_noncdb.s.con_id,
 	   s.force_matching_signature
 ]';
@@ -2017,7 +2138,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        force_matching_signature
 HAVING COUNT(*) > 99
 )
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        DISTINCT &&skip_noncdb.s.con_id,
        s.parsing_schema_name owner, lit.cnt, s.force_matching_signature,
        CASE WHEN o.object_name IS NOT NULL THEN o.object_name||'('||s.program_line#||')' END source,
@@ -2025,7 +2146,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        lit.max_sql_id,
        s.sql_text
 	   &&skip_noncdb.,c.name con_name
-  FROM lit, 
+  FROM lit,
        &&gv_object_prefix.sql s
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
 	   LEFT OUTER JOIN &&cdb_object_prefix.objects o
@@ -2034,7 +2155,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE s.force_matching_signature = lit.force_matching_signature
    AND s.sql_id = lit.min_sql_id
    &&skip_noncdb.AND s.con_id = lit.con_id
- ORDER BY 
+ ORDER BY
        &&skip_noncdb.s.con_id,
        s.parsing_schema_name, lit.cnt DESC, s.force_matching_signature
 ]';
@@ -2047,20 +2168,20 @@ DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text := q'[
 WITH x AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.h.con_id,
        h.sql_id,
        ROUND(MAX(h.temp_space_allocated)/POWER(10,9),1) max_temp_space_gb,
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM &&cdb_awr_object_prefix.active_sess_history h,
-       &&cdb_awr_object_prefix.sqltext s 
+       &&cdb_awr_object_prefix.sqltext s
  WHERE h.temp_space_allocated > 10*POWER(10,9)
    AND h.sql_id IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    &&skip_noncdb.AND s.con_id(+) = h.con_id
-   AND s.sql_id(+) = h.sql_id 
+   AND s.sql_id(+) = h.sql_id
    AND s.dbid(+) = &&edb360_dbid.
    &&skip_noncdb.AND s.con_id(+) = h.con_id
  GROUP BY
@@ -2073,7 +2194,7 @@ SELECT x.*
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       x.max_temp_space_gb DESC, 
+       x.max_temp_space_gb DESC,
        &&skip_noncdb.x.con_id,
        x.sql_id
 ]';
@@ -2087,19 +2208,19 @@ DEF abstract = '&&abstract_uom.';
 BEGIN
   :sql_text := q'[
 WITH x AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.h.con_id,
        h.sql_id,
        ROUND(MAX(h.pga_allocated)/POWER(2,30),1) max_pga_gb,
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM &&cdb_awr_object_prefix.active_sess_history h,
-       &&cdb_awr_object_prefix.sqltext s 
+       &&cdb_awr_object_prefix.sqltext s
  WHERE h.pga_allocated > 2*POWER(2,30)
    AND h.sql_id IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND s.sql_id(+) = h.sql_id 
+   AND s.sql_id(+) = h.sql_id
    AND s.dbid(+) = &&edb360_dbid.
    &&skip_noncdb.AND s.con_id(+) = h.con_id
  GROUP BY
@@ -2124,16 +2245,16 @@ DEF abstract = 'Open cursors for each session<br />';
 BEGIN
   :sql_text := q'[
 -- from http://www.orafaq.com/node/758
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       TO_NUMBER(a.value) opened_cursors_current, 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       TO_NUMBER(a.value) opened_cursors_current,
 	   &&skip_noncdb.a.con_id,
-	   a.inst_id, 
-       s.sid, s.serial#, 
+	   a.inst_id,
+       s.sid, s.serial#,
 	   s.username, s.machine, s.program, s.module, s.action
 	   &&skip_noncdb.,c.name con_name
   FROM &&gv_object_prefix.sesstat a, &&gv_object_prefix.statname b, &&gv_object_prefix.session s
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
- WHERE a.statistic# = b.statistic#  
+ WHERE a.statistic# = b.statistic#
    AND a.inst_id = b.inst_id
    AND s.sid=a.sid
    AND s.inst_id = a.inst_id
@@ -2152,8 +2273,8 @@ DEF abstract = 'Cursors in the "session cursor cache" for each session<br />';
 BEGIN
   :sql_text := q'[
 WITH x AS (
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       COUNT(*) cached_cursors, 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       COUNT(*) cached_cursors,
 	   &&skip_noncdb.con_id,
 	   inst_id, sid, user_name
   FROM &&gv_object_prefix.open_cursor
@@ -2178,8 +2299,8 @@ DEF abstract = 'SQL statements with more than 50 cached cursors in the "session 
 BEGIN
   :sql_text := q'[
 WITH x as (
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
-       COUNT(*) cached_cursors, COUNT(DISTINCT inst_id||'.'||sid) sessions, 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+       COUNT(*) cached_cursors, COUNT(DISTINCT inst_id||'.'||sid) sessions,
 	   &&skip_noncdb.con_id,
 	   sql_id, hash_value, sql_text, cursor_type,
        MIN(user_name) min_user_name, MAX(user_name) max_user_name, MAX(last_sql_active_time) last_sql_active_time
@@ -2195,8 +2316,8 @@ SELECT x.*
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       x.sessions DESC, 
-	   &&skip_noncdb.x.con_id, 
+       x.sessions DESC,
+	   &&skip_noncdb.x.con_id,
 	   x.sql_id
 ]';
 END;
@@ -2207,12 +2328,12 @@ DEF title = 'Cached Cursors List per Session';
 DEF main_table = '&&gv_view_prefix.OPEN_CURSOR';
 BEGIN
   :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
 	   &&skip_noncdb.,c.name con_name
   FROM &&gv_object_prefix.open_cursor x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
- ORDER BY 
+ ORDER BY
        &&skip_noncdb.x.con_id,
 	   x.inst_id, x.sid, x.sql_id
        &&skip_ver_le_10., x.sql_exec_id
@@ -2225,7 +2346,7 @@ DEF title = 'Session Cursor Cache Misses per Session';
 DEF main_table = '&&gv_view_prefix.SESSTAT';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 session_cache AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        p.value - c.value session_cache_misses,
@@ -2248,7 +2369,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND p.sid = c.sid
    &&skip_noncdb.AND p.con_id = c.con_id
 )
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.session_cache_misses,
        x.session_cache_hits,
        x.total_parse_count,
@@ -2281,7 +2402,7 @@ DEF main_table = '&&gv_view_prefix.SQL';
 BEGIN
   :sql_text := q'[
 WITH x AS (
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.v1.con_id,
        v1.sql_id,
        COUNT(*) child_cursors,
@@ -2326,7 +2447,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        sql_id
 HAVING COUNT(*) > 99
 )
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        DISTINCT
        ns.sql_rank,
        ns.child_cursors,
@@ -2353,7 +2474,7 @@ SELECT SUM(buffer_gets) total_buffer_gets, SUM(disk_reads) total_disk_reads FROM
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    &&skip_noncdb.v1.con_id,
    v1.FORCE_MATCHING_SIGNATURE,
    v1.duplicate_count cnt,
@@ -2397,8 +2518,8 @@ from
    from
       &&gv_object_prefix.sql
    WHERE
-      FORCE_MATCHING_SIGNATURE <> 0 AND 
-      FORCE_MATCHING_SIGNATURE <> EXACT_MATCHING_SIGNATURE 
+      FORCE_MATCHING_SIGNATURE <> 0 AND
+      FORCE_MATCHING_SIGNATURE <> EXACT_MATCHING_SIGNATURE
    group by
       &&skip_noncdb.con_id,
       FORCE_MATCHING_SIGNATURE
@@ -2423,7 +2544,7 @@ SELECT SUM(buffer_gets) total_buffer_gets, SUM(disk_reads) total_disk_reads FROM
 BEGIN
   :sql_text := q'[
 -- incarnation from health_check_4.4 (Jon Adams and Jack Agustin)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    FORCE_MATCHING_SIGNATURE,
    duplicate_count,
    min_sql_id,
@@ -2464,8 +2585,8 @@ from
    from
       &&gv_object_prefix.sql
    WHERE
-      FORCE_MATCHING_SIGNATURE <> 0 AND 
-      FORCE_MATCHING_SIGNATURE <> EXACT_MATCHING_SIGNATURE 
+      FORCE_MATCHING_SIGNATURE <> 0 AND
+      FORCE_MATCHING_SIGNATURE <> EXACT_MATCHING_SIGNATURE
    group by
       &&skip_noncdb.con_id,
 	  FORCE_MATCHING_SIGNATURE
@@ -2484,7 +2605,7 @@ DEF title = 'Active SQL (sql_id)';
 DEF main_table = '&&gv_view_prefix.SQL';
 BEGIN
   :sql_text := q'[
-WITH /* active_sql */ 
+WITH /* active_sql */
 unique_sql AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        DISTINCT &&skip_noncdb.sql.con_id,
@@ -2514,7 +2635,7 @@ DEF title = 'Active SQL (full text)';
 DEF main_table = '&&gv_view_prefix.SQL';
 BEGIN
   :sql_text := q'[
-SELECT /* active_sql */ 
+SELECT /* active_sql */
        sq.inst_id, sq.sql_id, sq.child_number,
        sq.sql_fulltext
   FROM &&gv_object_prefix.session se,
@@ -2535,7 +2656,7 @@ DEF title = 'Active SQL (detail)';
 DEF main_table = '&&gv_view_prefix.SQL';
 BEGIN
   :sql_text := q'[
-SELECT /* active_sql */ 
+SELECT /* active_sql */
        sq.*
   FROM &&gv_object_prefix.session se,
        &&gv_object_prefix.sql sq
@@ -2576,7 +2697,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ DISTINCT s
    AND s.type = l.type
    AND s.line BETWEEN l.line - 8 AND l.line + 8
 )
-SELECT 
+SELECT
        &&skip_noncdb.a.con_id,
        a.owner,
        a.name,
@@ -2587,7 +2708,7 @@ SELECT
        &&skip_noncdb.,c.name con_name
   FROM include_nearby_lines a
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = a.con_id
- ORDER BY 
+ ORDER BY
        &&skip_noncdb.a.con_id,
        a.owner,
        a.name,
@@ -2632,13 +2753,13 @@ SELECT x.*
    AND UPPER(x.text) NOT LIKE '%--%ANALYZE %'
    AND x.owner NOT IN &&exclusion_list.
    AND x.owner NOT IN &&exclusion_list2.
- ORDER BY 
+ ORDER BY
        &&skip_noncdb.x.con_id,
        x.owner, x.name, x.type, x.line
 ]';
 END;
 /
--- taking long and of little use, 
+-- taking long and of little use,
 -- enable only if you suspect of ANALYZE been executed by application
 -- @@edb360_9a_pre_one.sql
 
@@ -2646,7 +2767,7 @@ DEF title = 'Workload Repository Control';
 DEF main_table = '&&awr_hist_prefix.WR_CONTROL';
 BEGIN
   :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
        &&skip_noncdb.,c.name con_name
   FROM &&awr_object_prefix.wr_control x
@@ -2661,7 +2782,7 @@ DEF title = 'ASH Info';
 DEF main_table = '&&gv_view_prefix.ASH_INFO';
 BEGIN
   :sql_text := q'[
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
   FROM &&gv_object_prefix.ash_info
 ]';
@@ -2674,7 +2795,7 @@ DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text := q'[
 -- from http://jhdba.wordpress.com/tag/purge-wrh-tables/
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  sysdate - a.sample_time ash,
 sysdate - s.begin_interval_time snap,
 c.RETENTION
@@ -2712,7 +2833,7 @@ SELECT &&skip_noncdb.con_id,
   FROM &&cdb_object_prefix.tab_partitions
  WHERE table_name like 'WRH$%'
    AND table_owner = 'SYS'
-group by 
+group by
        &&skip_noncdb.con_id,
        table_name
 )
@@ -2733,28 +2854,28 @@ DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
-with 
+with
 max_free AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        tablespace_name, max(bytes) bytes
-  FROM &&cdb_object_prefix.free_space 
-group by 
+  FROM &&cdb_object_prefix.free_space
+group by
        &&skip_noncdb.con_id,
-       tablespace_name 
+       tablespace_name
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.s.con_id,
-       s.owner, s.segment_name, s.partition_name, s.tablespace_name, s.next_extent, max_free.bytes max_free_bytes 
+       s.owner, s.segment_name, s.partition_name, s.tablespace_name, s.next_extent, max_free.bytes max_free_bytes
   FROM &&cdb_object_prefix.segments s
      , max_free
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND s.owner NOT IN &&exclusion_list.
    AND s.owner NOT IN &&exclusion_list2.
-   AND s.next_extent > max_free.bytes 
+   AND s.next_extent > max_free.bytes
    &&skip_noncdb.AND s.con_id = max_free.con_id
    AND s.tablespace_name=max_free.tablespace_name
-ORDER BY 
+ORDER BY
        &&skip_noncdb.s.con_id,
        s.owner, s.segment_name, s.partition_name
 ]';
@@ -2788,7 +2909,7 @@ BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
 WITH x AS (
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.s.con_id,
        s.owner, s.table_owner, COUNT(1) counter
   FROM &&cdb_object_prefix.synonyms s
@@ -2803,7 +2924,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND s.owner NOT IN &&exclusion_list2.
    AND s.table_owner NOT IN &&exclusion_list.
    AND s.table_owner NOT IN &&exclusion_list2.
- GROUP BY 
+ GROUP BY
        &&skip_noncdb.s.con_id,
        s.owner, s.table_owner
 )
@@ -2811,7 +2932,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.,c.name con_name
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
-ORDER BY 
+ORDER BY
        x.counter DESC
 ]';
 END;
@@ -2830,7 +2951,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE last_ddl_time >= TRUNC(SYSDATE) - 30
    AND owner NOT IN &&exclusion_list.
    AND owner NOT IN &&exclusion_list2.
- GROUP BY 
+ GROUP BY
        &&skip_noncdb.con_id,
        owner, TRUNC(last_ddl_time)
 )
@@ -2857,7 +2978,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND owner NOT IN &&exclusion_list.
    AND owner NOT IN &&exclusion_list2.
  GROUP BY con_id, owner, TRUNC(last_ddl_time)
- ORDER BY 
+ ORDER BY
        1, 3 DESC
 ]';
 END;

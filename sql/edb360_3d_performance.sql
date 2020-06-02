@@ -51,7 +51,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        statistic_name, SUM(value) value
   FROM &&gv_object_prefix.segstat
- GROUP BY 
+ GROUP BY
        &&skip_noncdb.con_id,
 	   statistic_name
 )
@@ -350,16 +350,16 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE) days_ago,
        SUM(h.elapsed_time_total) / SUM(h.executions_total) time_per_exec
-  FROM &&cdb_awr_object_prefix.sqlstat h, 
+  FROM &&cdb_awr_object_prefix.sqlstat h,
        &&cdb_awr_object_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 0 
+   AND h.executions_total > 0
    AND h.plan_hash_value > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
-   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed. 
+   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed.
  GROUP BY
        h.dbid,
 	   &&skip_noncdb.h.con_id,
@@ -370,23 +370,23 @@ avg_time AS (
 SELECT /*+ &&sq_fact_hints. */
        dbid,
 	   &&skip_noncdb.con_id,
-       sql_id, 
+       sql_id,
        MEDIAN(time_per_exec) med_time_per_exec,
        STDDEV(time_per_exec) std_time_per_exec,
        AVG(time_per_exec)    avg_time_per_exec,
        MIN(time_per_exec)    min_time_per_exec,
-       MAX(time_per_exec)    max_time_per_exec       
+       MAX(time_per_exec)    max_time_per_exec
   FROM per_time
  GROUP BY
        dbid,
 	   &&skip_noncdb.con_id,
        sql_id
-HAVING COUNT(*) >= &&captured_at_least_x_times. 
+HAVING COUNT(*) >= &&captured_at_least_x_times.
    AND MAX(days_ago) - MIN(days_ago) >= &&captured_at_least_x_days_apart.
    AND MEDIAN(time_per_exec) > &&med_elap_microsecs_threshold.
 ),
 time_over_median AS (
-SELECT /*+ &&sq_fact_hints. */ 
+SELECT /*+ &&sq_fact_hints. */
        h.dbid,
 	   &&skip_noncdb.h.con_id,
        h.sql_id,
@@ -402,7 +402,7 @@ SELECT /*+ &&sq_fact_hints. */
    &&skip_noncdb.AND a.con_id = h.con_id
 ),
 ranked AS (
-SELECT /*+ &&sq_fact_hints. */ 
+SELECT /*+ &&sq_fact_hints. */
        RANK () OVER (ORDER BY ABS(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago)) DESC) rank_num,
        t.dbid,
 	   &&skip_noncdb.t.con_id,
@@ -421,7 +421,7 @@ SELECT /*+ &&sq_fact_hints. */
        t.sql_id
 HAVING ABS(REGR_SLOPE(t.time_per_exec_over_med, t.days_ago)) > &&min_slope_threshold.
 ), x as (
-SELECT /*+ &&top_level_hints. */ 
+SELECT /*+ &&top_level_hints. */
        DISTINCT
        r.rank_num,
 	   &&skip_noncdb.r.con_id,
@@ -437,12 +437,12 @@ SELECT /*+ &&top_level_hints. */
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10)) sql_text
   FROM ranked r
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s
-	   ON s.dbid = r.dbid 
-	   AND s.sql_id = r.sql_id 
+	   ON s.dbid = r.dbid
+	   AND s.sql_id = r.sql_id
 	   &&skip_noncdb.AND s.con_id = r.con_id
 	   LEFT OUTER JOIN &&cdb_awr_object_prefix.sql_plan p
-	   ON p.dbid = r.dbid 
-	   AND p.sql_id = r.sql_id 
+	   ON p.dbid = r.dbid
+	   AND p.sql_id = r.sql_id
 	   &&skip_noncdb.AND p.con_id = r.con_id
  WHERE r.rank_num <= &&max_num_rows_x.
  GROUP BY
@@ -458,7 +458,7 @@ SELECT /*+ &&top_level_hints. */
        r.max_secs_per_exec,
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10))
 )
-SELECT /* &&section_id..&&report_sequence. */ x.* 
+SELECT /* &&section_id..&&report_sequence. */ x.*
        &&skip_noncdb.,c.name con_name
   FROM x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
@@ -516,16 +516,16 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE) days_ago,
        SUM(h.elapsed_time_total) / SUM(h.executions_total) time_per_exec
-  FROM &&cdb_awr_object_prefix.sqlstat h, 
+  FROM &&cdb_awr_object_prefix.sqlstat h,
        &&cdb_awr_object_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 0 
+   AND h.executions_total > 0
    AND h.plan_hash_value > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
-   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed. 
+   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed.
  GROUP BY
        h.dbid,
 	   &&skip_noncdb.h.con_id,
@@ -536,18 +536,18 @@ avg_time AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
 	   &&skip_noncdb.con_id,
-       sql_id, 
+       sql_id,
        MEDIAN(time_per_exec) med_time_per_exec,
        STDDEV(time_per_exec) std_time_per_exec,
        AVG(time_per_exec)    avg_time_per_exec,
        MIN(time_per_exec)    min_time_per_exec,
-       MAX(time_per_exec)    max_time_per_exec       
+       MAX(time_per_exec)    max_time_per_exec
   FROM per_time
  GROUP BY
        dbid,
 	   &&skip_noncdb.con_id,
        sql_id
-HAVING COUNT(*) >= &&captured_at_least_x_times. 
+HAVING COUNT(*) >= &&captured_at_least_x_times.
    AND MAX(days_ago) - MIN(days_ago) >= &&captured_at_least_x_days_apart.
    AND MEDIAN(time_per_exec) > &&med_elap_microsecs_threshold.
 ),
@@ -610,21 +610,21 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_ver_le_11_1., ROUND(h.physical_read_requests_total   / h.executions_total) prr_per_exec
        &&skip_ver_le_11_1., ROUND(h.physical_read_bytes_total      / h.executions_total) prb_per_exec
        &&skip_ver_le_11_1., ROUND(h.physical_write_requests_total  / h.executions_total) pwr_per_exec
-       &&skip_ver_le_11_1., ROUND(h.physical_write_bytes_total     / h.executions_total) pwb_per_exec	
+       &&skip_ver_le_11_1., ROUND(h.physical_write_bytes_total     / h.executions_total) pwb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_offload_elig_bytes_total    / h.executions_total) ofb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_interconnect_bytes_total    / h.executions_total) icb_per_exec
        &&skip_ver_le_11_1., ROUND(h.optimized_physical_reads_total / h.executions_total) opr_per_exec
        &&skip_ver_le_11_1., ROUND(h.cell_uncompressed_bytes_total  / h.executions_total) unb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_offload_return_bytes_total  / h.executions_total) orb_per_exec
   FROM ranked r,
-       &&cdb_awr_object_prefix.sqlstat h, 
+       &&cdb_awr_object_prefix.sqlstat h,
        &&cdb_awr_object_prefix.snapshot s
  WHERE r.rank_num <= &&max_num_rows_x.
    AND h.sql_id = r.sql_id
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    &&skip_noncdb.AND h.con_id = r.con_id
-   AND h.executions_total > 0 
+   AND h.executions_total > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    &&skip_noncdb.AND s.con_id = h.con_id
@@ -668,7 +668,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.dbid,
 	   &&skip_noncdb.h.con_id,
        h.sql_id,
-       h.plan_hash_value, 
+       h.plan_hash_value,
        MIN(s.begin_interval_time) min_time,
        MAX(s.end_interval_time) max_time,
        MEDIAN(h.elapsed_time_total / h.executions_total) med_time_per_exec,
@@ -679,16 +679,16 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        STDDEV(h.elapsed_time_total / h.executions_total) / AVG(h.elapsed_time_total / h.executions_total) std_dev,
        MAX(h.executions_total) executions_total,
        MEDIAN(h.elapsed_time_total / h.executions_total) * MAX(h.executions_total) total_elapsed_time
-  FROM &&cdb_awr_object_prefix.sqlstat h, 
+  FROM &&cdb_awr_object_prefix.sqlstat h,
        &&cdb_awr_object_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
-   AND h.executions_total > 1 
+   AND h.executions_total > 1
    AND h.plan_hash_value > 0
    AND s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
-   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed. 
+   AND CAST(s.end_interval_time AS DATE) > SYSDATE - &&days_of_history_accessed.
  GROUP BY
        h.dbid,
 	   &&skip_noncdb.h.con_id,
@@ -777,7 +777,7 @@ BEGIN
   :sql_text := q'[
 -- provided by David Kurtz
 WITH hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        h.sql_id,
 	   &&skip_noncdb.h.con_id,
@@ -803,13 +803,13 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
      , h.dbid
      , h.samples
      , CASE WHEN s.sql_id IS NOT NULL THEN samples ELSE 0 END sql_samples
-     , SUM(h.samples) over (partition by h.dbid, h.sql_plan_hash_value 
+     , SUM(h.samples) over (partition by h.dbid, h.sql_plan_hash_value
 	                       &&skip_noncdb., h.con_id
 	                       ) plan_samples
      , DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM hist h
     LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s
-    ON s.sql_id = h.sql_id AND s.dbid = h.dbid 
+    ON s.sql_id = h.sql_id AND s.dbid = h.dbid
 	&&skip_noncdb.AND h.con_id = s.con_id
 ), hist3 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -828,7 +828,7 @@ WHERE sql_id_rank = 1
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(samples) samples FROM hist
 ), x as (
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.h.con_id,
        h.sql_id plan_top_sql_id,
        h.sql_plan_hash_value,
@@ -867,7 +867,7 @@ DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id, name "PARAMETER", value, isdefault, ismodified
   FROM &&gv_object_prefix.system_parameter2
  WHERE name IN ('result_cache_mode','result_cache_max_size','result_cache_max_result')
@@ -893,7 +893,7 @@ DEF main_table = '&&gv_view_prefix.RESULT_CACHE_MEMORY';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id, free, count(*)
   FROM &&gv_object_prefix.result_cache_memory
  GROUP BY inst_id, free
@@ -907,7 +907,7 @@ DEF main_table = '&&gv_view_prefix.RESULT_CACHE_STATISTICS';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id, name, value
   FROM &&gv_object_prefix.result_cache_statistics
  ORDER BY 1, 2
@@ -921,7 +921,7 @@ DEF main_table = 'CLIENT_RESULT_CACHE_STATS$';
 BEGIN
   :sql_text := q'[
 -- provided by Simon Pane
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ 
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        stat_id, SUBSTR(name,1,20), value, cache_id
   FROM client_result_cache_stats$
  ORDER BY cache_id, stat_id
@@ -938,7 +938,7 @@ BEGIN
 -- inspired by Kyle Hailey blogs
 -- http://www.kylehailey.com/wait-event-and-wait-class-metrics-vs-vsystem_event/
 -- http://www.kylehailey.com/oracle-cpu-time/
-WITH 
+WITH
 ora_cpu_used AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        '2' row_type,
@@ -1058,7 +1058,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@&&skip_diagnostics.edb360_9a_pre_one.sql       
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Wait Class Metric for past minute';
 DEF main_table = '&&gv_view_prefix.WAITCLASSMETRIC';
@@ -1071,7 +1071,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        wc.wait_class,
        wcm.*,
        ROUND(wcm.time_waited/wcm.intsize_csec, 3) aas,
-       CASE WHEN wc.wait_class = 'User I/O' THEN 
+       CASE WHEN wc.wait_class = 'User I/O' THEN
        ROUND(10 * wcm.time_waited  / wcm.wait_count, 3) END avg_io_ms
   FROM &&gv_object_prefix.waitclassmetric wcm,
        &&gv_object_prefix.system_wait_class wc

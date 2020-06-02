@@ -22,7 +22,7 @@ SELECT x.*
 ]';
 END;
 /
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Profiles';
 DEF main_table = '&&cdb_view_prefix.SQL_PROFILES';
@@ -37,7 +37,7 @@ SELECT x.*
 ]';
 END;
 /
-@@&&skip_tuning.edb360_9a_pre_one.sql       
+@@&&skip_tuning.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Profiles Summary by Type and Status';
 DEF main_table = '&&cdb_view_prefix.SQL_PROFILES';
@@ -69,7 +69,7 @@ SELECT x.*
 ]';
 END;
 /
-@@&&skip_tuning.edb360_9a_pre_one.sql       
+@@&&skip_tuning.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Profiles Summary by Creation Month';
 DEF main_table = '&&cdb_view_prefix.SQL_PROFILES';
@@ -96,7 +96,7 @@ FROM   x
 ]';
 END;
 /
-@@&&skip_tuning.edb360_9a_pre_one.sql       
+@@&&skip_tuning.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Baselines';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_BASELINES';
@@ -112,7 +112,7 @@ SELECT x.*
 ]';
 END;
 /
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Baselines Summary by Status';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_BASELINES';
@@ -141,13 +141,13 @@ SELECT x.*
 FROM   x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       x.baselines DESC, 
+       x.baselines DESC,
 	   &&skip_noncdb.x.con_id,
 	   x.enabled, x.accepted, x.fixed, x.reproduced
 ]';
 END;
 /
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Baselines Summary by Creation Month';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_BASELINES';
@@ -176,7 +176,7 @@ FROM   x
 ]';
 END;
 /
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Baselines State by SQL';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_BASELINES';
@@ -216,7 +216,7 @@ FROM   x
 ]';
 END;
 /
-@@&&skip_ver_le_10.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Directives';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_DIRECTIVES';
@@ -227,7 +227,7 @@ SELECT d.dir_id,
        d.enabled,
        (CASE WHEN d.internal_state = 'HAS_STATS' OR d.redundant = 'YES' THEN 'SUPERSEDED'
              WHEN d.internal_state IN ('NEW', 'MISSING_STATS', 'PERMANENT') THEN 'USABLE'
-             ELSE 'UNKNOWN' 
+             ELSE 'UNKNOWN'
          END) state,
        d.auto_drop,
        f.reason,
@@ -243,7 +243,7 @@ SELECT d.dir_id,
 ]';
 END;
 /
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'SQL Plan Directives - Objects';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_DIR_OBJECTS';
@@ -257,7 +257,7 @@ SELECT x.*
 ]';
 END;
 /
-@@&&skip_ver_le_11.edb360_9a_pre_one.sql       
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

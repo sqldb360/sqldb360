@@ -17,7 +17,7 @@ DEF vbaseline = '';
 
 BEGIN
   :sql_text_backup := q'[
-SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        snap_id,
        --TO_CHAR(LAG(MAX(sample_time)) OVER (ORDER BY snap_id), 'YYYY-MM-DD HH24:MI:SS') begin_time,
@@ -57,7 +57,7 @@ BEGIN
   :sql_text := q'[
 WITH
 ranked AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        h.wait_class,
        event event_name,
@@ -73,7 +73,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        event
 )
 SELECT ROUND(samples * 10 / 3600, 1) hours_waited,
-       wait_class, 
+       wait_class,
        event_name
   FROM ranked
  WHERE wrank < 25
@@ -159,7 +159,7 @@ COL event_name_24 NEW_V event_name_24;
 
 WITH
 ranked AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        h.wait_class,
        event event_name,
@@ -233,7 +233,7 @@ BEGIN
   :sql_text_backup2 := q'[
 WITH
 hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        sql_id,
@@ -264,7 +264,7 @@ SELECT SUBSTR(TRIM(h.sql_id||' '||h.program||' '||
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM hist h,
        total t,
-       &&awr_object_prefix.sqltext s 
+       &&awr_object_prefix.sqltext s
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = h.dbid
    &&skip_noncdb.AND s.con_id(+) = h.con_id

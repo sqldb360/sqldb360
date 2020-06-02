@@ -118,7 +118,7 @@ WHERE f.file_id = c.file#
    &&skip_noncdb.AND f.con_id = c.con_id
 ), x as (
 Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ * from corr
-Union 
+Union
 Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ * from nolog
 )
 SELECT x.*
@@ -346,7 +346,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        thread#,
        MIN(row_num_noprint) min_row_num
   FROM ordered_log
- GROUP BY 
+ GROUP BY
        thread#
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -383,7 +383,7 @@ BEGIN
 WITH
 log AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       --DISTINCT 
+       --DISTINCT
        thread#,
        sequence#,
        first_time,
@@ -442,7 +442,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        thread#,
        MIN(row_num_noprint) min_row_num
   FROM ordered_log
- GROUP BY 
+ GROUP BY
        thread#
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -467,7 +467,7 @@ BEGIN
 WITH
 log AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       --DISTINCT 
+       --DISTINCT
        thread#,
        sequence#,
        first_time,
@@ -562,7 +562,7 @@ DEF title = 'NOLOGGING Objects';
 DEF main_table = '&&cdb_view_prefix.TABLESPACES';
 BEGIN
   :sql_text := q'[
-WITH 
+WITH
 objects AS (
 SELECT 1 record_type,
        'TABLESPACE' object_type,
@@ -576,7 +576,7 @@ SELECT 1 record_type,
   FROM &&cdb_object_prefix.tablespaces
  WHERE logging = 'NOLOGGING'
    AND contents != 'TEMPORARY'
-UNION ALL       
+UNION ALL
 SELECT 2 record_type,
        'TABLE' object_type,
        &&skip_noncdb.con_id,
@@ -589,7 +589,7 @@ SELECT 2 record_type,
   FROM &&cdb_object_prefix.all_tables
  WHERE logging = 'NO'
    AND temporary = 'N'
-UNION ALL       
+UNION ALL
 SELECT 3 record_type,
        'INDEX' object_type,
        &&skip_noncdb.con_id,
@@ -602,7 +602,7 @@ SELECT 3 record_type,
   FROM &&CDB_object_prefix.indexes
  WHERE logging = 'NO'
    AND temporary = 'N'
-UNION ALL       
+UNION ALL
 SELECT 4 record_type,
        'LOB' object_type,
        &&skip_noncdb.con_id,
@@ -614,7 +614,7 @@ SELECT 4 record_type,
        NULL subpartition
   FROM &&CDB_object_prefix.lobs
  WHERE logging = 'NO'
-UNION ALL       
+UNION ALL
 SELECT 5 record_type,
        'TAB_PARTITION' object_type,
        &&skip_noncdb.con_id,
@@ -626,7 +626,7 @@ SELECT 5 record_type,
        NULL subpartition
   FROM &&cdb_object_prefix.tab_partitions
  WHERE logging = 'NO'
-UNION ALL       
+UNION ALL
 SELECT 6 record_type,
        'IND_PARTITION' object_type,
        &&skip_noncdb.con_id,
@@ -638,7 +638,7 @@ SELECT 6 record_type,
        NULL subpartition
   FROM &&cdb_object_prefix.ind_partitions
  WHERE logging = 'NO'
-UNION ALL       
+UNION ALL
 SELECT 7 record_type,
        'LOB_PARTITION' object_type,
        &&skip_noncdb.con_id,
@@ -650,7 +650,7 @@ SELECT 7 record_type,
        NULL subpartition
   FROM &&cdb_object_prefix.lob_partitions
  WHERE logging = 'NO'
-UNION ALL       
+UNION ALL
 SELECT 8 record_type,
        'TAB_SUBPARTITION' object_type,
        &&skip_noncdb.con_id,
@@ -662,7 +662,7 @@ SELECT 8 record_type,
        subpartition_name subpartition
   FROM &&cdb_object_prefix.tab_subpartitions
  WHERE logging = 'NO'
-UNION ALL       
+UNION ALL
 SELECT 9 record_type,
        'IND_SUBPARTITION' object_type,
        &&skip_noncdb.con_id,
@@ -674,7 +674,7 @@ SELECT 9 record_type,
        subpartition_name subpartition
   FROM &&cdb_object_prefix.ind_subpartitions
  WHERE logging = 'NO'
-UNION ALL       
+UNION ALL
 SELECT 10 record_type,
        'LOB_SUBPARTITION' object_type,
        &&skip_noncdb.con_id,
@@ -742,10 +742,10 @@ FROM   &&v_object_prefix.datafile df
       ,&&v_object_prefix.backup bk
 WHERE  df.file#=bk.file#
 and    df.unrecoverable_change#!=0
-and    df.unrecoverable_time >  
-       (select max(end_time) 
+and    df.unrecoverable_time >
+       (select max(end_time)
 	    FROM   &&v_object_prefix.rman_backup_job_details
-        where  INPUT_TYPE in ('DB FULL' ,'DB INCR') 
+        where  INPUT_TYPE in ('DB FULL' ,'DB INCR')
 		and    status = 'COMPLETED')
 ]';
 END;

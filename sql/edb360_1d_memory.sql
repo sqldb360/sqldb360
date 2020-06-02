@@ -16,7 +16,7 @@ SELECT /*+ RESULT_CACHE */
        inst_id,
        name,
        value,
-       CASE 
+       CASE
        WHEN value > POWER(2,50) THEN ROUND(value/POWER(2,50),1)||' P'
        WHEN value > POWER(2,40) THEN ROUND(value/POWER(2,40),1)||' T'
        WHEN value > POWER(2,30) THEN ROUND(value/POWER(2,30),1)||' G'
@@ -41,7 +41,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        inst_id,
        name,
        bytes,
-       CASE 
+       CASE
        WHEN bytes > POWER(2,50) THEN ROUND(bytes/POWER(2,50),1)||' P'
        WHEN bytes > POWER(2,40) THEN ROUND(bytes/POWER(2,40),1)||' T'
        WHEN bytes > POWER(2,30) THEN ROUND(bytes/POWER(2,30),1)||' G'
@@ -68,7 +68,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.name,
        x.inst_id,
        x.bytes,
-       CASE 
+       CASE
        WHEN x.bytes > POWER(2,50) THEN ROUND(x.bytes/POWER(2,50),1)||' P'
        WHEN x.bytes > POWER(2,40) THEN ROUND(x.bytes/POWER(2,40),1)||' T'
        WHEN x.bytes > POWER(2,30) THEN ROUND(x.bytes/POWER(2,30),1)||' G'
@@ -98,14 +98,14 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.name,
        x.value,
        x.unit,
-       CASE x.unit WHEN 'bytes' THEN 
+       CASE x.unit WHEN 'bytes' THEN
        CASE
        WHEN x.value > POWER(2,50) THEN ROUND(x.value/POWER(2,50),1)||' P'
        WHEN x.value > POWER(2,40) THEN ROUND(x.value/POWER(2,40),1)||' T'
        WHEN x.value > POWER(2,30) THEN ROUND(x.value/POWER(2,30),1)||' G'
        WHEN x.value > POWER(2,20) THEN ROUND(x.value/POWER(2,20),1)||' M'
        WHEN x.value > POWER(2,10) THEN ROUND(x.value/POWER(2,10),1)||' K'
-       ELSE x.value||' B' END 
+       ELSE x.value||' B' END
        END approx
   FROM &&gv_object_prefix.pgastat x
 ORDER BY
@@ -177,22 +177,22 @@ BEGIN
   :sql_text := q'[
 -- requested by Dimas Chbane, expanded by Abel Macias
 -- replaced V dollar view with historic
-WITH 
+WITH
 totals AS (
-  SELECT /*+ &&sq_fact_hints. &&ds_hint. */ 
+  SELECT /*+ &&sq_fact_hints. &&ds_hint. */
          /* &&section_id..&&report_sequence. */
         &&skip_ver_le_11.con_id,
         INSTANCE_NUMBER,
-        LOW_OPTIMAL_SIZE lnum, 
+        LOW_OPTIMAL_SIZE lnum,
         HIGH_OPTIMAL_SIZE+1 hnum,
-        SUM(OPTIMAL_EXECUTIONS) optimal ,    
-        SUM(ONEPASS_EXECUTIONS) onepass ,    
+        SUM(OPTIMAL_EXECUTIONS) optimal ,
+        SUM(ONEPASS_EXECUTIONS) onepass ,
         SUM(MULTIPASSES_EXECUTIONS) multipasses,
         SUM(TOTAL_EXECUTIONS) totex
    FROM &&AWR_HIST_PREFIX.SQL_WORKAREA_HSTGRM
   WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
     AND dbid = &&edb360_dbid.
-  GROUP BY 
+  GROUP BY
         &&skip_ver_le_11.con_id,
         INSTANCE_NUMBER,
         LOW_OPTIMAL_SIZE,
@@ -211,8 +211,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
         when hnum between 1024*1024*1024 and 1024*1024*1024*1024-1      then to_char(round(hnum /1024/1024/1024),'9999') ||' Gb'
         when hnum between 1024*1024*1024 and 1024*1024*1024*1024*1024-1 then to_char(round(hnum /1024/1024/1024/1024),'9999') ||' Tb'
    else to_char(hnum) end) HIGH_OPTIMAL_SIZE,
-  optimal OPTIMAL_EXECUTIONS,    
-  onepass ONEPASS_EXECUTIONS,    
+  optimal OPTIMAL_EXECUTIONS,
+  onepass ONEPASS_EXECUTIONS,
   multipasses MULTIPASSES_EXECUTIONS,
   totex TOTAL_EXECUTIONS
 FROM totals

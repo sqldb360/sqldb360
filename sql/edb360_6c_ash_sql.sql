@@ -105,7 +105,7 @@ BEGIN
   :sql_text_backup := q'[
 WITH
 hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        sql_id,
@@ -125,7 +125,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
 )
-SELECT DISTINCT 
+SELECT DISTINCT
        h.sql_id,
        h.samples,
        ROUND(100 * h.samples / t.samples, 1) percent,
