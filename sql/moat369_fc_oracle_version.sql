@@ -356,8 +356,8 @@ COL skip_cdb     new_v skip_cdb     nopri
 COL skip_noncdb  new_v skip_noncdb  nopri
 
 select
-decode('&&is_cdb.','Y','','N','--') skip_cdb,
-decode('&&is_cdb.','Y','--','N','') skip_noncdb
+decode('&&is_cdb.','Y','','N','--') skip_noncdb,
+decode('&&is_cdb.','Y','--','N','') skip_cdb
 from dual;
 
 COL skip_cdb    clear

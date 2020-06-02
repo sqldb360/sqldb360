@@ -15,7 +15,7 @@ PRO owned by SYS (PLAN_TABLE$ table with a PUBLIC synonym PLAN_TABLE).
 PRO eDB360 requires the Oracle seeded PLAN_TABLE, consider dropping the one in this schema.
 WHENEVER SQLERROR EXIT;
 DECLARE
- is_plan_table_in_usr_schema NUMBER; 
+ is_plan_table_in_usr_schema NUMBER;
 BEGIN
  SELECT COUNT(*)
    INTO is_plan_table_in_usr_schema
@@ -32,7 +32,7 @@ WHENEVER SQLERROR CONTINUE;
 -- parameters (reset readme)
 SPO 00000_readme_first_&&my_sid..txt
 PRO
-PRO Parameter 1: 
+PRO Parameter 1:
 PRO If your Database is licensed to use the Oracle Tuning pack please enter T.
 PRO If you have a license for Diagnostics pack but not for Tuning pack, enter D.
 PRO If you have both Tuning and Diagnostics packs, enter T.
@@ -69,7 +69,7 @@ END;
 
 PRO
 PRO Parameter 2:
-PRO Name of an optional custom configuration file executed right after 
+PRO Name of an optional custom configuration file executed right after
 PRO sql/edb360_00_config.sql. If such file name is provided, then corresponding file
 PRO should exist under edb360-master/sql. Filename is case sensitivive and its existence
 PRO is not validated. Example: custom_config_01.sql
@@ -84,8 +84,8 @@ SPO OFF;
 -- ash verification
 PRO Please stand by while the AWR/ASH is being checked. Further feedback from you may be needed...
 DEF edb360_estimated_hrs = '0';
-&&skip_diagnostics.@@&&ash_validation.verify_stats_wr_sys.sql
-&&skip_diagnostics.@@&&ash_validation.awr_ash_pre_check.sql
+@@&&skip_diagnostics.&&ash_validation.verify_stats_wr_sys.sql
+@@&&skip_diagnostics.&ash_validation.awr_ash_pre_check.sql
 
 SET HEA OFF TERM OFF;
 SPO edb360_pause.sql
@@ -158,6 +158,21 @@ PRO <br />
 SPO OFF;
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+REM Global Column Headings
+COL con_id          heading 'Con|ID'
+COL con_name        heading 'Container|Name'
+col index_type      heading 'Index|Type'
+COL inst_id         heading 'Inst|ID'
+COL instance_name   heading 'Instance|Name'
+COL instance_number heading 'Instance|Number'
+COL percent         heading '%'
+COL rank_num        heading 'Ranking'
+COL snap_id         heading 'Snap|ID'
+COL sql_text        format a100
+COL srank           heading 'Ranking'
+col table_owner     heading 'Table|Owner'
+
+PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 DEF column_number = '1';
 
@@ -220,10 +235,10 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_4c.mem_stats.sql
 @@&&skip_diagnostics.&&edb360_4d.time_model.sql
 @@&&skip_diagnostics.&&edb360_4e.time_model_comp.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4f.io_waits.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4g.io_waits_top_histog.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4h.io_waits_top_trend.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_4i.io_waits_top_relation.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4f.io_waits.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4g.io_waits_top_histog.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4h.io_waits_top_trend.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_4i.io_waits_top_relation.sql
 @@&&edb360_4j.parallel_execution.sql
 @@&&skip_diagnostics.&&edb360_4k.sysmetric_history.sql
 @@&&skip_diagnostics.&&edb360_4l.sysmetric_summary.sql
@@ -267,9 +282,9 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_6i.ash_objects.sql
 @@&&skip_diagnostics.&&edb360_6j.ash_services.sql
 @@&&skip_diagnostics.&&edb360_6k.ash_phv.sql
-&&skip_ver_le_10.@@&&skip_diagnostics.&&edb360_6l.ash_signature.sql
-&&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
-&&skip_ver_le_11.@@&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
+@@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_6l.ash_signature.sql
+@@&&skip_ver_le_11.&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
+@@&&skip_ver_le_11.&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

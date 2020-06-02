@@ -31,8 +31,8 @@ DEF main_table = 'GV$SQL_SHARED_CURSOR';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */
-       * 
-  FROM gv$sql_shared_cursor 
+       *
+  FROM gv$sql_shared_cursor
  WHERE sql_id = '&&sqld360_sqlid.'
  ORDER BY inst_id, child_number
 ]';
@@ -46,14 +46,14 @@ DEF main_table = 'GV$SQL_CS_HISTOGRAM';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */
-       * 
-  FROM gv$sql_cs_histogram 
+       *
+  FROM gv$sql_cs_histogram
  WHERE sql_id = '&&sqld360_sqlid.'
  ORDER BY inst_id, child_number, bucket_id
 ]';
 END;
 /
-&&skip_ver_le_10.@@sqld360_9a_pre_one.sql
+@@&&skip_ver_le_10.sqld360_9a_pre_one.sql
 
 
 DEF title = 'ACS Statistics';
@@ -61,14 +61,14 @@ DEF main_table = 'GV$SQL_CS_STATISTICS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */
-       * 
-  FROM gv$sql_cs_statistics 
+       *
+  FROM gv$sql_cs_statistics
  WHERE sql_id = '&&sqld360_sqlid.'
  ORDER BY inst_id, child_number
 ]';
 END;
 /
-&&skip_ver_le_10.@@sqld360_9a_pre_one.sql
+@@&&skip_ver_le_10.sqld360_9a_pre_one.sql
 
 
 DEF title = 'ACS Selectivity';
@@ -76,14 +76,14 @@ DEF main_table = 'GV$SQL_CS_SELECTIVITY';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */
-       * 
-  FROM gv$sql_cs_selectivity 
+       *
+  FROM gv$sql_cs_selectivity
  WHERE sql_id = '&&sqld360_sqlid.'
  ORDER BY inst_id, child_number, range_id, predicate
 ]';
 END;
 /
-&&skip_ver_le_10.@@sqld360_9a_pre_one.sql
+@@&&skip_ver_le_10.sqld360_9a_pre_one.sql
 
 SPO &&sqld360_main_report..html APP;
 PRO </ol>

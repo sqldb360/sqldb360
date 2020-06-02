@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.PGASTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.PGASTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'PGA Statistics in GBs';
@@ -28,12 +28,29 @@ DEF tit_12 = 'total PGA used for manual workareas';
 DEF tit_13 = 'total freeable PGA memory';
 DEF tit_14 = '';
 DEF tit_15 = '';
+
+COL pga_mem_freed_to_os   HEADING 'PGA memory|freed back|to OS'
+COL aggr_pga_auto_target  HEADING 'Aggregate|PGA Auto|Target'
+COL aggr_pga_target_param HEADING 'Aggregate|PGA Target|Parameter'
+COL bytes_processed       HEADING 'TBytes|Processed'
+COL extra_bytes_rw        HEADING 'Extra TBytes|read/written'
+COL global_memory_bound   HEADING 'Global|Memory|Bound'
+COL max_pga_allocated     HEADING 'Maximum|PGA|allocated'
+COL max_pga_used_aut_wa   HEADING 'Maximum|PGA|Used for Auto|workareas'
+COL max_pga_used_man_wa   HEADING 'Maximum|PGA|Used for Manual|workareas'
+COL tot_pga_allocated     HEADING 'Total PGA|Allocated'
+COL tot_pga_inuse         HEADING 'Total PGA|In Use'
+COL tot_pga_used_aut_wa   HEADING 'Total PGA|Used for Auto|Workareas'
+COL tot_pga_used_man_wa   HEADING 'Total PGA|Used for Manual|workareas'
+COL tot_freeable_pga_mem  HEADING 'Total Freeable|PGA Memory'
+
 BEGIN
   :sql_text_backup := q'[
 WITH 
 pgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
+       &&skip_noncdb.con_id,
        dbid,
        instance_number,
        SUM(CASE name WHEN 'PGA memory freed back to OS'           THEN value ELSE 0 END) pga_mem_freed_to_os,
@@ -50,7 +67,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE name WHEN 'total PGA used for auto workareas'     THEN value ELSE 0 END) tot_pga_used_aut_wa,
        SUM(CASE name WHEN 'total PGA used for manual workareas'   THEN value ELSE 0 END) tot_pga_used_man_wa,
        SUM(CASE name WHEN 'total freeable PGA memory'             THEN value ELSE 0 END) tot_freeable_pga_mem
-  FROM &&awr_object_prefix.pgastat
+  FROM &&cdb_awr_object_prefix.pgastat
  WHERE name IN
 ('PGA memory freed back to OS'
 ,'aggregate PGA auto target'
@@ -72,26 +89,30 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND instance_number = @instance_number@
  GROUP BY
        snap_id,
+       &&skip_noncdb.con_id,
        dbid,
        instance_number
 ),
 pgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.instance_number,
        s.startup_time,
        MIN(h.pga_mem_freed_to_os) pga_mem_freed_to_os,
        MIN(h.bytes_processed) bytes_processed,
        MIN(h.extra_bytes_rw) extra_bytes_rw
   FROM pgastat_denorm_1 h,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_object_prefix.snapshot s
  WHERE s.snap_id = h.snap_id
+   &&skip_noncdb.AND s.con_id = h.con_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
    AND s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
  GROUP BY
        h.dbid,
+	   &&skip_noncdb.h.con_id,
        h.instance_number,
        s.startup_time
 ),
@@ -99,6 +120,7 @@ pgastat_delta AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.snap_id,
        h1.dbid,
+	   &&skip_noncdb.h1.con_id,
        h1.instance_number,
        s1.begin_interval_time,
        s1.end_interval_time,
@@ -119,11 +141,12 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.tot_freeable_pga_mem       
   FROM pgastat_denorm_1 h0,
        pgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1,
+       &&cdb_awr_object_prefix.snapshot s0,
+       &&cdb_awr_object_prefix.snapshot s1,
        pgastat_denorm_2 min /* to see cumulative use (replace h0 with min on select list above) */
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid
+   &&skip_noncdb.AND h1.con_id = h0.con_id
    AND h1.instance_number = h0.instance_number
    AND s0.snap_id = h0.snap_id
    AND s0.dbid = h0.dbid
@@ -139,8 +162,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND min.dbid = s1.dbid
    AND min.instance_number = s1.instance_number
    AND min.startup_time = s1.startup_time
-)
+), x as (
 SELECT snap_id,
+       &&skip_noncdb.con_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        --ROUND(SUM(pga_mem_freed_to_os) / POWER(2,30), 3) pga_mem_freed_to_os,
@@ -161,9 +185,16 @@ SELECT snap_id,
        0 dummy_15
   FROM pgastat_delta
  GROUP BY
+       &&skip_noncdb.con_id,
        snap_id
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        snap_id
+	   &&skip_noncdb.,x.con_id
 ]';
 END;
 /
@@ -224,3 +255,19 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 SPO &&edb360_main_report..html APP;
 PRO </ol>
 SPO OFF;
+
+
+COL pga_mem_freed_to_os   CLEAR
+COL aggr_pga_auto_target  CLEAR
+COL aggr_pga_target_param CLEAR
+COL bytes_processed       CLEAR
+COL extra_bytes_rw        CLEAR
+COL global_memory_bound   CLEAR
+COL max_pga_allocated     CLEAR
+COL max_pga_used_aut_wa   CLEAR
+COL max_pga_used_man_wa   CLEAR
+COL tot_pga_allocated     CLEAR
+COL tot_pga_inuse         CLEAR
+COL tot_pga_used_aut_wa   CLEAR
+COL tot_pga_used_man_wa   CLEAR
+COL tot_freeable_pga_mem  CLEAR

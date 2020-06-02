@@ -13,7 +13,7 @@ BEGIN
 WITH
 hist AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
-       &&skip_ver_le_11.con_id,
+       &&skip_noncdb.con_id,
        sql_id,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
@@ -21,7 +21,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
  WHERE @filter_predicate@
    AND sql_id IS NOT NULL
  GROUP BY
-       &&skip_ver_le_11.con_id,
+       &&skip_noncdb.con_id,
        sql_id
 ),
 total AS (
@@ -105,9 +105,9 @@ BEGIN
   :sql_text_backup := q'[
 WITH
 hist AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
+SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
-       &&skip_ver_le_11.con_id,
+       &&skip_noncdb.con_id,
        sql_id,
        dbid,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
@@ -118,14 +118,14 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
-       &&skip_ver_le_11.con_id,
+       &&skip_noncdb.con_id,
        sql_id,
        dbid
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
 )
-SELECT DISTINCT 
+SELECT DISTINCT
        h.sql_id,
        h.samples,
        ROUND(100 * h.samples / t.samples, 1) percent,
@@ -135,7 +135,7 @@ SELECT DISTINCT
        &&awr_object_prefix.sqltext s
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = h.dbid
-   &&skip_ver_le_11.AND s.con_id(+) = h.con_id
+   &&skip_noncdb.AND s.con_id(+) = h.con_id
  UNION ALL
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,

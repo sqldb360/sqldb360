@@ -12,10 +12,10 @@ DEF main_table = '&&v_view_prefix.PARALLEL_DEGREE_LIMIT_MTH';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
+       *
     FROM &&v_object_prefix.parallel_degree_limit_mth
 ]';
-END;				
+END;
 /
 @@edb360_9a_pre_one.sql
 
@@ -26,11 +26,11 @@ DEF main_table = '&&gv_view_prefix.PX_BUFFER_ADVICE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
-  FROM &&gv_object_prefix.px_buffer_advice 
+       *
+  FROM &&gv_object_prefix.px_buffer_advice
  ORDER BY 1, 2
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -39,11 +39,11 @@ DEF main_table = '&&gv_view_prefix.PQ_SYSSTAT';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
-  FROM &&gv_object_prefix.pq_sysstat 
+       *
+  FROM &&gv_object_prefix.pq_sysstat
  ORDER BY 1, 2
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -52,11 +52,11 @@ DEF main_table = '&&gv_view_prefix.PX_PROCESS_SYSSTAT';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
-  FROM &&gv_object_prefix.px_process_sysstat 
+       *
+  FROM &&gv_object_prefix.px_process_sysstat
  ORDER BY 1, 2
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -65,11 +65,11 @@ DEF main_table = '&&gv_view_prefix.SYSSTAT';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
-  FROM &&gv_object_prefix.sysstat 
+       *
+  FROM &&gv_object_prefix.sysstat
  ORDER BY 1, UPPER(name)
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_stat_mem.edb360_9a_pre_one.sql
 
@@ -79,7 +79,7 @@ BEGIN
   :sql_text := q'[
 SELECT * FROM &&gv_object_prefix.pq_slave ORDER BY 1, 2
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -128,7 +128,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        pxs.qcserial# NULLS FIRST,
        pxp.server_name NULLS FIRST
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -142,11 +142,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&gv_object_prefix.px_sesstat s,
        &&gv_object_prefix.sysstat n
  WHERE s.value > 0
-   AND n.inst_id = s.inst_id 
+   AND n.inst_id = s.inst_id
    AND n.statistic# = s.statistic#
- ORDER BY s.inst_id, s.qcsid NULLS FIRST, s.sid 
+ ORDER BY s.inst_id, s.qcsid NULLS FIRST, s.sid
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -155,11 +155,11 @@ DEF main_table = '&&gv_view_prefix.PX_PROCESS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
-  FROM &&gv_object_prefix.px_process 
+       *
+  FROM &&gv_object_prefix.px_process
  ORDER BY 1, 2
 ]';
-END;				
+END;
 /
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
@@ -168,11 +168,11 @@ DEF main_table = '&&gv_view_prefix.SERVICES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       * 
-  FROM &&gv_object_prefix.services 
+       *
+  FROM &&gv_object_prefix.services
  ORDER BY 1, 2
 ]';
-END;				
+END;
 /
 @@edb360_9a_pre_one.sql
 DEF title = 'IO Last Calibration Results';
@@ -187,7 +187,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-&&skip_ver_le_10.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Parallel Parameters';
 DEF main_table = '&&gv_view_prefix.SYSTEM_PARAMETER2';
@@ -202,7 +202,7 @@ case when isdefault||ismodified = 'TRUEFALSE' then 'FALSE' else 'TRUE' end isset
 description
 from
    (
-       select 
+       select
             decode(substr(i.ksppinm,1,1),'_',2,1) flag
             , i.ksppinm name
             , sv.ksppstvl value
@@ -219,14 +219,14 @@ where name like nvl('%parallel%',name)
 and flag != 3
 order by flag,replace(name,'_','')
 ]';
-END;				
+END;
 /
 @@edb360_9a_pre_one.sql
 
 
 DEF main_table = '&&awr_hist_prefix.SYSSTAT';
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 
 BEGIN
@@ -261,7 +261,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(value) value
   FROM selected_stat_name
  WHERE startup_time_interval = TO_DSINTERVAL('+00 00:00:00.000000') -- include only snaps from same startup
-   AND value >= 0 
+   AND value >= 0
  GROUP BY
        snap_id,
        stat_name
@@ -337,7 +337,7 @@ EXEC :sql_text := REPLACE(:sql_text, 'dummy_10', '"'||SUBSTR('&&tit_10.',1,30)||
 
 DEF main_table = '&&awr_hist_prefix.SYSSTAT';
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 
 BEGIN
@@ -376,7 +376,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(value) value
   FROM selected_stat_name
  WHERE startup_time_interval = TO_DSINTERVAL('+00 00:00:00.000000') -- include only snaps from same startup
-   AND value >= 0 
+   AND value >= 0
  GROUP BY
        snap_id,
        stat_name
@@ -400,7 +400,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE  WHEN stat_name like 'Parallel operations downgraded % pct' THEN value ELSE 0 END) parcial_downgrade,
        SUM(CASE  WHEN stat_name in  ('queries parallelized','DML statements parallelized','DDL statements parallelized')
                  OR stat_name = 'Parallel operations downgraded to serial'
-                        THEN value ELSE 0 END) TOTAL_SQL                  
+                        THEN value ELSE 0 END) TOTAL_SQL
   FROM stat_name_per_snap
  GROUP BY
        snap_id)
@@ -453,7 +453,7 @@ EXEC :sql_text := REPLACE(:sql_text, 'dummy_03', '"'||SUBSTR('&&tit_03.',1,30)||
 @@edb360_9a_pre_one.sql
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Parallel Max Servers Time Series';
@@ -476,7 +476,7 @@ DEF tit_14 = '';
 DEF tit_15 = '';
 
 EXEC :sql_text := REPLACE(:sql_text_backup, '@resource_name@', 'parallel_max_servers');
-@@&&skip_diagnostics.edb360_9a_pre_one.sql    
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 BEGIN
  :sql_text := q'[
@@ -484,7 +484,7 @@ WITH
 max_resource_limit AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        r.snap_id,
-       r.instance_number,	
+       r.instance_number,
        s.begin_interval_time,
        s.end_interval_time,
        r.resource_name,
@@ -529,11 +529,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY
        snap_id
 ]';
-END;				
+END;
 /
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series1';
@@ -563,7 +563,7 @@ WITH
 max_resource_limit AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        r.snap_id,
-       r.instance_number,	
+       r.instance_number,
        CAST(s.begin_interval_time AS DATE) begin_time,
        CAST(s.end_interval_time AS DATE) end_time,
        r.resource_name metric_name,
@@ -587,9 +587,9 @@ max_sysmetric_summary AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        snap_id,
        instance_number,
-       begin_time, 
+       begin_time,
        end_time,
-       metric_name, 
+       metric_name,
        ROUND(maxval, 3) value
   FROM &&awr_object_prefix.sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -623,11 +623,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY
        snap_id
 ]';
-END;				
+END;
 /
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series2';
@@ -657,7 +657,7 @@ WITH
 max_resource_limit AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        r.snap_id,
-       r.instance_number,	
+       r.instance_number,
        CAST(s.begin_interval_time AS DATE) begin_time,
        CAST(s.end_interval_time AS DATE) end_time,
        r.resource_name metric_name,
@@ -681,15 +681,15 @@ max_sysmetric_summary AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        snap_id,
        instance_number,
-       begin_time, 
+       begin_time,
        end_time,
-       metric_name, 
+       metric_name,
        ROUND(maxval, 3) value
   FROM &&awr_object_prefix.sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND group_id = 2 /* 1 minute intervals */
-   AND metric_name IN ('Active Serial Sessions', 
+   AND metric_name IN ('Active Serial Sessions',
                        'Active Parallel Sessions',
                        'PQ QC Session Count',
                        'PQ Slave Session Count',
@@ -722,11 +722,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY
        snap_id
 ]';
-END;				
+END;
 /
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series3';
@@ -757,7 +757,7 @@ max_resource_limit AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        1 branch,
        r.snap_id,
-       r.instance_number,	
+       r.instance_number,
        CAST(s.begin_interval_time AS DATE) begin_time,
        CAST(s.end_interval_time AS DATE) end_time,
        r.resource_name metric_name,
@@ -782,15 +782,15 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        2 branch,
        snap_id,
        instance_number,
-       begin_time, 
+       begin_time,
        end_time,
-       metric_name, 
+       metric_name,
        ROUND(maxval, 3) value
   FROM &&awr_object_prefix.sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND group_id = 2 /* 1 minute intervals */
-   AND metric_name IN ('Active Serial Sessions', 
+   AND metric_name IN ('Active Serial Sessions',
                        'Active Parallel Sessions',
                        'PQ QC Session Count',
                        'PQ Slave Session Count',
@@ -803,15 +803,15 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        3 branch,
        snap_id,
        instance_number,
-       begin_time, 
+       begin_time,
        end_time,
-       metric_name, 
+       metric_name,
        ROUND(average, 3) value
   FROM &&awr_object_prefix.sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND group_id = 2 /* 1 minute intervals */
-   AND metric_name IN ('Active Serial Sessions', 
+   AND metric_name IN ('Active Serial Sessions',
                        'Active Parallel Sessions',
                        'PQ QC Session Count',
                        'PQ Slave Session Count',
@@ -844,11 +844,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  ORDER BY
        snap_id
 ]';
-END;				
+END;
 /
 
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series4';
@@ -874,7 +874,7 @@ DEF tit_15 = 'Avg Session Count';
 
 DEF main_table = '&&awr_hist_prefix.SYSMETRIC_SUMMARY';
 DEF chartype = 'LineChart';
-DEF vbaseline = ''; 
+DEF vbaseline = '';
 DEF stacked = '';
 DEF tit_01 = 'Max Value';
 DEF tit_02 = '';
@@ -899,8 +899,8 @@ per_instance AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        snap_id,
        instance_number,
-       begin_time, 
-       end_time, 
+       begin_time,
+       end_time,
        maxval
   FROM &&awr_object_prefix.sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.

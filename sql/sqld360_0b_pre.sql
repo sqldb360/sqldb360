@@ -238,9 +238,6 @@ COL db_version NEW_V db_version;
 --COL skip_19c NEW_V skip_19c;
 --SELECT '--' skip_19c FROM v$instance WHERE version LIKE '19.%';
 
-SELECT 
-FROM v$instance
-
 --
 @@moat369_fc_oracle_version.sql
 
@@ -512,10 +509,10 @@ SELECT CASE '&&sqld360_conf_incl_bubble.' WHEN 'N' THEN '--' END sqld360_skip_bu
 SELECT CASE '&&sqld360_conf_incl_scatt.'  WHEN 'N' THEN '--' END sqld360_skip_scatt  FROM DUAL;
 
 COL sqld360_skip_awrrpt NEW_V sqld360_skip_awrrpt;
-SELECT CASE WHEN '&&from_edb360.' = '--' 
+SELECT CASE WHEN '&&from_edb360.' = '--'
             THEN CASE WHEN '&&sqld360_conf_incl_awrrpt.'='N' THEN '--' END
             ELSE CASE WHEN '&&sqld360_conf_incl_plot_awr.'='N' AND '&&sqld360_conf_incl_awrrpt.'='N' THEN '--' END
-        END sqld360_skip_awrrpt 
+        END sqld360_skip_awrrpt
 FROM DUAL;
 
 COL sqld360_skip_ashrpt NEW_V sqld360_skip_ashrpt;
@@ -768,10 +765,10 @@ ALTER SESSION SET NLS_COMP = 'BINARY';
 -- to work around bug 12672969
 ALTER SESSION SET "_optimizer_order_by_elimination_enabled"=false;
 -- to work around bug 19567916
-ALTER SESSION SET "_optimizer_aggr_groupby_elim"=false;
+&&skip_ver_le_11.ALTER SESSION SET "_optimizer_aggr_groupby_elim"=false;
 -- workaround bug 21150273
-ALTER SESSION SET "_optimizer_dsdir_usage_control"=0;
-ALTER SESSION SET "_sql_plan_directive_mgmt_control" = 0;
+&&skip_ver_le_11.ALTER SESSION SET "_optimizer_dsdir_usage_control"=0;
+&&skip_ver_le_11.ALTER SESSION SET "_sql_plan_directive_mgmt_control" = 0;
 ALTER SESSION SET optimizer_dynamic_sampling = 0;
 -- workaround nigeria
 ALTER SESSION SET "_gby_hash_aggregation_enabled" = TRUE;
@@ -857,7 +854,7 @@ HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/sql-formatter.js
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/googlecode.css
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/vs.css
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/highlight.pack.js
-HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/edb360_dlp.js 
+HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/edb360_dlp.js
 HOS zip -jq &&sqld360_main_filename._&&sqld360_file_time. js/edb360_awr_points.js
 
 --WHENEVER SQLERROR CONTINUE;

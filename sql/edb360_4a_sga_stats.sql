@@ -15,9 +15,9 @@ select * from x$ksmssinfo
 ]';
 END;
 /
-&&skip_ver_le_11.@@edb360_9a_pre_one.sql
+@@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
-DEF main_table = '&&awr_hist_prefix.SGASTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'SGA Statistics in GBs';
@@ -43,6 +43,7 @@ WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
+	   &&skip_noncdb.con_id,
        dbid,
        instance_number,
        SUM(bytes) sga_total,
@@ -54,18 +55,19 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE pool WHEN 'large pool' THEN bytes ELSE 0 END) large_pool,
        SUM(CASE pool WHEN 'java pool' THEN bytes ELSE 0 END) java_pool,
        SUM(CASE pool WHEN 'streams pool' THEN bytes ELSE 0 END) streams_pool
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND instance_number = @instance_number@
  GROUP BY
        snap_id,
+	   &&skip_noncdb.con_id,
        dbid,
        instance_number
-),
-sgastat_denorm_2 AS (
+), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.snap_id,
+	   &&skip_noncdb.h1.con_id,
        h1.dbid,
        h1.instance_number,
        s1.begin_interval_time,
@@ -82,10 +84,11 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.streams_pool
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_object_prefix.snapshot s0,
+       &&cdb_awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid
+   &&skip_noncdb.and h1.con_id = h0.con_id
    AND h1.instance_number = h0.instance_number
    AND s0.snap_id = h0.snap_id
    AND s0.dbid = h0.dbid
@@ -98,8 +101,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND s1.snap_id = s0.snap_id + 1
    AND s1.startup_time = s0.startup_time
    AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
-)
-SELECT snap_id,
+), x as (
+SELECT &&skip_noncdb.con_id,
+       snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        ROUND(SUM(sga_total) / POWER(2,30), 3) sga_total,
@@ -119,9 +123,16 @@ SELECT snap_id,
        0 dummy_15
   FROM sgastat_denorm_2
  GROUP BY
-       snap_id
+       &&skip_noncdb.con_id,
+	   snap_id
+)
+SELECT x.*
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       snap_id
+       &&skip_noncdb.x.con_id,
+	   x.snap_id
 ]';
 END;
 /
@@ -196,46 +207,50 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 -- 2nd looking for the max standard deviation in any instance.
 
 DEF title = 'Subpools in the Shared Pool with largest changes';
-DEF main_table = '&&awr_object_prefix.sgastat';
+DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
 DEF foot = '';
 
 BEGIN
   :sql_text := q'[
-WITH
-calc AS (
+WITH calc AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
+	   &&skip_noncdb.con_id,
        instance_number,
        name,
        stddev(bytes) standard_dev
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_object_prefix.sgastat
  WHERE pool='shared pool'
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        instance_number,
        name
-),
-calc2 AS (
+), calc2 AS (
 SELECT /*+ &&sq_fact_hints. */
        dbid,
+	   &&skip_noncdb.con_id,
        name,
        max(standard_dev) standard_dev
   FROM calc
  WHERE standard_dev>0
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        name
-),
-ranked AS (
+), ranked AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       ROW_NUMBER () OVER (ORDER BY standard_dev DESC) srank,
-       ROUND(standard_dev / 1024 / 1024, 1) mb_std_deviation,
-       name subpool_name
-  FROM calc2
+       ROW_NUMBER () OVER (ORDER BY x.standard_dev DESC) srank,
+       ROUND(x.standard_dev / 1024 / 1024, 1) mb_std_deviation,
+       &&skip_noncdb.x.con_id,
+	   x.name subpool_name
+	   &&skip_noncdb.,c.name con_name
+  FROM calc2 x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 )
-SELECT * FROM ranked
+SELECT * FROM ranked ORDER BY srank
 ]';
 END;
 /
@@ -254,54 +269,76 @@ COL subpool_08 NEW_V subpool_08;
 COL subpool_09 NEW_V subpool_09;
 COL subpool_10 NEW_V subpool_10;
 
+
 WITH
 calc AS (
 SELECT /*+ &&sq_fact_hints. */
        dbid,
+	   &&skip_noncdb.con_id,
        instance_number,
        name,
        stddev(bytes) standard_dev
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_object_prefix.sgastat
  WHERE pool='shared pool'
    AND name <>'free memory'
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        instance_number,
        name
-),
-calc2 AS (
+),calc2 AS (
 SELECT /*+ &&sq_fact_hints. */
        dbid,
+	   &&skip_noncdb.con_id,
        name,
        max(standard_dev) standard_dev
   FROM calc
  WHERE standard_dev>0
  GROUP BY
        dbid,
+	   &&skip_noncdb.con_id,
        name
-),
-ranked AS (
+),ranked AS (
 SELECT /*+ &&sq_fact_hints. */
        ROW_NUMBER () OVER (ORDER BY standard_dev DESC) srank,
        ROUND(standard_dev / 1024 / 1024, 1) mb_deviation,
+       &&skip_noncdb.con_id,
        name subpool_name
   FROM calc2
 )
-SELECT MIN(CASE srank WHEN 01 THEN subpool_name END) subpool_01,
-       MIN(CASE srank WHEN 02 THEN subpool_name END) subpool_02,
-       MIN(CASE srank WHEN 03 THEN subpool_name END) subpool_03,
-       MIN(CASE srank WHEN 04 THEN subpool_name END) subpool_04,
-       MIN(CASE srank WHEN 05 THEN subpool_name END) subpool_05,
-       MIN(CASE srank WHEN 06 THEN subpool_name END) subpool_06,
-       MIN(CASE srank WHEN 07 THEN subpool_name END) subpool_07,
-       MIN(CASE srank WHEN 08 THEN subpool_name END) subpool_08,
-       MIN(CASE srank WHEN 09 THEN subpool_name END) subpool_09,
-       MIN(CASE srank WHEN 10 THEN subpool_name END) subpool_10
+SELECT MIN(CASE srank WHEN 01 THEN subpool_name &&skip_noncdb.||':'||con_id
+           END) subpool_01
+      ,MIN(CASE srank WHEN 02 THEN subpool_name &&skip_noncdb.||':'||con_id
+           END) subpool_02
+      ,MIN(CASE srank WHEN 03 THEN subpool_name &&skip_noncdb.||':'||con_id
+           END) subpool_03
+      ,MIN(CASE srank WHEN 04 THEN subpool_name &&skip_noncdb.||':'||con_id
+           END) subpool_04
+      ,MIN(CASE srank WHEN 05 THEN subpool_name &&skip_noncdb.||':'||con_id
+	       END) subpool_05
+      ,MIN(CASE srank WHEN 06 THEN subpool_name &&skip_noncdb.||':'||con_id
+	       END) subpool_06
+      ,MIN(CASE srank WHEN 07 THEN subpool_name &&skip_noncdb.||':'||con_id
+	       END) subpool_07
+      ,MIN(CASE srank WHEN 08 THEN subpool_name &&skip_noncdb.||':'||con_id
+	       END) subpool_08
+      ,MIN(CASE srank WHEN 09 THEN subpool_name &&skip_noncdb.||':'||con_id
+	       END) subpool_09
+      ,MIN(CASE srank WHEN 10 THEN subpool_name &&skip_noncdb.||':'||con_id
+           END) subpool_10
   FROM ranked;
 
-DEF main_table = '&&awr_hist_prefix.SGASTAT';
+COL predexpr NEW_V predexpr
+COL predqexpr NEW_V predqexpr
+SELECT 'subpool' &&skip_noncdb.||'||'':''||con_id'
+       predexpr
+,      'name' &&skip_noncdb.||'||'''':''''||con_id'
+       predqexpr
+FROM DUAL;
+
+DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'Allocation in MBs';
@@ -339,22 +376,24 @@ BEGIN
 WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        snap_id,
        dbid,
        instance_number,
        SUM(bytes) allocated
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND pool = 'shared pool'
    AND @filter_predicate@
  GROUP BY
+       &&skip_noncdb.con_id,
        snap_id,
        dbid,
        instance_number
-),
-sgastat_denorm_2 AS (
+), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */
+       &&skip_noncdb.h1.con_id,
        h1.snap_id,
        h1.dbid,
        h1.instance_number,
@@ -364,9 +403,10 @@ SELECT /*+ &&sq_fact_hints. */
        h1.allocated
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_object_prefix.snapshot s0,
+       &&cdb_awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
+   &&skip_noncdb.AND h1.con_id = h0.con_id
    AND h1.dbid = h0.dbid
    AND h1.instance_number = h0.instance_number
    AND s0.snap_id = h0.snap_id
@@ -381,7 +421,8 @@ SELECT /*+ &&sq_fact_hints. */
    AND s1.startup_time = s0.startup_time
    AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
 )
-SELECT snap_id,
+SELECT &&skip_noncdb.con_id,
+       snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        0 dummy_01, --ROUND(SUM(CASE instance_number WHEN 1 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_01,
@@ -401,9 +442,11 @@ SELECT snap_id,
        0 dummy_15
   FROM sgastat_denorm_2
  GROUP BY
-       snap_id
+       &&skip_noncdb.con_id,
+	   snap_id
  ORDER BY
-       snap_id
+       &&skip_noncdb.con_id,
+	   snap_id
 ]';
 
  :sql_text_backup:=(CASE WHEN '&&inst1_present' IS NOT NULL THEN REPLACE(:sql_text_backup,'0 dummy_01, --','') ELSE :sql_text_backup END);
@@ -426,7 +469,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_01' is not null;
 DEF title = 'Memory allocation for "&&subpool_01"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_01''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_01''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -434,7 +477,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_02' is not null;
 DEF title = 'Memory allocation for "&&subpool_02"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_02''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_02''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -442,7 +485,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_03' is not null;
 DEF title = 'Memory allocation for "&&subpool_03"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_03''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_03''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -450,7 +493,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_04' is not null;
 DEF title = 'Memory allocation for "&&subpool_04"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_04''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_04''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -458,7 +501,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_05' is not null;
 DEF title = 'Memory allocation for "&&subpool_05"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_05''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_05''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -466,7 +509,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_06' is not null;
 DEF title = 'Memory allocation for "&&subpool_06"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_06''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_06''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -474,7 +517,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_07' is not null;
 DEF title = 'Memory allocation for "&&subpool_07"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_07''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_07''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -482,7 +525,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_08' is not null;
 DEF title = 'Memory allocation for "&&subpool_08"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_08''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_08''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -490,7 +533,7 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_09' is not null;
 DEF title = 'Memory allocation for "&&subpool_09"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_09''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_09''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
@@ -498,13 +541,14 @@ DEF skip_all = 'Y';
 SELECT NULL skip_all FROM dual WHERE '&&subpool_10' is not null;
 DEF title = 'Memory allocation for "&&subpool_10"';
 DEF abstract = '&&abstract_uom.';
-EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''&&subpool_10''');
+EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '&&predqexpr = ''&&subpool_10''');
 @@&&skip_all.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF skip_all = '';
 DEF title = 'Free Memory in Shared Pool';
 DEF vaxis = 'Free Memory in MBs';
+DEF main_table = '&&cdb_awr_hist_prefix.sgastat';
 DEF abstract = '&&abstract_uom.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'name = ''free memory''');
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -514,24 +558,26 @@ BEGIN
 WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.con_id,
        snap_id,
        dbid,
        name subpool,
        instance_number,
        SUM(bytes) allocated
-  FROM dba_hist_sgastat
+  FROM &&cdb_awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND pool = 'shared pool'
    AND @filter_predicate@
  GROUP BY
+       &&skip_noncdb.con_id,
        snap_id,
        dbid,
        name,
        instance_number
-),
-sgastat_denorm_2 AS (
+), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */
+       &&skip_noncdb.h1.con_id,
        h1.snap_id,
        h1.dbid,
        h1.subpool,
@@ -541,9 +587,10 @@ SELECT /*+ &&sq_fact_hints. */
        h1.allocated
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       dba_hist_snapshot s0,
-       dba_hist_snapshot s1
+       &&cdb_awr_object_prefix.snapshot s0,
+       &&cdb_awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
+   &&skip_noncdb. AND h1.con_id = h0.con_id
    AND h1.dbid = h0.dbid
    AND h1.instance_number = h0.instance_number
    AND h1.subpool=h0.subpool
@@ -559,32 +606,35 @@ SELECT /*+ &&sq_fact_hints. */
    AND s1.startup_time = s0.startup_time
    AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
 )
-SELECT snap_id,
+SELECT &&skip_noncdb.con_id,
+       snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        ROUND(SUM(CASE subpool WHEN 'free memory' THEN allocated ELSE 0 END)/POWER(2,20), 3) free_memory,
-       ROUND(SUM(CASE WHEN subpool not in ('&&subpool_01.','&&subpool_02.','&&subpool_03.','&&subpool_04.',
+       ROUND(SUM(CASE WHEN &&predexpr not in ('&&subpool_01.','&&subpool_02.','&&subpool_03.','&&subpool_04.',
            '&&subpool_05.','&&subpool_06.','&&subpool_07.','&&subpool_08.','&&subpool_09.','&&subpool_10.',
            'free memory' )
        THEN allocated ELSE 0 END)/POWER(2,20), 3) others,
-       ROUND(SUM(CASE subpool WHEN '&&subpool_01.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_01.",
-       0 dummy_02, --ROUND(SUM(CASE subpool WHEN '&&subpool_02.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_02.",
-       0 dummy_03, --ROUND(SUM(CASE subpool WHEN '&&subpool_03.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_03.",
-       0 dummy_04, --ROUND(SUM(CASE subpool WHEN '&&subpool_04.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_04.",
-       0 dummy_05, --ROUND(SUM(CASE subpool WHEN '&&subpool_05.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_05.",
-       0 dummy_06, --ROUND(SUM(CASE subpool WHEN '&&subpool_06.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_06.",
-       0 dummy_07, --ROUND(SUM(CASE subpool WHEN '&&subpool_07.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_07.",
-       0 dummy_08, --ROUND(SUM(CASE subpool WHEN '&&subpool_08.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_08.",
-       0 dummy_09, --ROUND(SUM(CASE subpool WHEN '&&subpool_09.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_09.",
-       0 dummy_10, --ROUND(SUM(CASE subpool WHEN '&&subpool_10.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_10.",
+                     ROUND(SUM(CASE &&predexpr WHEN '&&subpool_01.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_01.",
+       0 dummy_02, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_02.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_02.",
+       0 dummy_03, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_03.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_03.",
+       0 dummy_04, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_04.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_04.",
+       0 dummy_05, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_05.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_05.",
+       0 dummy_06, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_06.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_06.",
+       0 dummy_07, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_07.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_07.",
+       0 dummy_08, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_08.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_08.",
+       0 dummy_09, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_09.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_09.",
+       0 dummy_10, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_10.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_10.",
        0 dummy_11,
        0 dummy_12,
        0 dummy_13
   FROM sgastat_denorm_2
  GROUP BY
-       snap_id
+       &&skip_noncdb.con_id,
+	   snap_id
  ORDER BY
-       snap_id
+       &&skip_noncdb.con_id,
+	   snap_id
 ]';
 
  :sql_text_backup:=(CASE WHEN '&&subpool_02.' IS NOT NULL THEN REPLACE(:sql_text_backup,'0 dummy_02, --','') ELSE :sql_text_backup END);

@@ -36,8 +36,11 @@ DEF main_table = '&&dva_view_prefix.REGISTRY';
 BEGIN
   :sql_text := q'[
 -- from MOS Doc ID: 1577401.1 
-SELECT version, modified, status /* &&section_id..&&report_sequence. */
-  FROM &&dva_object_prefix.registry WHERE comp_id = 'CATPROC'
+SELECT x.version, x.modified, x.status /* &&section_id..&&report_sequence. */
+       &&skip_noncdb.,x.con_id, c.name con_name
+  FROM &&cdb_object_prefix.registry x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+  WHERE x.comp_id = 'CATPROC'
 ]';
 END;
 /
