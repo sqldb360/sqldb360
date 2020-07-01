@@ -214,6 +214,109 @@ COL recovery NEW_V recovery;
 SELECT CHR(38)||' recovery' recovery FROM DUAL;
 -- this above is to handle event "RMAN backup & recovery I/O"
 
+
+
+DEF skip_lch = '';
+DEF title = 'Average Latency of Top 15 events';
+DEF abstract = ''
+DEF vaxis = 'Average Latency in milliseconds';
+
+DEF tit_01 = '&&event_name_01.';
+DEF tit_02 = '&&event_name_02.';
+DEF tit_03 = '&&event_name_03.';
+DEF tit_04 = '&&event_name_04.';
+DEF tit_05 = '&&event_name_05.';
+DEF tit_06 = '&&event_name_06.';
+DEF tit_07 = '&&event_name_07.';
+DEF tit_08 = '&&event_name_08.';
+DEF tit_09 = '&&event_name_09.';
+DEF tit_10 = '&&event_name_10.';
+DEF tit_11 = '&&event_name_11.';
+DEF tit_12 = '&&event_name_12.';
+DEF tit_13 = '&&event_name_13.';
+DEF tit_14 = '&&event_name_14.';
+DEF tit_15 = '&&event_name_15.';
+
+BEGIN
+  :sql_text_backup := q'[
+WITH
+s AS ( /*min begin/end times for each snap across all instances*/
+SELECT dbid, snap_id,
+       MIN(begin_interval_time) begin_interval_time,
+       MIN(end_interval_time) end_interval_time
+  FROM dba_hist_snapshot s
+WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+ GROUP BY dbid, snap_id
+),
+histogram AS (
+SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
+       dbid,
+       instance_number,
+       snap_id,
+       event_name,
+       wait_time_milli,
+       wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id) wait_count_this_snap
+  FROM dba_hist_event_histogram
+ WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+),
+average AS (
+SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
+       dbid,
+       snap_id,
+       event_name,
+       SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * wait_count_this_snap)/NULLIF(SUM(wait_count_this_snap),0) avg_wait_time_milli
+  FROM histogram
+ WHERE wait_count_this_snap >= 0
+ GROUP BY
+       dbid,
+       snap_id,
+       event_name
+--HAVING SUM(wait_count_this_snap) > 0
+),
+per_snap AS (
+SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
+       h.snap_id,
+       h.event_name,
+       s.begin_interval_time,
+       s.end_interval_time,
+       h.avg_wait_time_milli
+  FROM average h,
+       s
+ WHERE s.snap_id = h.snap_id
+   AND s.dbid    = h.dbid
+)
+SELECT * 
+  FROM per_snap
+PIVOT (
+  AVG(avg_wait_time_milli) FOR event_name IN(
+ '&&event_name_01' 
+,'&&event_name_02' 
+,'&&event_name_03' 
+,'&&event_name_04' 
+,'&&event_name_05' 
+,'&&event_name_06' 
+,'&&event_name_07' 
+,'&&event_name_08' 
+,'&&event_name_09' 
+,'&&event_name_10' 
+,'&&event_name_11' 
+,'&&event_name_12' 
+,'&&event_name_13' 
+,'&&event_name_14' 
+,'&&event_name_15' 
+))
+ORDER BY snap_id
+]';
+END;
+/
+
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
+
+
+
+
 DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
 DEF vbaseline = '';
 DEF chartype = 'LineChart';
@@ -299,8 +402,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.avg_avg_wait_time_milli
   FROM average_average h,
        s
- WHERE s.snap_id         = h.snap_id
-   AND s.dbid            = h.dbid
+ WHERE s.snap_id = h.snap_id
+   AND s.dbid    = h.dbid
 )
 SELECT snap_id,
        TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
