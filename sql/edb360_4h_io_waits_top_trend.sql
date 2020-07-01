@@ -220,6 +220,11 @@ DEF skip_lch = '';
 DEF title = 'Average Latency of Top 15 events';
 DEF abstract = ''
 DEF vaxis = 'Average Latency in milliseconds';
+DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
+DEF vbaseline = '';
+DEF chartype = 'LineChart';
+DEF stacked = '';
+
 
 DEF tit_01 = '&&event_name_01.';
 DEF tit_02 = '&&event_name_02.';
@@ -236,6 +241,39 @@ DEF tit_12 = '&&event_name_12.';
 DEF tit_13 = '&&event_name_13.';
 DEF tit_14 = '&&event_name_14.';
 DEF tit_15 = '&&event_name_15.';
+
+COL event_heading_01 NEW_V event_heading_01
+COL event_heading_02 NEW_V event_heading_02
+COL event_heading_03 NEW_V event_heading_03
+COL event_heading_04 NEW_V event_heading_04
+COL event_heading_05 NEW_V event_heading_05
+COL event_heading_06 NEW_V event_heading_06
+COL event_heading_07 NEW_V event_heading_07
+COL event_heading_08 NEW_V event_heading_08
+COL event_heading_09 NEW_V event_heading_09
+COL event_heading_10 NEW_V event_heading_10
+COL event_heading_11 NEW_V event_heading_11
+COL event_heading_12 NEW_V event_heading_12
+COL event_heading_13 NEW_V event_heading_13
+COL event_heading_14 NEW_V event_heading_14
+COL event_heading_15 NEW_V event_heading_15
+
+SELECT REPLACE('&&event_name_01',' ','_') event_heading_01
+,      REPLACE('&&event_name_02',' ','_') event_heading_02
+,      REPLACE('&&event_name_03',' ','_') event_heading_03
+,      REPLACE('&&event_name_04',' ','_') event_heading_04
+,      REPLACE('&&event_name_05',' ','_') event_heading_05
+,      REPLACE('&&event_name_06',' ','_') event_heading_06
+,      REPLACE('&&event_name_07',' ','_') event_heading_07
+,      REPLACE('&&event_name_08',' ','_') event_heading_08
+,      REPLACE('&&event_name_09',' ','_') event_heading_09
+,      REPLACE('&&event_name_10',' ','_') event_heading_10
+,      REPLACE('&&event_name_11',' ','_') event_heading_11
+,      REPLACE('&&event_name_12',' ','_') event_heading_12
+,      REPLACE('&&event_name_13',' ','_') event_heading_13
+,      REPLACE('&&event_name_14',' ','_') event_heading_14
+,      REPLACE('&&event_name_15',' ','_') event_heading_15
+  FROM DUAL;
 
 BEGIN
   :sql_text := q'[
@@ -291,21 +329,21 @@ SELECT *
   FROM per_snap
 PIVOT (
   AVG(avg_wait_time_milli) FOR event_name IN(
- '&&event_name_01' 
-,'&&event_name_02' 
-,'&&event_name_03' 
-,'&&event_name_04' 
-,'&&event_name_05' 
-,'&&event_name_06' 
-,'&&event_name_07' 
-,'&&event_name_08' 
-,'&&event_name_09' 
-,'&&event_name_10' 
-,'&&event_name_11' 
-,'&&event_name_12' 
-,'&&event_name_13' 
-,'&&event_name_14' 
-,'&&event_name_15' 
+ '&&event_name_01' &&event_heading_01
+,'&&event_name_02' &&event_heading_02
+,'&&event_name_03' &&event_heading_03
+,'&&event_name_04' &&event_heading_04
+,'&&event_name_05' &&event_heading_05
+,'&&event_name_06' &&event_heading_06
+,'&&event_name_07' &&event_heading_07
+,'&&event_name_08' &&event_heading_08
+,'&&event_name_09' &&event_heading_09
+,'&&event_name_10' &&event_heading_10
+,'&&event_name_11' &&event_heading_11
+,'&&event_name_12' &&event_heading_12
+,'&&event_name_13' &&event_heading_13
+,'&&event_name_14' &&event_heading_14
+,'&&event_name_15' &&event_heading_15
 ))
 ORDER BY snap_id
 ]';
