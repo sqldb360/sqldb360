@@ -248,7 +248,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
        instance_number,
        wait_time_milli,
-       wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id) snap_wait_count
+       wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id) wait_count_this_snap
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -258,10 +258,10 @@ average AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
        dbid,
-       SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * snap_wait_count) snap_wait_time_milli,
-       SUM(snap_wait_count) snap_wait_count
+       SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * wait_count_this_snap) snap_wait_time_milli,
+       SUM(wait_count_this_snap) wait_count_this_snap
   FROM histogram
- WHERE snap_wait_count >= 0
+ WHERE wait_count_this_snap >= 0
  GROUP BY
        snap_id,
        dbid
@@ -271,8 +271,8 @@ average_average AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        a.snap_id,
        a.dbid,
-       MIN(a.snap_wait_time_milli/NULLIF(a.snap_wait_count,0)) avg_wait_time_milli,
-       SUM(b.snap_wait_time_milli)/NULLIF(SUM(b.snap_wait_count),0) avg_avg_wait_time_milli
+       MIN(a.snap_wait_time_milli/NULLIF(a.wait_count_this_snap,0)) avg_wait_time_milli,
+       SUM(b.snap_wait_time_milli)/NULLIF(SUM(b.wait_count_this_snap),0) avg_avg_wait_time_milli
   FROM average a,
        average b
  WHERE b.snap_id         <= a.snap_id
