@@ -214,7 +214,7 @@ COL recovery NEW_V recovery;
 SELECT CHR(38)||' recovery' recovery FROM DUAL;
 -- this above is to handle event "RMAN backup & recovery I/O"
 
-
+--dmk 1.7.2020 added to trend latencies of 15 wait events
 
 DEF skip_lch = '';
 DEF title = 'Average Latency of Top 15 events';
@@ -238,7 +238,7 @@ DEF tit_14 = '&&event_name_14.';
 DEF tit_15 = '&&event_name_15.';
 
 BEGIN
-  :sql_text_backup := q'[
+  :sql_text := q'[
 WITH
 s AS ( /*min begin/end times for each snap across all instances*/
 SELECT dbid, snap_id,
@@ -343,7 +343,7 @@ DEF tit_15 = '';
 --removed group by instance, and sum per instance in final query.
 
 BEGIN
-  :sql_text := q'[
+  :sql_text_backup := q'[
 WITH
 histogram AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
