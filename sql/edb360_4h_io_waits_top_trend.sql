@@ -343,7 +343,7 @@ DEF tit_15 = '';
 --removed group by instance, and sum per instance in final query.
 
 BEGIN
-  :sql_text_backup := q'[
+  :sql_text := q'[
 WITH
 histogram AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
