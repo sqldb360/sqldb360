@@ -261,7 +261,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * snap_wait_count) snap_wait_time_milli,
        SUM(snap_wait_count) snap_wait_count
   FROM histogram
- WHERE wait_count_this_snap >= 0
+ WHERE snap_wait_count >= 0
  GROUP BY
        snap_id,
        dbid
