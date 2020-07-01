@@ -258,21 +258,21 @@ COL event_heading_13 NEW_V event_heading_13
 COL event_heading_14 NEW_V event_heading_14
 COL event_heading_15 NEW_V event_heading_15
 
-SELECT REPLACE('&&event_name_01',' ','_') event_heading_01
-,      REPLACE('&&event_name_02',' ','_') event_heading_02
-,      REPLACE('&&event_name_03',' ','_') event_heading_03
-,      REPLACE('&&event_name_04',' ','_') event_heading_04
-,      REPLACE('&&event_name_05',' ','_') event_heading_05
-,      REPLACE('&&event_name_06',' ','_') event_heading_06
-,      REPLACE('&&event_name_07',' ','_') event_heading_07
-,      REPLACE('&&event_name_08',' ','_') event_heading_08
-,      REPLACE('&&event_name_09',' ','_') event_heading_09
-,      REPLACE('&&event_name_10',' ','_') event_heading_10
-,      REPLACE('&&event_name_11',' ','_') event_heading_11
-,      REPLACE('&&event_name_12',' ','_') event_heading_12
-,      REPLACE('&&event_name_13',' ','_') event_heading_13
-,      REPLACE('&&event_name_14',' ','_') event_heading_14
-,      REPLACE('&&event_name_15',' ','_') event_heading_15
+SELECT REGEXP_REPLACE('&&event_name_01','[^A-Za-z0-9]+','_') event_heading_01
+,      REGEXP_REPLACE('&&event_name_02','[^A-Za-z0-9]+','_') event_heading_02
+,      REGEXP_REPLACE('&&event_name_03','[^A-Za-z0-9]+','_') event_heading_03
+,      REGEXP_REPLACE('&&event_name_04','[^A-Za-z0-9]+','_') event_heading_04
+,      REGEXP_REPLACE('&&event_name_05','[^A-Za-z0-9]+','_') event_heading_05
+,      REGEXP_REPLACE('&&event_name_06','[^A-Za-z0-9]+','_') event_heading_06
+,      REGEXP_REPLACE('&&event_name_07','[^A-Za-z0-9]+','_') event_heading_07
+,      REGEXP_REPLACE('&&event_name_08','[^A-Za-z0-9]+','_') event_heading_08
+,      REGEXP_REPLACE('&&event_name_09','[^A-Za-z0-9]+','_') event_heading_09
+,      REGEXP_REPLACE('&&event_name_10','[^A-Za-z0-9]+','_') event_heading_10
+,      REGEXP_REPLACE('&&event_name_11','[^A-Za-z0-9]+','_') event_heading_11
+,      REGEXP_REPLACE('&&event_name_12','[^A-Za-z0-9]+','_') event_heading_12
+,      REGEXP_REPLACE('&&event_name_13','[^A-Za-z0-9]+','_') event_heading_13
+,      REGEXP_REPLACE('&&event_name_14','[^A-Za-z0-9]+','_') event_heading_14
+,      REGEXP_REPLACE('&&event_name_15','[^A-Za-z0-9]+','_') event_heading_15
   FROM DUAL;
 
 BEGIN
