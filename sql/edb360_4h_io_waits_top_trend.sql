@@ -275,21 +275,21 @@ SELECT REGEXP_REPLACE('&&event_name_01','[^A-Za-z0-9]+','_') event_heading_01
 ,      REGEXP_REPLACE('&&event_name_15','[^A-Za-z0-9]+','_') event_heading_15
   FROM DUAL;
 
-COL &&event_heading_01 HEADING '"&&event_name_01"' FORMAT 999,999.999
-COL &&event_heading_02 HEADING '"&&event_name_02"' FORMAT 999,999.999
-COL &&event_heading_03 HEADING '"&&event_name_03"' FORMAT 999,999.999
-COL &&event_heading_04 HEADING '"&&event_name_04"' FORMAT 999,999.999
-COL &&event_heading_05 HEADING '"&&event_name_05"' FORMAT 999,999.999
-COL &&event_heading_06 HEADING '"&&event_name_06"' FORMAT 999,999.999
-COL &&event_heading_07 HEADING '"&&event_name_07"' FORMAT 999,999.999
-COL &&event_heading_08 HEADING '"&&event_name_08"' FORMAT 999,999.999
-COL &&event_heading_09 HEADING '"&&event_name_09"' FORMAT 999,999.999
-COL &&event_heading_10 HEADING '"&&event_name_10"' FORMAT 999,999.999
-COL &&event_heading_11 HEADING '"&&event_name_11"' FORMAT 999,999.999
-COL &&event_heading_12 HEADING '"&&event_name_12"' FORMAT 999,999.999
-COL &&event_heading_13 HEADING '"&&event_name_13"' FORMAT 999,999.999
-COL &&event_heading_14 HEADING '"&&event_name_14"' FORMAT 999,999.999
-COL &&event_heading_15 HEADING '"&&event_name_15"' FORMAT 999,999.999
+COL &&event_heading_01 HEADING '&&event_name_01' FORMAT 999,999.999
+COL &&event_heading_02 HEADING '&&event_name_02' FORMAT 999,999.999
+COL &&event_heading_03 HEADING '&&event_name_03' FORMAT 999,999.999
+COL &&event_heading_04 HEADING '&&event_name_04' FORMAT 999,999.999
+COL &&event_heading_05 HEADING '&&event_name_05' FORMAT 999,999.999
+COL &&event_heading_06 HEADING '&&event_name_06' FORMAT 999,999.999
+COL &&event_heading_07 HEADING '&&event_name_07' FORMAT 999,999.999
+COL &&event_heading_08 HEADING '&&event_name_08' FORMAT 999,999.999
+COL &&event_heading_09 HEADING '&&event_name_09' FORMAT 999,999.999
+COL &&event_heading_10 HEADING '&&event_name_10' FORMAT 999,999.999
+COL &&event_heading_11 HEADING '&&event_name_11' FORMAT 999,999.999
+COL &&event_heading_12 HEADING '&&event_name_12' FORMAT 999,999.999
+COL &&event_heading_13 HEADING '&&event_name_13' FORMAT 999,999.999
+COL &&event_heading_14 HEADING '&&event_name_14' FORMAT 999,999.999
+COL &&event_heading_15 HEADING '&&event_name_15' FORMAT 999,999.999
 
 BEGIN
   :sql_text := q'[
@@ -320,7 +320,7 @@ SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
        dbid,
        snap_id,
        event_name,
-       SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * wait_count_this_snap)/NULLIF(SUM(wait_count_this_snap),0) avg_wait_time_milli
+       ROUND(SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * wait_count_this_snap)/NULLIF(SUM(wait_count_this_snap),0),3) avg_wait_time_milli
   FROM histogram
  WHERE wait_count_this_snap >= 0
  GROUP BY
