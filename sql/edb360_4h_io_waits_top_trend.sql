@@ -344,7 +344,7 @@ SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
 SELECT * 
   FROM per_snap
 PIVOT (
-  AVG(avg_wait_time_milli) FOR event_name IN(
+  AVG(NVL(avg_wait_time_milli,0)) FOR event_name IN(
  '&&event_name_01' &&event_heading_01
 ,'&&event_name_02' &&event_heading_02
 ,'&&event_name_03' &&event_heading_03
