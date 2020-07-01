@@ -242,21 +242,21 @@ DEF tit_13 = '&&event_name_13.';
 DEF tit_14 = '&&event_name_14.';
 DEF tit_15 = '&&event_name_15.';
 
-COL event_heading_01 NEW_V event_heading_01
-COL event_heading_02 NEW_V event_heading_02
-COL event_heading_03 NEW_V event_heading_03
-COL event_heading_04 NEW_V event_heading_04
-COL event_heading_05 NEW_V event_heading_05
-COL event_heading_06 NEW_V event_heading_06
-COL event_heading_07 NEW_V event_heading_07
-COL event_heading_08 NEW_V event_heading_08
-COL event_heading_09 NEW_V event_heading_09
-COL event_heading_10 NEW_V event_heading_10
-COL event_heading_11 NEW_V event_heading_11
-COL event_heading_12 NEW_V event_heading_12
-COL event_heading_13 NEW_V event_heading_13
-COL event_heading_14 NEW_V event_heading_14
-COL event_heading_15 NEW_V event_heading_15
+COL event_heading_01 NEW_V event_heading_01 HEADING '"&&event_name_01"' FORMAT 999,999.999
+COL event_heading_02 NEW_V event_heading_02 HEADING '"&&event_name_02"' FORMAT 999,999.999
+COL event_heading_03 NEW_V event_heading_03 HEADING '"&&event_name_03"' FORMAT 999,999.999
+COL event_heading_04 NEW_V event_heading_04 HEADING '"&&event_name_04"' FORMAT 999,999.999
+COL event_heading_05 NEW_V event_heading_05 HEADING '"&&event_name_05"' FORMAT 999,999.999
+COL event_heading_06 NEW_V event_heading_06 HEADING '"&&event_name_06"' FORMAT 999,999.999
+COL event_heading_07 NEW_V event_heading_07 HEADING '"&&event_name_07"' FORMAT 999,999.999
+COL event_heading_08 NEW_V event_heading_08 HEADING '"&&event_name_08"' FORMAT 999,999.999
+COL event_heading_09 NEW_V event_heading_09 HEADING '"&&event_name_09"' FORMAT 999,999.999
+COL event_heading_10 NEW_V event_heading_10 HEADING '"&&event_name_10"' FORMAT 999,999.999
+COL event_heading_11 NEW_V event_heading_11 HEADING '"&&event_name_11"' FORMAT 999,999.999
+COL event_heading_12 NEW_V event_heading_12 HEADING '"&&event_name_12"' FORMAT 999,999.999
+COL event_heading_13 NEW_V event_heading_13 HEADING '"&&event_name_13"' FORMAT 999,999.999
+COL event_heading_14 NEW_V event_heading_14 HEADING '"&&event_name_14"' FORMAT 999,999.999
+COL event_heading_15 NEW_V event_heading_15 HEADING '"&&event_name_15"' FORMAT 999,999.999
 
 SELECT REGEXP_REPLACE('&&event_name_01','[^A-Za-z0-9]+','_') event_heading_01
 ,      REGEXP_REPLACE('&&event_name_02','[^A-Za-z0-9]+','_') event_heading_02
