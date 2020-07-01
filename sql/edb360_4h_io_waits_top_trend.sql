@@ -235,9 +235,10 @@ DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
 
-REM dmk 1.7.2020 - removed wait_class_id from analytic partition by clause
-REM switched to cumulative average waited by number of events counted instead of average of equally weighted averages, 
-REM removed group by instance, and sum per instance in final query.
+--dmk 1.7.2020 - removed wait_class_id from analytic partition by clause
+--switched to cumulative average waited by number of events counted instead of average of equally weighted averages, 
+--removed group by instance, and sum per instance in final query.
+
 BEGIN
   :sql_text_backup := q'[
 WITH
@@ -306,7 +307,7 @@ SELECT snap_id,
        TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time,
        ROUND(avg_wait_time_milli, 3) avg_latency_ms,
-       ROUND(avg_avg_wait_time_milli, 3) latency_trend_ms
+       ROUND(avg_avg_wait_time_milli, 3) latency_trend_ms,
        0 dummy_03,
        0 dummy_04,
        0 dummy_05,
