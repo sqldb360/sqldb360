@@ -277,7 +277,6 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        average b
  WHERE b.snap_id         <= a.snap_id
    AND b.dbid             = a.dbid
-   AND b.instance_number  = a.instance_number
  GROUP BY
        a.snap_id,
        a.dbid
