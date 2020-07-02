@@ -11,8 +11,8 @@ DEF title = 'Top 24 Wait Events';
 DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
 
 COLUMN hours_waited        HEADING 'Hours|Waited'
-COLUMN wait_count_total    HEADING 'Wait Count|Total'
-COLUMN avg_wait_time_milli HEADING 'Average|Wait Time (ms)'
+COLUMN wait_count_total    HEADING 'Wait Count|Total'       
+COLUMN avg_wait_time_milli HEADING 'Average|Wait Time (ms)' FORMAT 999,999.999
 COLUMN avg_latency_ms      HEADING 'Average|Latency (ms)'
 COLUMN latency_trend_ms    HEADING 'Latency|Trend (ms)'
 
