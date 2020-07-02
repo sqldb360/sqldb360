@@ -9,6 +9,14 @@ SPO OFF;
 
 DEF title = 'Top 24 Wait Events';
 DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
+
+COLUMN hours_waited        HEADING 'Hours|Waited'
+COLUMN wait_count_total    HEADING 'Wait Count|Total'
+COLUMN avg_wait_time_milli HEADING 'Average|Wait Time (ms)'
+COLUMN avg_latency_ms      HEADING 'Average|Latency (ms)'
+COLUMN latency_trend_ms    HEADING 'Latency|Trend (ms)'
+
+--dmk 2.7.2020 correction to wait time calculation
 BEGIN
   :sql_text := q'[
 WITH
@@ -16,9 +24,8 @@ details AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
-       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_class_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */
-       (wait_time_milli - LAG(wait_time_milli) OVER (PARTITION BY snap_id, dbid, instance_number, event_id, wait_class_id  ORDER BY wait_time_milli)) / 2 /* average wait_time_milli */
-       wait_time_milli_total
+       wait_time_milli,
+       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_class_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -28,9 +35,9 @@ events AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
-       SUM(wait_time_milli_total) wait_time_milli_total
+       SUM((CASE wait_time_milli WHEN 1 THEN 0.50 ELSE 0.75 END) * wait_time_milli * wait_count_this_snap) wait_time_milli_total,
+       SUM(wait_count_this_snap) wait_count_total
   FROM details
- WHERE wait_time_milli_total > 0
  GROUP BY
        wait_class,
        event_name
@@ -38,13 +45,14 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ranked AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        RANK () OVER (ORDER BY wait_time_milli_total DESC) wrank,
-       ROUND(wait_time_milli_total / 100 / 3600, 1) hours_waited,
-       wait_class, 
-       event_name
+       events.*
   FROM events
+ WHERE wait_time_milli_total > 0
 )
-SELECT hours_waited,
-       wait_class, 
+SELECT ROUND(wait_time_milli_total / 1000 / 3600, 1) hours_waited,
+       wait_count_total,
+       wait_time_milli_total/NULLIF(wait_count_total,0) avg_wait_timi_milli,
+       wait_class,
        event_name
   FROM ranked
  WHERE wrank < 25
@@ -214,7 +222,7 @@ COL recovery NEW_V recovery;
 SELECT CHR(38)||' recovery' recovery FROM DUAL;
 -- this above is to handle event "RMAN backup & recovery I/O"
 
---dmk 1.7.2020 added to trend latencies of 15 wait events
+--dmk 1.7.2020 added to trend latencies of 15 top wait events
 
 DEF skip_lch = '';
 DEF title = 'Average Latency of Top 15 events';
@@ -657,6 +665,13 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = 
 
 DEF skip_lch = 'Y';
 DEF skip_pch = 'Y';
+
+COLUMN hours_waited        CLEAR
+COLUMN wait_count_total    CLEAR
+COLUMN avg_wait_time_milli CLEAR
+COLUMN avg_latency_ms      CLEAR
+COLUMN latency_trend_ms    CLEAR
+
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>
