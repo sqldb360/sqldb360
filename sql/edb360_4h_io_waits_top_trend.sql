@@ -16,7 +16,7 @@ COLUMN avg_wait_time_milli HEADING 'Average|Wait Time (ms)' FORMAT 999,999.999
 COLUMN avg_latency_ms      HEADING 'Average|Latency (ms)'
 COLUMN latency_trend_ms    HEADING 'Latency|Trend (ms)'
 
---dmk 2.7.2020 correction to wait time calculation
+--dmk 2.7.2020 correction to wait time calculation to use same formula as in queries for each individual event
 BEGIN
   :sql_text := q'[
 WITH
@@ -51,7 +51,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 )
 SELECT ROUND(wait_time_milli_total / 1000 / 3600, 1) hours_waited,
        wait_count_total,
-       wait_time_milli_total/NULLIF(wait_count_total,0) avg_wait_timi_milli,
+       wait_time_milli_total/NULLIF(wait_count_total,0) avg_wait_time_milli,
        wait_class,
        event_name
   FROM ranked
