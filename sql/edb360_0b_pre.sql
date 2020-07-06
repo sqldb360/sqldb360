@@ -962,6 +962,7 @@ COL name CLE;
 COL value CLE;
 COL display_value CLE;
 COL update_comment CLE;
+COL cpu_load_threshold CLEAR
 SHOW PARAMETERS;
 SELECT 'Tool Execution Hours so far: '||ROUND((DBMS_UTILITY.GET_TIME - :edb360_main_time0) / 100 / 3600, 3) tool_exec_hours FROM DUAL
 /
