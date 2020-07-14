@@ -13,7 +13,6 @@ BEGIN
 WITH
 hist AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.con_id,
        sql_id,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
@@ -21,7 +20,6 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
  WHERE @filter_predicate@
    AND sql_id IS NOT NULL
  GROUP BY
-       &&skip_noncdb.con_id,
        sql_id
 ),
 total AS (
@@ -37,7 +35,6 @@ SELECT DISTINCT
        &&gv_object_prefix.sql v2
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND v2.sql_id(+) = h.sql_id
-   &&skip_ver_le_11.AND v2.con_id(+) = h.con_id
  UNION ALL
 SELECT 'Others',
        NVL(SUM(h.samples), 0) samples,
