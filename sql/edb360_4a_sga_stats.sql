@@ -243,7 +243,6 @@ DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
 
-REM 14.7.2020 dmk changed from AVG() to SUM()
 WITH x AS (
 SELECT con_id,
        SUM(bytes) sga_total
