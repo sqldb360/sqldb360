@@ -243,9 +243,10 @@ DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
 
+REM 14.7.2020 dmk changed from AVG() to SUM()
 WITH x AS (
 SELECT con_id,
-       AVG(bytes) sga_total
+       SUM(bytes) sga_total
   FROM &&awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
