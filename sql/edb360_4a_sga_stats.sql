@@ -17,7 +17,7 @@ END;
 /
 @@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
-DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
+DEF main_table = '&&awr_hist_prefix.SGASTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'SGA Statistics in GBs';
@@ -43,7 +43,6 @@ WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        snap_id,
-	   &&skip_noncdb.con_id,
        dbid,
        instance_number,
        SUM(bytes) sga_total,
@@ -55,19 +54,17 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE pool WHEN 'large pool' THEN bytes ELSE 0 END) large_pool,
        SUM(CASE pool WHEN 'java pool' THEN bytes ELSE 0 END) java_pool,
        SUM(CASE pool WHEN 'streams pool' THEN bytes ELSE 0 END) streams_pool
-  FROM &&cdb_awr_object_prefix.sgastat
+  FROM &&awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND instance_number = @instance_number@
  GROUP BY
        snap_id,
-	   &&skip_noncdb.con_id,
        dbid,
        instance_number
 ), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.snap_id,
-	   &&skip_noncdb.h1.con_id,
        h1.dbid,
        h1.instance_number,
        s1.begin_interval_time,
@@ -84,11 +81,10 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.streams_pool
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&cdb_awr_object_prefix.snapshot s0,
-       &&cdb_awr_object_prefix.snapshot s1
+       &&awr_object_prefix.snapshot s0,
+       &&awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid
-   &&skip_noncdb.and h1.con_id = h0.con_id
    AND h1.instance_number = h0.instance_number
    AND s0.snap_id = h0.snap_id
    AND s0.dbid = h0.dbid
@@ -102,8 +98,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
    AND s1.startup_time = s0.startup_time
    AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
 ), x as (
-SELECT &&skip_noncdb.con_id,
-       snap_id,
+SELECT snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        ROUND(SUM(sga_total) / POWER(2,30), 3) sga_total,
@@ -123,16 +118,12 @@ SELECT &&skip_noncdb.con_id,
        0 dummy_15
   FROM sgastat_denorm_2
  GROUP BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
 )
 SELECT x.*
-       &&skip_noncdb.,c.name con_name
 FROM   x
-       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
-       &&skip_noncdb.x.con_id,
-	   x.snap_id
+       x.snap_id
 ]';
 END;
 /
@@ -201,6 +192,600 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
+--dmk begin SGASTAT per PDB per INSTANCE
+DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
+
+COL con_id_01 NEW_V con_id_01;
+COL con_id_02 NEW_V con_id_02;
+COL con_id_03 NEW_V con_id_03;
+COL con_id_04 NEW_V con_id_04;
+COL con_id_05 NEW_V con_id_05;
+COL con_id_06 NEW_V con_id_06;
+COL con_id_07 NEW_V con_id_07;
+COL con_id_08 NEW_V con_id_08;
+COL con_id_09 NEW_V con_id_09;
+COL con_id_10 NEW_V con_id_10;
+COL con_id_11 NEW_V con_id_11;
+COL con_id_12 NEW_V con_id_12;
+COL con_id_13 NEW_V con_id_13;
+COL con_id_14 NEW_V con_id_14;
+COL con_id_15 NEW_V con_id_15;
+
+COL con_name_01 NEW_V con_name_01;
+COL con_name_02 NEW_V con_name_02;
+COL con_name_03 NEW_V con_name_03;
+COL con_name_04 NEW_V con_name_04;
+COL con_name_05 NEW_V con_name_05;
+COL con_name_06 NEW_V con_name_06;
+COL con_name_07 NEW_V con_name_07;
+COL con_name_08 NEW_V con_name_08;
+COL con_name_09 NEW_V con_name_09;
+COL con_name_10 NEW_V con_name_10;
+COL con_name_11 NEW_V con_name_11;
+COL con_name_12 NEW_V con_name_12;
+COL con_name_13 NEW_V con_name_13;
+COL con_name_14 NEW_V con_name_14;
+COL con_name_15 NEW_V con_name_15;
+
+DEF tit_01 = '';
+DEF tit_02 = '';
+DEF tit_03 = '';
+DEF tit_04 = '';
+DEF tit_05 = '';
+DEF tit_06 = '';
+DEF tit_07 = '';
+DEF tit_08 = '';
+DEF tit_09 = '';
+DEF tit_10 = '';
+DEF tit_11 = '';
+DEF tit_12 = '';
+DEF tit_13 = '';
+DEF tit_14 = '';
+DEF tit_15 = '';
+
+WITH x AS (
+SELECT con_id,
+       SUM(bytes) sga_total
+  FROM &&awr_object_prefix.sgastat
+ WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+GROUP BY con_id
+), y AS (
+SELECT row_number() OVER (ORDER BY sga_total DESC) wrank,
+       x.con_id, 'PDB_'||x.con_id||'_'||c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+), z AS (
+SELECT row_number() OVER (ORDER BY con_id) wrank,
+       y.con_id, y.con_name
+  FROM y
+ WHERE wrank <= 15
+)
+SELECT NVL(MAX(CASE wrank WHEN 01 THEN con_id END),-1) con_id_01,
+       NVL(MAX(CASE wrank WHEN 02 THEN con_id END),-1) con_id_02,
+       NVL(MAX(CASE wrank WHEN 03 THEN con_id END),-1) con_id_03,
+       NVL(MAX(CASE wrank WHEN 04 THEN con_id END),-1) con_id_04,
+       NVL(MAX(CASE wrank WHEN 05 THEN con_id END),-1) con_id_05,
+       NVL(MAX(CASE wrank WHEN 06 THEN con_id END),-1) con_id_06,
+       NVL(MAX(CASE wrank WHEN 07 THEN con_id END),-1) con_id_07,
+       NVL(MAX(CASE wrank WHEN 08 THEN con_id END),-1) con_id_08,
+       NVL(MAX(CASE wrank WHEN 09 THEN con_id END),-1) con_id_09,
+       NVL(MAX(CASE wrank WHEN 10 THEN con_id END),-1) con_id_10,
+       NVL(MAX(CASE wrank WHEN 11 THEN con_id END),-1) con_id_11,
+       NVL(MAX(CASE wrank WHEN 12 THEN con_id END),-1) con_id_12,
+       NVL(MAX(CASE wrank WHEN 13 THEN con_id END),-1) con_id_13,
+       NVL(MAX(CASE wrank WHEN 14 THEN con_id END),-1) con_id_14,
+       NVL(MAX(CASE wrank WHEN 15 THEN con_id END),-1) con_id_15,
+       NVL(MAX(CASE wrank WHEN 01 THEN con_name END),'DUMMY_01') con_name_01,
+       NVL(MAX(CASE wrank WHEN 02 THEN con_name END),'DUMMY_02') con_name_02,
+       NVL(MAX(CASE wrank WHEN 03 THEN con_name END),'DUMMY_03') con_name_03,
+       NVL(MAX(CASE wrank WHEN 04 THEN con_name END),'DUMMY_04') con_name_04,
+       NVL(MAX(CASE wrank WHEN 05 THEN con_name END),'DUMMY_05') con_name_05,
+       NVL(MAX(CASE wrank WHEN 06 THEN con_name END),'DUMMY_06') con_name_06,
+       NVL(MAX(CASE wrank WHEN 07 THEN con_name END),'DUMMY_07') con_name_07,
+       NVL(MAX(CASE wrank WHEN 08 THEN con_name END),'DUMMY_08') con_name_08,
+       NVL(MAX(CASE wrank WHEN 09 THEN con_name END),'DUMMY_09') con_name_09,
+       NVL(MAX(CASE wrank WHEN 10 THEN con_name END),'DUMMY_10') con_name_10,
+       NVL(MAX(CASE wrank WHEN 11 THEN con_name END),'DUMMY_11') con_name_11,
+       NVL(MAX(CASE wrank WHEN 12 THEN con_name END),'DUMMY_12') con_name_12,
+       NVL(MAX(CASE wrank WHEN 13 THEN con_name END),'DUMMY_13') con_name_13,
+       NVL(MAX(CASE wrank WHEN 14 THEN con_name END),'DUMMY_14') con_name_14,
+       NVL(MAX(CASE wrank WHEN 15 THEN con_name END),'DUMMY_15') con_name_15,
+       MAX(CASE wrank WHEN 01 THEN con_name END) tit_01,
+       MAX(CASE wrank WHEN 02 THEN con_name END) tit_02,
+       MAX(CASE wrank WHEN 03 THEN con_name END) tit_03,
+       MAX(CASE wrank WHEN 04 THEN con_name END) tit_04,
+       MAX(CASE wrank WHEN 05 THEN con_name END) tit_05,
+       MAX(CASE wrank WHEN 06 THEN con_name END) tit_06,
+       MAX(CASE wrank WHEN 07 THEN con_name END) tit_07,
+       MAX(CASE wrank WHEN 08 THEN con_name END) tit_08,
+       MAX(CASE wrank WHEN 09 THEN con_name END) tit_09,
+       MAX(CASE wrank WHEN 10 THEN con_name END) tit_10,
+       MAX(CASE wrank WHEN 11 THEN con_name END) tit_11,
+       MAX(CASE wrank WHEN 12 THEN con_name END) tit_12,
+       MAX(CASE wrank WHEN 13 THEN con_name END) tit_13,
+       MAX(CASE wrank WHEN 14 THEN con_name END) tit_14,
+       MAX(CASE wrank WHEN 15 THEN con_name END) tit_15
+  FROM z
+ WHERE wrank <= 15;
+
+DEF chartype = 'LineChart';
+DEF stacked = '';
+DEF vaxis = 'Total SGA Allocated (Gb) per PDB (GB)';
+DEF vbaseline = '';
+BEGIN
+  :sql_text_backup := q'[
+WITH
+sgastat_denorm_1 AS (
+SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       snap_id,
+       &&skip_noncdb.con_id,
+       dbid,
+       instance_number,
+       SUM(bytes) sga_total
+  FROM &&awr_object_prefix.sgastat
+ WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND dbid = &&edb360_dbid.
+   AND instance_number = @instance_number@ @sgastat_criteria@
+ GROUP BY
+       snap_id,
+       &&skip_noncdb.con_id,
+       dbid,
+       instance_number
+), sgastat_denorm_2 AS (
+SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+       h1.snap_id,
+       &&skip_noncdb.h1.con_id,
+       h1.dbid,
+       h1.instance_number,
+       s1.begin_interval_time,
+       s1.end_interval_time,
+       ROUND((CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 24 * 60 * 60) interval_secs,
+       h1.sga_total
+  FROM sgastat_denorm_1 h0,
+       sgastat_denorm_1 h1,
+       &&awr_object_prefix.snapshot s0,
+       &&awr_object_prefix.snapshot s1
+ WHERE h1.snap_id = h0.snap_id + 1
+   AND h1.dbid = h0.dbid
+   &&skip_noncdb.and h1.con_id = h0.con_id
+   AND h1.instance_number = h0.instance_number
+   AND s0.snap_id = h0.snap_id
+   AND s0.dbid = h0.dbid
+   AND s0.instance_number = h0.instance_number
+   AND s0.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+   AND s0.dbid = &&edb360_dbid.
+   AND s1.snap_id = h1.snap_id
+   AND s1.dbid = h1.dbid
+   AND s1.instance_number = h1.instance_number
+   AND s1.snap_id = s0.snap_id + 1
+   AND s1.startup_time = s0.startup_time
+   AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
+), x AS (
+SELECT snap_id, con_id,
+       TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
+       TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
+       ROUND(SUM(sga_total) / POWER(2,30), 3) sga_total
+  FROM sgastat_denorm_2
+ GROUP BY
+       snap_id, con_id
+), y AS (
+SELECT *
+  FROM x
+       PIVOT(AVG(NVL(sga_total,0)) FOR con_id IN(
+ &&con_id_01 &&con_name_01
+,&&con_id_02 &&con_name_02
+,&&con_id_03 &&con_name_03
+,&&con_id_04 &&con_name_04
+,&&con_id_05 &&con_name_05
+,&&con_id_06 &&con_name_06
+,&&con_id_07 &&con_name_07
+,&&con_id_08 &&con_name_08
+,&&con_id_09 &&con_name_09
+,&&con_id_10 &&con_name_10
+,&&con_id_11 &&con_name_11
+,&&con_id_12 &&con_name_12
+,&&con_id_13 &&con_name_13
+,&&con_id_14 &&con_name_14
+,&&con_id_15 &&con_name_15
+))
+)
+select snap_id, begin_time, end_time
+, NVL(&&con_name_01,0) &&con_name_01
+, NVL(&&con_name_02,0) &&con_name_02
+, NVL(&&con_name_03,0) &&con_name_03
+, NVL(&&con_name_04,0) &&con_name_04
+, NVL(&&con_name_05,0) &&con_name_05
+, NVL(&&con_name_06,0) &&con_name_06
+, NVL(&&con_name_07,0) &&con_name_07
+, NVL(&&con_name_08,0) &&con_name_08
+, NVL(&&con_name_09,0) &&con_name_09
+, NVL(&&con_name_10,0) &&con_name_10
+, NVL(&&con_name_11,0) &&con_name_11
+, NVL(&&con_name_12,0) &&con_name_12
+, NVL(&&con_name_13,0) &&con_name_13
+, NVL(&&con_name_14,0) &&con_name_14
+, NVL(&&con_name_15,0) &&con_name_15
+from y
+ORDER BY snap_id
+]';
+END;
+/
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Cluster';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+
+@@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 1';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '1');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 2';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '2');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 3';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '3');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 4';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '4');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 5';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '5');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 6';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '6');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 7';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '7');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total SGA Allocated (Gb) per PDB for Instance 8';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '8');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
+@@&&skip_noncdb.&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+
+
+DEF skip_lch = '';
+DEF title = 'Total Shared Pool Allocated (Gb) per PDB for Cluster';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+
+@@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 1';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '1');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 2';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '2');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 3';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '3');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 4';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '4');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 5';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '5');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 6';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '6');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 7';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '7');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Shared Pool Allocated (Gb) per PDB for Instance 8';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '8');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
+@@&&skip_noncdb.&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+
+
+
+DEF skip_lch = '';
+DEF title = 'Total Large Pool Allocated (Gb) per PDB for Cluster';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+
+@@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 1';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '1');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 2';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '2');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 3';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '3');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 4';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '4');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 5';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '5');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 6';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '6');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 7';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '7');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Large Pool Allocated (Gb) per PDB for Instance 8';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '8');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
+@@&&skip_noncdb.&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Total Java Pool Allocated (Gb) per PDB for Cluster';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+
+@@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 1';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '1');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 2';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '2');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 3';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '3');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 4';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '4');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 5';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '5');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 6';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '6');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 7';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '7');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Java Pool Allocated (Gb) per PDB for Instance 8';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '8');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
+@@&&skip_noncdb.&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Cluster';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+
+@@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 1';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '1');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 2';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '2');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 3';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '3');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 4';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '4');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 5';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '5');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 6';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '6');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 7';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '7');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+DEF skip_lch = '';
+DEF title = 'Streams Pool Allocated (Gb) per PDB for Instance 8';
+DEF abstract = '&&abstract_uom.';
+DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', '8');
+EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
+@@&&skip_noncdb.&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
+
+--dmk end SGASTAT per PDB per INSTANCE
+
+
 
 -- Find subpools anywhere in the cluster that have the largest changes.
 -- 1st Grouped by Instance because the variances happen inside each instance only.
@@ -219,7 +804,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        name,
        stddev(bytes) standard_dev
-  FROM &&cdb_awr_object_prefix.sgastat
+  FROM &&awr_object_prefix.sgastat
  WHERE pool='shared pool'
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -278,7 +863,7 @@ SELECT /*+ &&sq_fact_hints. */
        instance_number,
        name,
        stddev(bytes) standard_dev
-  FROM &&cdb_awr_object_prefix.sgastat
+  FROM &&awr_object_prefix.sgastat
  WHERE pool='shared pool'
    AND name <>'free memory'
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -376,24 +961,21 @@ BEGIN
 WITH
 sgastat_denorm_1 AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.con_id,
        snap_id,
        dbid,
        instance_number,
        SUM(bytes) allocated
-  FROM &&cdb_awr_object_prefix.sgastat
+  FROM &&awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND pool = 'shared pool'
    AND @filter_predicate@
  GROUP BY
-       &&skip_noncdb.con_id,
        snap_id,
        dbid,
        instance_number
 ), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */
-       &&skip_noncdb.h1.con_id,
        h1.snap_id,
        h1.dbid,
        h1.instance_number,
@@ -403,10 +985,9 @@ SELECT /*+ &&sq_fact_hints. */
        h1.allocated
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&cdb_awr_object_prefix.snapshot s0,
-       &&cdb_awr_object_prefix.snapshot s1
+       &&awr_object_prefix.snapshot s0,
+       &&awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
-   &&skip_noncdb.AND h1.con_id = h0.con_id
    AND h1.dbid = h0.dbid
    AND h1.instance_number = h0.instance_number
    AND s0.snap_id = h0.snap_id
@@ -421,8 +1002,7 @@ SELECT /*+ &&sq_fact_hints. */
    AND s1.startup_time = s0.startup_time
    AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
 )
-SELECT &&skip_noncdb.con_id,
-       snap_id,
+SELECT snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        0 dummy_01, --ROUND(SUM(CASE instance_number WHEN 1 THEN allocated ELSE 0 END)/POWER(2,20), 3) inst_01,
@@ -442,11 +1022,9 @@ SELECT &&skip_noncdb.con_id,
        0 dummy_15
   FROM sgastat_denorm_2
  GROUP BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
  ORDER BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
 ]';
 
  :sql_text_backup:=(CASE WHEN '&&inst1_present' IS NOT NULL THEN REPLACE(:sql_text_backup,'0 dummy_01, --','') ELSE :sql_text_backup END);
@@ -564,7 +1142,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        name subpool,
        instance_number,
        SUM(bytes) allocated
-  FROM &&cdb_awr_object_prefix.sgastat
+  FROM &&awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND pool = 'shared pool'
@@ -577,9 +1155,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number
 ), sgastat_denorm_2 AS (
 SELECT /*+ &&sq_fact_hints. */
-       &&skip_noncdb.h1.con_id,
        h1.snap_id,
        h1.dbid,
+       &&skip_noncdb.h1.con_id,
        h1.subpool,
        s1.begin_interval_time,
        s1.end_interval_time,
@@ -587,8 +1165,8 @@ SELECT /*+ &&sq_fact_hints. */
        h1.allocated
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&cdb_awr_object_prefix.snapshot s0,
-       &&cdb_awr_object_prefix.snapshot s1
+       &&awr_object_prefix.snapshot s0,
+       &&awr_object_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    &&skip_noncdb. AND h1.con_id = h0.con_id
    AND h1.dbid = h0.dbid
@@ -606,8 +1184,7 @@ SELECT /*+ &&sq_fact_hints. */
    AND s1.startup_time = s0.startup_time
    AND s1.begin_interval_time > (s0.begin_interval_time + (1 / (24 * 60))) /* filter out snaps apart < 1 min */
 )
-SELECT &&skip_noncdb.con_id,
-       snap_id,
+SELECT snap_id,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        ROUND(SUM(CASE subpool WHEN 'free memory' THEN allocated ELSE 0 END)/POWER(2,20), 3) free_memory,
@@ -630,11 +1207,9 @@ SELECT &&skip_noncdb.con_id,
        0 dummy_13
   FROM sgastat_denorm_2
  GROUP BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
  ORDER BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
 ]';
 
  :sql_text_backup:=(CASE WHEN '&&subpool_02.' IS NOT NULL THEN REPLACE(:sql_text_backup,'0 dummy_02, --','') ELSE :sql_text_backup END);

@@ -30,9 +30,9 @@ SELECT COUNT(*),
        state
 )
 SELECT x.*
-      &&skip_noncdb.,c.name con_name
-FROM x
-     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+       &&skip_noncdb.,c.name con_name
+FROM   x
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        1 DESC,
 	   &&skip_noncdb.x.con_id,
@@ -67,7 +67,7 @@ SELECT COUNT(*),
        state
 )
 SELECT x.*
-      &&skip_noncdb.,c.name con_name
+       &&skip_noncdb.,c.name con_name
 FROM   x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
@@ -138,14 +138,14 @@ DEF main_table = '&&cdb_view_prefix.TRIGGERS';
 BEGIN
   :sql_text := q'[
 SELECT x.*
-      &&skip_noncdb.,c.name con_name
+       &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.triggers x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  WHERE base_object_type IN ('DATABASE', 'SCHEMA')
  ORDER BY
        x.base_object_type,
-	   &&skip_noncdb.x.con_id,
-	   x.owner, x.trigger_name
+       &&skip_noncdb.x.con_id,
+       x.owner, x.trigger_name
 ]';
 END;
 /
@@ -185,6 +185,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
 SELECT * from (
   SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
          &&skip_ver_le_11.s.con_id,
+         &&skip_noncdb.c.name con_name,
          s.sessions,
          s.sql_id,
          s.programs,
@@ -196,7 +197,6 @@ SELECT * from (
          s.actions,
          s.min_action,
          s.max_action,
-		 &&skip_noncdb.c.name con_name,
          DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
     FROM ash s
 	     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
@@ -204,7 +204,8 @@ SELECT * from (
 		 ON t.dbid = &&edb360_dbid.
 		 AND t.sql_id = s.sql_id
 		 &&skip_noncdb.AND t.con_id = s.con_id
- )
+ORDER BY s.sessions DESC
+  )
   WHERE ROWNUM < 101
 ]';
 END;
@@ -260,7 +261,6 @@ WITH
 ash AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.h.con_id,
        h.snap_id,
        TO_CHAR(MIN(sample_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MAX(sample_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
@@ -287,12 +287,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
         '&&tit_14.',
         '&&tit_15.')
  GROUP BY
-       &&skip_noncdb.h.con_id,
        h.snap_id,
        h.sql_id
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.con_id,
        snap_id,
        MIN(begin_time) begin_time,
        MIN(end_time) end_time,
@@ -313,17 +311,15 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE sql_id WHEN '&&tit_15.' THEN sessions ELSE 0 END) "&&tit_15."
   FROM ash
  GROUP BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
  ORDER BY
-       &&skip_noncdb.con_id,
-	   snap_id
+       snap_id
 ]';
 END;
 /
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF title = 'Most executed SQL';
+DEF title = 'Most Frequently Executed SQL';
 DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 BEGIN
   :sql_text := q'[
@@ -366,6 +362,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
 SELECT * FROM (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.s.con_id,
+       &&skip_noncdb.c.name con_name,
        s.sql_id,
        s.executions,
        s.rows_processed,
@@ -392,12 +389,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.min_action,
        s.max_action,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
-	   &&skip_noncdb.,c.name con_name
   FROM totals s
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
 	   ON t.sql_id = s.sql_id
        AND t.dbid = &&edb360_dbid.
-       &&skip_ver_le_11.AND t.con_id = s.con_id
+       &&skip_noncdb.AND t.con_id = s.con_id
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
   ORDER BY s.executions DESC
  )
@@ -441,7 +437,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  WHERE ROWNUM < 16
 /
 
-DEF title = 'Most executed SQL - Time Series';
+DEF title = 'Most Frequently Executed SQL - Time Series';
 DEF main_table = '&&cdb_awr_hist_prefix.SQLSTAT';
 DEF skip_lch = '';
 DEF chartype = 'AreaChart';
@@ -455,7 +451,6 @@ WITH
 stat AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.con_id,
        snap_id,
        NVL(sql_id, 'null_sql_id') sql_id,
        SUM(executions_delta) executions
@@ -479,12 +474,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
         '&&tit_14.',
         '&&tit_15.')
  GROUP BY
-       &&skip_noncdb.con_id,
-	   snap_id,
+       snap_id,
        sql_id
-), x as (
+)
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.t.con_id,
        t.snap_id,
        TO_CHAR(MIN(s.begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(s.end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
@@ -509,16 +502,9 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    AND s.dbid = &&edb360_dbid.
    AND t.snap_id = s.snap_id
  GROUP BY
-       &&skip_noncdb.t.con_id,
-	   t.snap_id
-)
-SELECT x.*
-      &&skip_noncdb.,c.name con_name
-FROM   x
-       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
+       t.snap_id
  ORDER BY
-       &&skip_noncdb.x.con_id,
-       x.snap_id
+       t.snap_id
 ]';
 END;
 /
@@ -567,6 +553,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
 SELECT * FROM (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.s.con_id,
+       &&skip_noncdb.c.name con_name,
        s.sql_id,
        s.executions,
        s.rows_processed,
@@ -592,7 +579,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.actions,
        s.min_action,
        s.max_action,
-	   &&skip_noncdb.c.name con_name,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
   FROM totals s
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
@@ -674,9 +660,12 @@ DEF main_table = '&&gv_view_prefix.SESSION';
 BEGIN
   :sql_text := q'[
 SELECT /* active_sessions */
-       se.*, sq.sql_text
-  FROM &&gv_object_prefix.session se,
-       &&gv_object_prefix.sql sq
+       se.*,
+       &&skip_noncdb.c.name con_name,
+       sq.sql_text
+  FROM &&gv_object_prefix.session se
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = se.con_id
+      ,&&gv_object_prefix.sql sq
  WHERE se.status = 'ACTIVE'
    AND sq.inst_id = se.inst_id
    AND sq.sql_id = se.sql_id
@@ -697,16 +686,16 @@ BEGIN
 -- provided by Frits Hoogland
 select /*+ rule as.sql */
     &&skip_noncdb.a.con_id,
-	a.sid||','||a.serial#||',@'||a.inst_id as sid_serial_inst,
-	d.spid as ospid,
-	substr(a.program,1,19) prog,
-	a.module, a.action, a.client_info,
-	'SQL:'||b.sql_id as sql_id, child_number child, plan_hash_value, executions execs,
-	(elapsed_time/decode(nvl(executions,0),0,1,executions))/1000000 avg_etime,
-	decode(a.plsql_object_id,null,sql_text,sqla.object_name||'.'||sqlb.procedure_name) sql_text,
-	(c.wait_time_micro/1000000) wait_s,
-	decode(a.plsql_object_id,null,decode(c.wait_time,0,decode(a.blocking_session,null,c.event,c.event||'> Blocked by (inst:sid): '||a.final_blocking_instance||':'||a.final_blocking_session),'ON CPU:SQL'),'ON CPU:PLSQL:'||o.object_name) as wait_or_cpu
-	&&skip_noncdb.,c.name con_name
+    &&skip_noncdb.c.name con_name,
+    a.sid||','||a.serial#||',@'||a.inst_id as sid_serial_inst,
+    d.spid as ospid,
+    substr(a.program,1,19) prog,
+    a.module, a.action, a.client_info,
+    'SQL:'||b.sql_id as sql_id, child_number child, plan_hash_value, executions execs,
+    (elapsed_time/decode(nvl(executions,0),0,1,executions))/1000000 avg_etime,
+    decode(a.plsql_object_id,null,sql_text,sqla.object_name||'.'||sqlb.procedure_name) sql_text,
+    (c.wait_time_micro/1000000) wait_s,
+    decode(a.plsql_object_id,null,decode(c.wait_time,0,decode(a.blocking_session,null,c.event,c.event||'> Blocked by (inst:sid): '||a.final_blocking_instance||':'||a.final_blocking_session),'ON CPU:SQL'),'ON CPU:PLSQL:'||o.object_name) as wait_or_cpu
 FROM &&gv_object_prefix.session a
      LEFT OUTER JOIN &&cdb_object_prefix.procedures sqla
 	 ON sqla.object_id=a.plsql_object_id
@@ -718,7 +707,7 @@ FROM &&gv_object_prefix.session a
 	 LEFT OUTER JOIN &&cdb_object_prefix.objects o
 	 ON o.object_id=a.plsql_object_id
 	 &&skip_noncdb.AND o.con_id = a.con_id
-	 &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = a.con_id
+     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = a.con_id
    , &&gv_object_prefix.sql b, &&gv_object_prefix.session_wait c, &&gv_object_prefix.process d
 where a.status = 'ACTIVE'
 and a.username is not null
@@ -744,11 +733,13 @@ BEGIN
 -- borrowed from orachk
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.x.con_id,
-	   x.inst_id, x.sid, x.event,
+       &&skip_noncdb.c.name con_name,
+       x.inst_id, x.sid, x.event,
        ROUND(seconds_in_wait,2)  waiting_seconds,
        ROUND(wait_time/100,2)    waited_seconds,
        p1,p2,p3, BLOCKING_SESSION
 FROM &&gv_object_prefix.session x
+     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 where event not in
 (
   'SQL*Net message from client',
@@ -931,24 +922,24 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        DISTINCT
        (10 * w2.w_samples) w_seconds,
-	   &&skip_noncdb.w2.con_id,
+       &&skip_noncdb.w2.con_id,
+       &&skip_noncdb.c.name con_name,
        w2.w_sql_id,
        w2.w_event,
        (10 * b.b_samples) b_seconds,
        b.b_sql_id,
-	   &&skip_noncdb.c.name con_name,
        DBMS_LOB.SUBSTR(s1.sql_text, 1000) w_sql_text,
        DBMS_LOB.SUBSTR(s2.sql_text, 1000) b_sql_text
   FROM w2
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = w2.con_id
-	   LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s1
+       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s1
        ON s1.sql_id = w2.w_sql_id
        AND s1.dbid = w2.dbid
-	  ,b
+      ,b
        LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s2
        ON s2.sql_id = b.b_sql_id
        AND s2.dbid = b.dbid
-	  ,w3
+      ,w3
  WHERE b.dbid = w2.dbid
    AND b.w_sql_id = w2.w_sql_id
    AND b.w_event = w2.w_event
@@ -978,7 +969,7 @@ WITH w AS ( --waiting sessions
 	            dbid
 		,       instance_number
         ,       snap_id
-	,       sample_id, sample_time
+        ,       sample_id, sample_time
         ,       session_type wait_session_type
         ,       session_id, session_serial#
         ,       sql_id, sql_plan_hash_value, sql_plan_line_id
@@ -1041,7 +1032,7 @@ GROUP BY
   hold_program, hold_module, hold_action, wait_event, hold_event, ci
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ y.*
-&&skip_noncdb.,c.name con_name
+       &&skip_noncdb.,c.name con_name
 FROM   y
 &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = y.con_id
 ORDER BY ash_Secs DESC
@@ -1119,10 +1110,10 @@ FROM    w
    AND h.dbid = &&edb360_dbid.
 ), y as (
 select &&skip_noncdb.con_id,
-  hold_program, hold_module, hold_action, wait_event, hold_event
-, hold_sql_id, hold_sql_plan_hash_value
-, sum(10) ash_Secs
-  &&skip_noncdb.,c.name con_name
+       &&skip_noncdb.c.name con_name,
+       hold_program, hold_module, hold_action, wait_event, hold_event
+      ,hold_sql_id, hold_sql_plan_hash_value
+      ,sum(10) ash_Secs
 from x
 group by &&skip_noncdb.con_id,
   hold_program, hold_module, hold_action, wait_event, hold_event
@@ -1143,8 +1134,10 @@ BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&cdb_object_prefix.2pc_pending
+       a.*
+       &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.2pc_pending a
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = a.con_id
  ORDER BY
        1, 2
 ]';
@@ -1158,8 +1151,10 @@ BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       *
-  FROM &&cdb_object_prefix.2pc_neighbors
+       a.*
+       &&skip_noncdb.,c.name con_name
+  FROM &&cdb_object_prefix.2pc_neighbors a
+       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = a.con_id
  ORDER BY
        1
 ]';
