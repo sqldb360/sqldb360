@@ -7,6 +7,11 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
+COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
+SELECT MIN(wait_time_milli) min_wait_time_milli
+  FROM &&awr_object_prefix.event_histogram
+ WHERE dbid = &&edb360_dbid.;
+
 DEF title = 'Top 24 Wait Events';
 DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
 BEGIN
@@ -17,12 +22,13 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY dbid, instance_number, event_id, snap_id ORDER BY wait_time_milli),0)) / 2 /* average wait_time_milli */
+       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*wait_time_milli) /* average wait_time_milli */
        wait_time_milli_total
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND wait_class <> 'Idle'
+   AND wait_time_milli < 1e9
 ),
 events AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -133,12 +139,13 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY dbid, instance_number, event_id, snap_id ORDER BY wait_time_milli),0)) / 2 /* average wait_time_milli */
+       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*wait_time_milli) /* average wait_time_milli */
        wait_time_milli_total
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND wait_class <> 'Idle'
+   AND wait_time_milli < 1e9
 ),
 events AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -245,10 +252,11 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        wait_time_milli,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY dbid, instance_number, event_id, snap_id ORDER BY wait_time_milli),0)) / 2 average_wait_time_milli
+       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*wait_time_milli) average_wait_time_milli
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
+   AND wait_time_milli < 1e9
    AND @filter_predicate@
 ),
 average AS (
