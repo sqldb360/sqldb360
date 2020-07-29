@@ -26,8 +26,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
        wait_time_milli,
-       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_class_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY snap_id, dbid, instance_number, event_id, wait_class_id ORDER BY wait_time_milli),wait_time_milli)) / 2 average_wait_time_milli
+       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
+       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY dbid, instance_number, event_id, snap_id ORDER BY wait_time_milli),0)) / 2 average_wait_time_milli
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -142,8 +142,8 @@ details AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
-       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_class_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY snap_id, dbid, instance_number, event_id, wait_class_id  ORDER BY wait_time_milli),wait_time_milli)) / 2 /* average wait_time_milli */
+       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */
+       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY snap_id, dbid, instance_number, event_id, wait_class_id  ORDER BY wait_time_milli),0)) / 2 /* average wait_time_milli */
        wait_time_milli_total
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -320,8 +320,8 @@ SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
        snap_id,
        event_name,
        wait_time_milli,
-       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_class_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY snap_id, dbid, instance_number, event_id, wait_class_id ORDER BY wait_time_milli),wait_time_milli)) / 2 average_wait_time_milli
+       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
+       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY dbid, instance_number, event_id, snap_id ORDER BY wait_time_milli),0)) / 2 average_wait_time_milli
   FROM dba_hist_event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -416,8 +416,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
        instance_number,
        wait_time_milli,
-       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_class_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY snap_id, dbid, instance_number, event_id, wait_class_id ORDER BY wait_time_milli),wait_time_milli)) / 2 average_wait_time_milli
+       (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
+       (wait_time_milli + NVL(LAG(wait_time_milli) OVER (PARTITION BY dbid, instance_number, event_id, snap_id ORDER BY wait_time_milli),0)) / 2 average_wait_time_milli
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
