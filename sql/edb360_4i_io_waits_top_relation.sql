@@ -10,7 +10,7 @@ SPO OFF;
 COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
 COLUMN max_wait_time_milli NEW_VALUE max_wait_time_milli
 SELECT MIN(wait_time_milli) min_wait_time_milli
-     , MAX(wait_time_milli)*1.5 max_wait_time_milli
+     , MAX(wait_time_milli)*2 max_wait_time_milli
   FROM &&awr_object_prefix.event_histogram
  WHERE dbid = &&edb360_dbid.
    AND wait_time_milli < 1e9;
