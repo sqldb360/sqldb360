@@ -15,7 +15,7 @@ BEGIN
 select v.*
 from
   (select
-      name, inst_id,
+      latch#, name, addr, inst_id,
       gets,
       misses,
       round(misses*100/(gets+1), 3) misses_gets_pct,
