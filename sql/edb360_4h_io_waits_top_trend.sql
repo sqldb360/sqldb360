@@ -27,12 +27,11 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        event_name,
        wait_time_milli,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*wait_time_milli) average_wait_time_milli
+       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*LEAST(wait_time_milli,&&max_wait_time_milli.)) average_wait_time_milli
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND wait_class <> 'Idle'
-   AND wait_time_milli < 1e9
 ),
 events AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -144,13 +143,12 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wait_class,
        event_name,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */
-       ((CASE WHEN wait_time_milli = &&min_wait_time_milli. THEN 1 ELSE 0.75 END)*wait_time_milli) /* average wait_time_milli */
+       ((CASE WHEN wait_time_milli = &&min_wait_time_milli. THEN 1 ELSE 0.75 END)*LEAST(wait_time_milli,&&max_wait_time_milli.)) /* average wait_time_milli */
        wait_time_milli_total
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND wait_class <> 'Idle'
-   AND wait_time_milli < 1e9
 ),
 events AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -323,11 +321,10 @@ SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
        event_name,
        wait_time_milli,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*wait_time_milli) average_wait_time_milli
+       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*LEAST(wait_time_milli,&&max_wait_time_milli.)) average_wait_time_milli
   FROM dba_hist_event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND wait_time_milli < 1e9
 ),
 average AS (
 SELECT /*+  MATERIALIZE NO_MERGE  */ /* 4h.2 */
@@ -406,14 +403,18 @@ DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
 
+COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
+COLUMN max_wait_time_milli NEW_VALUE max_wait_time_milli
+SELECT MIN(wait_time_milli) min_wait_time_milli
+     , MAX(wait_time_milli)*1.5 max_wait_time_milli
+  FROM &&awr_object_prefix.event_histogram
+ WHERE dbid = &&edb360_dbid.
+   AND wait_time_milli < 1e9;
+
 --dmk 1.7.2020 - removed wait_class_id from analytic partition by clause
 --switched to cumulative average waited by number of events counted instead of average of equally weighted averages, 
 --removed group by instance, and sum per instance in final query.
 
-COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
-SELECT MIN(wait_time_milli) min_wait_time_milli
-  FROM &&awr_object_prefix.event_histogram
- WHERE dbid = &&edb360_dbid.;
 BEGIN
   :sql_text_backup := q'[
 WITH
@@ -424,11 +425,10 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        wait_time_milli,
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) wait_count_this_snap,
-       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*wait_time_milli) average_wait_time_milli
+       ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*LEAST(wait_time_milli,&&max_wait_time_milli.)) average_wait_time_milli
   FROM &&awr_object_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND wait_time_milli < 1e9
    AND @filter_predicate@
 ),
 average AS (
