@@ -202,6 +202,7 @@ COL edb360_6k NEW_V edb360_6k;
 COL edb360_6l NEW_V edb360_6l;
 COL edb360_6m NEW_V edb360_6m;
 COL edb360_6n NEW_V edb360_6n;
+COL edb360_6o NEW_V edb360_6o;
 COL edb360_7a NEW_V edb360_7a;
 COL edb360_7b NEW_V edb360_7b;
 COL edb360_7c NEW_V edb360_7c;
@@ -261,6 +262,7 @@ SELECT CASE WHEN '6k' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_6
 SELECT CASE WHEN '6l' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_6l_' WHEN INSTR(:edb360_sections,',6l,') > 0 THEN 'edb360_6l_' ELSE ' echo skip ' END edb360_6l FROM DUAL;
 SELECT CASE WHEN '6m' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_6m_' WHEN INSTR(:edb360_sections,',6m,') > 0 THEN 'edb360_6m_' ELSE ' echo skip ' END edb360_6m FROM DUAL;
 SELECT CASE WHEN '6n' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_6n_' WHEN INSTR(:edb360_sections,',6n,') > 0 THEN 'edb360_6n_' ELSE ' echo skip ' END edb360_6n FROM DUAL;
+SELECT CASE WHEN '6o' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_6o_' WHEN INSTR(:edb360_sections,',6o,') > 0 THEN 'edb360_6o_' ELSE ' echo skip ' END edb360_6o FROM DUAL;
 SELECT CASE WHEN '7a' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_7a_' WHEN INSTR(:edb360_sections,',7a,') > 0 THEN 'edb360_7a_' ELSE ' echo skip ' END edb360_7a FROM DUAL;
 SELECT CASE WHEN '7b' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_7b_' WHEN INSTR(:edb360_sections,',7b,') > 0 THEN 'edb360_7b_' ELSE ' echo skip ' END edb360_7b FROM DUAL;
 SELECT CASE WHEN '7c' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_7c_' WHEN INSTR(:edb360_sections,',7c,') > 0 THEN 'edb360_7c_' ELSE ' echo skip ' END edb360_7c FROM DUAL;
