@@ -285,6 +285,7 @@ SPO OFF;
 @@&&skip_ver_le_10.&&skip_diagnostics.&&edb360_6l.ash_signature.sql
 @@&&skip_ver_le_11.&&skip_diagnostics.&&edb360_6m.ash_pdbs.sql
 @@&&skip_ver_le_11.&&skip_diagnostics.&&edb360_6n.ash_pdbs_ts.sql
+@@&&skip_diagnostics.&&edb360_6o.ash_latches.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
