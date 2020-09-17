@@ -34,12 +34,13 @@ SELECT CASE WHEN '&&tool_repo_user.' IS NULL THEN '&&awr_object_prefix.' ELSE '&
   FROM DUAL
 /
 
+@@moat369_fc_oracle_version
 -- get dbid --in a CDB or PDB this will be the DBID of the container
 COL edb360_dbid NEW_V edb360_dbid;
 SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), dbid))) edb360_dbid FROM &&v_object_prefix.database;
 
 --dmk 31.1.2019 if in PDB work with DBID of PDB in v$database.CON_DBID if there are PDB specific snapshots
-&&skip_noncdb.SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), v.con_dbid))) edb360_dbid FROM &&v_object_prefix.database v, dba_hist_snapshot s WHERE s.dbid = v.con_id;
+&&skip_noncdb.SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), v.con_dbid))) edb360_dbid FROM &&v_object_prefix.database v, dba_hist_snapshot s WHERE s.dbid = v.con_dbid AND rownum <= 1;
 
 -- snaps
 SELECT startup_time, dbid, instance_number, COUNT(*) snaps,
@@ -440,7 +441,6 @@ COL row_num NEW_V row_num HEA '#' PRI;
 COL db_version NEW_V db_version;
 SELECT version db_version FROM &&v_object_prefix.instance;
 
-@@moat369_fc_oracle_version.sql
 
 COLUMN cdb_awr_hist_prefix   NEW_V cdb_awr_hist_prefix
 COLUMN cdb_awr_object_prefix NEW_V cdb_awr_object_prefix
