@@ -375,7 +375,9 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.registry_sqlpatch x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
- ORDER BY patch_id, install_id
+ ORDER BY 
+     &&skip_ver_le_12_1  2,
+     1
 	   &&skip_noncdb.,x.con_id
 ]';
 END;
