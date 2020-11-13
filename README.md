@@ -10,7 +10,7 @@ Remember to download the lastest *stable* release under "Releases". If you just 
 
 1. Download the tool into target database server
 2. Navigate to master directory and connect into SQLPlus as DBA or user with access to data dictionary
-3. Execute edb360.sql (database view) of sqld360.sql (one SQL focus)
+3. Execute edb360.sql (database view) or sqld360.sql (one SQL focus)
    - Both tools will prompt for the license available on the target database.
      - [T | D | N] For Tuning, Diagnostics or None
    - Both tools accept an optimal configuration file
