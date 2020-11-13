@@ -1,6 +1,6 @@
-DEF edb360_vYYNN = 'v192';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2019-03-23)';
-DEF edb360_copyright = ' (c) 2019';
+DEF edb360_vYYNN = 'v1201';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2020-11-12)';
+DEF edb360_copyright = ' (c) 2020';
 
 SET TERM OFF;
 -- watchdog
