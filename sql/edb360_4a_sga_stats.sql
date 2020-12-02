@@ -244,12 +244,15 @@ DEF tit_14 = '';
 DEF tit_15 = '';
 
 WITH x AS (
-SELECT con_id,
+SELECT &&skip_noncdb.con_id,
+       &&skip_cdb.TO_NUMBER(null) con_id,
        SUM(bytes) sga_total
   FROM &&awr_object_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-GROUP BY con_id
+GROUP BY
+       &&skip_noncdb.con_id,
+       null
 ), fake as (select null name from dual
 ), y AS (
 SELECT row_number() OVER (ORDER BY sga_total DESC) wrank,
