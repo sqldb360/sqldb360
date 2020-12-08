@@ -13,7 +13,7 @@ Remember to download the lastest *stable* release under "Releases". If you just 
 3. Execute edb360.sql (database view) or sqld360.sql (one SQL focus)
    - Both tools will prompt for the license available on the target database.
      - [T | D | N] For Tuning, Diagnostics or None
-   - Both tools accept an optimal configuration file
+   - Both tools accept an optional configuration file
    - SQLd360 requires the SQL ID of interest to be provided
 4. Copy output zip to client (PC or Mac), unzip and open in browser file 00001_*_index.html
 
