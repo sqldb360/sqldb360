@@ -2,7 +2,7 @@
 --
 -- File name:   escp_collect_awr.sql (2016-09-01)
 --
---              Enkitec Sizing and Capacity Planing eSCP
+--              Sizing and Capacity Planing eSCP
 --
 -- Purpose:     Collect Resources Metrics for an Oracle Database
 --
