@@ -36,7 +36,7 @@
 DEF ESCP_MAX_DAYS = '365';
 DEF ESCP_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS';
 
-SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF NUM 20 SQLBL ON BLO . RECSEP OFF;
+SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
 ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ".,";
 ALTER SESSION SET NLS_SORT = 'BINARY';
@@ -66,14 +66,15 @@ DEF escp_collection_yyyymmdd_hhmi = '';
 COL escp_collection_yyyymmdd_hhmi NEW_V escp_collection_yyyymmdd_hhmi FOR A13;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD_HH24MI') escp_collection_yyyymmdd_hhmi FROM DUAL;
 
--- get collection days
-DEF escp_collection_days = '&&ESCP_MAX_DAYS.';
-COL escp_collection_days NEW_V escp_collection_days;
-SELECT NVL(TO_CHAR(LEAST(EXTRACT(DAY FROM retention), TO_NUMBER('&&ESCP_MAX_DAYS.'))), '&&ESCP_MAX_DAYS.') escp_collection_days FROM dba_hist_wr_control;
-
+-- Get dbid
 COL escp_this_dbid NEW_V escp_this_dbid;
 SELECT 'get_dbid', TO_CHAR(dbid) escp_this_dbid FROM v$database
 /
+
+-- get collection days
+DEF escp_collection_days = '&&ESCP_MAX_DAYS.';
+COL escp_collection_days NEW_V escp_collection_days;
+SELECT NVL(TO_CHAR(LEAST(EXTRACT(DAY FROM retention), TO_NUMBER('&&ESCP_MAX_DAYS.'))), '&&ESCP_MAX_DAYS.') escp_collection_days FROM dba_hist_wr_control WHERE dbid = &&escp_this_dbid;
 
 COL escp_this_inst_num NEW_V escp_this_inst_num;
 SELECT 'get_instance_number', TO_CHAR(instance_number) escp_this_inst_num FROM v$instance
@@ -868,4 +869,4 @@ SELECT 'END'                      escp_metric_group,
 /
 
 SPO OFF;
-SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF  NUM 10 SQLBL OFF BLO ON RECSEP WR;
+SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF ARRAY 15 NUM 10 SQLBL OFF BLO ON RECSEP WR;
