@@ -1431,6 +1431,8 @@ BEGIN
                    x.tablespace_name, x.table_name, x.owner, x.pct_free, p.value
              HAVING
                    SUM(s.blocks) * TO_NUMBER(p.value) > :minimum_size_mb * POWER(2,20)
+	       AND SUM(s.num_rows) > 0
+	       AND MAX(s.avg_row_len) > 0
              ORDER BY
                    table_size DESC)
   LOOP
