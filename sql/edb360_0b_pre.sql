@@ -1,6 +1,6 @@
-DEF edb360_vYYNN = 'v192';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2019-03-23)';
-DEF edb360_copyright = ' (c) 2019';
+DEF edb360_vYYNN = 'v202';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2020-11-30)';
+DEF edb360_copyright = ' (c) 2020';
 
 SET TERM OFF;
 -- watchdog
@@ -696,7 +696,7 @@ DEF ash_hints3 = ' USE_HASH(h.INT$&&awr_hist_prefix.ACT_SESS_HISTORY.sn h.INT$&&
 DEF def_max_rows = '10000';
 DEF max_rows = '1e4';
 DEF exclusion_list = "('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX_180200','APEX_SSO','APPQOSSYS','CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA','ORDPLUGINS','ORDSYS','OUTLN','OWBSYS')";
-DEF exclusion_list2 = "('SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN','SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL','PERFSTAT','STDBYPERF','MGDSYS','OJVMSYS')";
+DEF exclusion_list2 = "('SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN','SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL','PERFSTAT','STDBYPERF','MGDSYS','OJVMSYS','GSMADMIN_INTERNAL')";
 DEF skip_html = '';
 DEF skip_text = '';
 DEF skip_csv = '';
