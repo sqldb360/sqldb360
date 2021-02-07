@@ -654,9 +654,12 @@ SELECT /* ignore if it fails to parse */ app_ver siebel_app_ver FROM &&siebel_sc
 -- psft
 DEF psft_schema = 'NOT_A_PSFT_DB';
 DEF psft_tools_rel = '';
+DEF psft_skip = '';
 COL psft_schema NEW_V psft_schema;
 COL psft_tools_rel NEW_V psft_tools_rel;
-SELECT owner psft_schema FROM &&dva_object_prefix.tab_columns WHERE table_name = 'PSSTATUS' AND column_name = 'TOOLSREL' AND data_type = 'VARCHAR2' AND ROWNUM = 1;
+COL psft_skip NEW_V psft_skip
+SELECT owner psft_schema , 'echo skip psft' psft_skip
+FROM &&dva_object_prefix.tab_columns WHERE table_name = 'PSSTATUS' AND column_name = 'TOOLSREL' AND data_type = 'VARCHAR2' AND ROWNUM = 1;
 SELECT /* ignore if it fails to parse */ toolsrel psft_tools_rel FROM &&psft_schema..psstatus WHERE ROWNUM = 1;
 
 -- inclusion config determine skip flags

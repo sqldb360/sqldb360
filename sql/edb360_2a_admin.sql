@@ -85,6 +85,7 @@ END;
 
 DEF title = 'Enabled and not Validated Constraints';
 DEF main_table = '&&cdb_view_prefix.CONSTRAINTS';
+DEF main_table = '&&cdb_view_prefix.CONSTRAINTS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -794,7 +795,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 ]';
 END;
 /
-@@edb360_9a_pre_one.sql
+&&psft_skip @@edb360_9a_pre_one.sql
 
 DEF title = 'Redundant Indexes(2)';
 DEF main_table = '&&cdb_view_prefix.INDEXES';
