@@ -757,6 +757,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
  WHERE col.table_owner NOT IN &&exclusion_list.
    AND col.table_owner NOT IN &&exclusion_list2.
    &&skip_noncdb.AND idx.con_id = col.con_id
+   AND idx.table_owner = col.table_owner
    AND idx.owner = col.index_owner
    AND idx.index_name = col.index_name
  GROUP BY
@@ -829,6 +830,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
  WHERE i.table_owner NOT IN &&exclusion_list.
    AND i.table_owner NOT IN &&exclusion_list2.
    &&skip_noncdb.AND i.con_id = c.con_id
+   AND i.table_owner = c.table_owner
    AND i.table_name = c.table_name
    AND i.owner = c.index_owner
    AND i.index_name = c.index_name
