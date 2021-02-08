@@ -840,7 +840,7 @@ SELECT /*+ QB_NAME(ic) LEADING(i c) USE_HASH(i c f) &&sq_fact_hints. */ /* &&sec
        i.index_type, i.uniqueness, i.visibility,
        c.column_position,
        CASE WHEN f.extension IS NULL THEN c.column_name
-            ELSE CAST(SUBSTR(REPLACE(SUBSTR(f.extension,2,LENGTH(f.extension)-2),'"',''),1,128) AS VARCHAR2(128))
+            ELSE CAST(SUBSTR(REPLACE(SUBSTR(f.extension,2,LENGTH(f.extension)-2),'"',''),1,256) AS VARCHAR2(256))
        END column_name
   FROM i0 i
      , c0 c
@@ -1945,7 +1945,7 @@ BEGIN
   :sql_text := q'[
 WITH x AS (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       COUNT(*) columns,
+       MAX(c.column_id) columns, 
        &&skip_noncdb.c.con_id,
        c.owner,
        c.table_name,
@@ -1958,6 +1958,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    &&skip_noncdb.AND t.con_id = c.con_id
    AND t.owner = c.owner
    AND t.table_name = c.table_name
+   AND c.column_id > 255
    AND NOT EXISTS
        (SELECT NULL
         FROM &&cdb_object_prefix.views v
@@ -1967,7 +1968,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  GROUP BY
        &&skip_noncdb.c.con_id,
        c.owner, c.table_name, t.avg_row_len
-HAVING COUNT(*) > 255
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
