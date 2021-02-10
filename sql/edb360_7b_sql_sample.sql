@@ -38,18 +38,14 @@ COL edb360_bypass NEW_V edb360_bypass;
 SELECT ' echo timeout ' edb360_bypass FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  >  :edb360_max_seconds
 /
 
--- to avoid in 12cR2 and 18c ORA-32034: unsupported use of WITH clause
-def sq_fact_sql_sample_hints="inline"
-def &&skip_ver_eq_12_2.&&skip_ver_eq_18. sq_fact_sql_sample_hints="&&sq_fact_hints."
-
 COL hh_mm_ss NEW_V hh_mm_ss NOPRI FOR A8;
 SET VER OFF FEED OFF SERVEROUT ON HEAD OFF PAGES 50000 LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF;
 SPO &&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql;
 DECLARE
   l_count NUMBER := 0;
-  CURSOR sql_cur IS
-              WITH ranked_sql AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+  CURSOR sql_cur IS -- This query should not have any MATERIALIZED hints to avoid ora-32034.
+              WITH ranked_sql AS ( 
+            SELECT /*+  &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
                    /* &&section_id..&&report_sequence. */
                    &&skip_noncdb.con_id,
                    dbid,
@@ -72,8 +68,8 @@ DECLARE
             HAVING COUNT(*) > 60 -- >10min
             ),
             top_sql AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
-                   &&skip_ver_le_11.r.con_id,
+            SELECT 
+                   &&skip_noncdb.r.con_id,
                    r.sql_id,
                    TRIM(TO_CHAR(ROUND(r.db_time_hrs, 2), '99990.00')) db_time_hrs,
                    TRIM(TO_CHAR(ROUND(r.cpu_time_hrs, 2), '99990.00')) cpu_time_hrs,
@@ -90,12 +86,12 @@ DECLARE
               FROM ranked_sql r,
                    &&awr_object_prefix.sqltext h
              WHERE r.rank_num <= &&edb360_conf_top_sql.
-               &&skip_ver_le_11.AND h.con_id(+) = r.con_id
+               &&skip_noncdb.AND h.con_id(+) = r.con_id
                AND h.dbid(+) = r.dbid
                AND h.sql_id(+) = r.sql_id
             ),
             not_shared AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
+            SELECT
                    &&skip_noncdb.con_id,
                    sql_id, COUNT(*) child_cursors,
                    RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS sql_rank
@@ -107,22 +103,22 @@ DECLARE
             HAVING COUNT(*) > 100
             ),
             top_not_shared AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
+            SELECT 
                    DISTINCT
                    ns.sql_rank,
                    ns.child_cursors,
-                   &&skip_ver_le_11.ns.con_id,
+                   &&skip_noncdb.ns.con_id,
                    ns.sql_id,
                    REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(s.sql_fulltext, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
               FROM not_shared ns, &&gv_object_prefix.sql s
              WHERE s.sql_id(+) = ns.sql_id
                &&skip_noncdb.AND s.con_id(+) = ns.con_id
                AND ns.sql_rank <= &&edb360_conf_top_cur.
+               AND sql_text is not null
             ),
             by_signature AS (
-            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&sq_fact_sql_sample_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
-                   /* &&section_id..&&report_sequence. */
-                   &&skip_ver_le_11.h.con_id,
+            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+                   &&skip_noncdb.h.con_id,
                    h.force_matching_signature,
                    h.dbid,
                    ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
@@ -137,22 +133,22 @@ DECLARE
                AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
                AND h.dbid = &&edb360_dbid.
                AND h.sql_id = ts.sql_id(+)
-               &&skip_ver_le_11.AND h.con_id = ts.con_id(+)
+               &&skip_noncdb.AND h.con_id = ts.con_id(+)
                AND h.sql_id = ns.sql_id(+)
-               &&skip_ver_le_11.AND h.con_id = ns.con_id(+)
+               &&skip_noncdb.AND h.con_id = ns.con_id(+)
                AND ts.sql_id(+) IS NULL
                AND ns.sql_id(+) IS NULL
                AND '&&edb360_bypass.' IS NULL
              GROUP BY
-                   &&skip_ver_le_11.h.con_id,
+                   &&skip_noncdb.h.con_id,
                    h.force_matching_signature,
                    h.dbid
             HAVING COUNT(*) > 60 -- >10min
             ),
             top_signature AS (
-            SELECT /*+ &&sq_fact_sql_sample_hints. &&section_id..&&report_sequence. */
+            SELECT 
                    r.rn,
-                   &&skip_ver_le_11.r.con_id,
+                   &&skip_noncdb.r.con_id,
                    r.force_matching_signature,
                    r.distinct_sql_id,
                    r.sample_sql_id,
@@ -164,14 +160,14 @@ DECLARE
               FROM by_signature r,
                    &&awr_object_prefix.sqltext h
              WHERE r.rn <= &&edb360_conf_top_sig.
-               &&skip_ver_le_11.AND h.con_id(+) = r.con_id
+               &&skip_noncdb.AND h.con_id(+) = r.con_id
                AND h.dbid(+) = r.dbid
                AND h.sql_id(+) = r.sample_sql_id
             )
             SELECT rank_num,
                    &&skip_noncdb.con_id,
                    &&skip_cdb.TO_NUMBER(NULL) con_id,
-                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ns.con_id) pdb_name,
+                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ts.con_id) pdb_name,
                    &&skip_cdb.NULL pdb_name,
                    sql_id,
                    db_time_hrs, -- not null means Top as per DB time
@@ -210,7 +206,7 @@ DECLARE
             SELECT rn rank_num,
                    &&skip_noncdb.con_id,
                    &&skip_cdb.TO_NUMBER(NULL) con_id,
-                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ns.con_id) pdb_name,
+                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ts.con_id) pdb_name,
                    &&skip_cdb.NULL pdb_name,
                    sample_sql_id sql_id,
                    NULL db_time_hrs, -- not null means Top as per DB time
