@@ -85,6 +85,7 @@ END;
 
 DEF title = 'Enabled and not Validated Constraints';
 DEF main_table = '&&cdb_view_prefix.CONSTRAINTS';
+DEF main_table = '&&cdb_view_prefix.CONSTRAINTS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -724,7 +725,18 @@ COL redundant_index FOR A200;
 COL superset_index FOR A200;
 BEGIN
   :sql_text := q'[
-WITH
+WITH i0 AS (
+SELECT /*+ QB_NAME(i0) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ *
+  FROM &&cdb_object_prefix.indexes
+ WHERE table_owner NOT IN &&exclusion_list.
+   AND table_owner NOT IN &&exclusion_list2.
+   AND index_type like '%NORMAL'
+),c0 AS (
+SELECT /*+ QB_NAME(c0) MATERIALIZE NO_MERGE */ /* &&section_id..&&report_sequence. */ *
+  FROM &&cdb_object_prefix.ind_columns 
+ WHERE table_owner NOT IN &&exclusion_list.
+   AND table_owner NOT IN &&exclusion_list2.
+ ), 
 indexed_columns AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.col.con_id,
@@ -751,13 +763,12 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        MAX(CASE col.column_position WHEN 15 THEN ':'||col.column_name END)||
        MAX(CASE col.column_position WHEN 16 THEN ':'||col.column_name END)
        indexed_columns
-  FROM &&cdb_object_prefix.ind_columns col,
-       &&cdb_object_prefix.indexes idx
- WHERE col.table_owner NOT IN &&exclusion_list.
-   AND col.table_owner NOT IN &&exclusion_list2.
-   &&skip_noncdb.AND idx.con_id = col.con_id
+  FROM c0 col,
+       i0 idx
+ WHERE idx.table_owner = col.table_owner
    AND idx.owner = col.index_owner
    AND idx.index_name = col.index_name
+   &&skip_noncdb.AND idx.con_id = col.con_id
  GROUP BY
        &&skip_noncdb.col.con_id,
        col.index_owner,
@@ -802,38 +813,49 @@ DEF abstract = 'Considers descending indexes (function-based), visibility of red
 BEGIN
   :sql_text := q'[
 -- requested by David Kurtz
-WITH f AS ( /*function expressions*/
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+WITH i0 AS (
+SELECT /*+ QB_NAME(i0) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ *
+  FROM &&cdb_object_prefix.indexes
+ WHERE table_owner NOT IN &&exclusion_list.
+   AND table_owner NOT IN &&exclusion_list2.
+   AND index_type like '%NORMAL'
+), c0 AS (
+SELECT /*+ QB_NAME(c0) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ *
+  FROM &&cdb_object_prefix.ind_columns 
+ WHERE table_owner NOT IN &&exclusion_list.
+   AND table_owner NOT IN &&exclusion_list2.
+ ),f AS ( /*function expressions*/
+SELECT /*+ QB_NAME(f) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
        owner, table_name, extension, extension_name
-FROM   &&cdb_object_prefix.stat_extensions
-WHERE  creator = 'SYSTEM' /*exclude extended stats*/
+  FROM &&cdb_object_prefix.stat_extensions
+ WHERE owner NOT IN &&exclusion_list.
+   AND owner NOT IN &&exclusion_list2.
+   AND creator = 'SYSTEM' /*exclude extended stats*/
 ), ic AS ( /*list indexed columns getting expressions FROM stat_extensions*/
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ QB_NAME(ic) LEADING(i c) USE_HASH(i c f) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.i.con_id,
        i.table_owner, i.table_name,
        i.owner index_owner, i.index_name,
        i.index_type, i.uniqueness, i.visibility,
        c.column_position,
        CASE WHEN f.extension IS NULL THEN c.column_name
-            ELSE CAST(SUBSTR(REPLACE(SUBSTR(f.extension,2,LENGTH(f.extension)-2),'"',''),1,128) AS VARCHAR2(128))
+            ELSE CAST(SUBSTR(REPLACE(SUBSTR(f.extension,2,LENGTH(f.extension)-2),'"',''),1,256) AS VARCHAR2(256))
        END column_name
-  FROM &&cdb_object_prefix.indexes i
-     , &&cdb_object_prefix.ind_columns c
+  FROM i0 i
+     , c0 c
        LEFT OUTER JOIN f
        ON f.owner = c.table_owner
-	   &&skip_noncdb.AND f.con_id = c.con_id
        AND f.table_name = c.table_name
        AND f.extension_name = c.column_name
- WHERE i.table_owner NOT IN &&exclusion_list.
-   AND i.table_owner NOT IN &&exclusion_list2.
-   &&skip_noncdb.AND i.con_id = c.con_id
+	   &&skip_noncdb.AND f.con_id = c.con_id
+ WHERE i.table_owner = c.table_owner
    AND i.table_name = c.table_name
+   &&skip_noncdb.AND i.con_id = c.con_id
    AND i.owner = c.index_owner
    AND i.index_name = c.index_name
-   AND i.index_type like '%NORMAL'
 ), i AS ( /*construct column list*/
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ QB_NAME(i) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.ic.con_id,
        ic.table_owner, ic.table_name,
        ic.index_owner, ic.index_name,
@@ -841,20 +863,29 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        listagg(ic.column_name,',') within group (ORDER BY ic.column_position) AS column_list,
        '('||listagg('"'||ic.column_name||'"',',') within group (ORDER BY ic.column_position)||')' AS extension,
        count(*) num_columns
-FROM ic
+  FROM ic
 GROUP BY
        &&skip_noncdb.ic.con_id,
        ic.table_owner, ic.table_name,
        ic.index_owner, ic.index_name,
        ic.index_type, ic.uniqueness, ic.visibility
 ), e AS ( /*extended stats*/
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+SELECT /*+ QB_NAME(e) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_noncdb.con_id,
-       owner, table_name, CAST(SUBSTR(extension,1,128) AS VARCHAR2(128)) extension, extension_name
-FROM   &&cdb_object_prefix.stat_extensions
-WHERE  creator = 'USER' /*extended stats not function based indexes*/
+       owner, table_name, CAST(SUBSTR(extension,1,256) AS VARCHAR2(256)) extension, extension_name
+  FROM &&cdb_object_prefix.stat_extensions
+ WHERE owner NOT IN &&exclusion_list.
+   AND owner NOT IN &&exclusion_list2.
+   AND creator = 'USER' /*extended stats not function based indexes*/
+), cn0 as ( /*constraints*/
+SELECT /*+ QB_NAME(cn0) &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ *
+  FROM &&cdb_object_prefix.constraints
+ WHERE owner NOT IN &&exclusion_list.
+   AND owner NOT IN &&exclusion_list2.
+   AND constraint_type IN('P','U')
 )
-SELECT &&skip_noncdb.r.con_id,
+SELECT /*+LEADING(i r)*/
+       &&skip_noncdb.r.con_id,
        r.table_owner, r.table_name,
        i.index_name||' ('||i.column_list||')' superset_index,
        r.index_name||' ('||r.column_list||')' redundant_index,
@@ -867,21 +898,21 @@ SELECT &&skip_noncdb.r.con_id,
 		 &&skip_noncdb.AND e.con_id = r.con_id
          AND e.table_name = r.table_name
          AND e.extension = r.extension
-       LEFT OUTER JOIN &&cdb_object_prefix.constraints c
+       LEFT OUTER JOIN cn0 c
          ON c.table_name = r.table_name
 		 &&skip_noncdb.AND c.con_id = r.con_id
          AND c.index_owner = r.index_owner
          AND c.index_name = r.index_name
          AND c.owner = r.table_owner
-         AND c.constraint_type IN('P','U')
      , i
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = i.con_id
  WHERE i.table_owner = r.table_owner
    &&skip_noncdb.AND i.con_id = r.con_id
    AND i.table_name = r.table_name
-   AND i.index_name != r.index_name
+   AND i.index_name != r.index_name 
    AND i.column_list LIKE r.column_list||',%'
    AND i.num_columns > r.num_columns
+   AND i.num_columns >=2 /*must have at least 2 columns*/
  ORDER BY &&skip_noncdb.r.con_id,
           r.table_owner, r.table_name, r.index_name, i.index_name
 ]';
@@ -1914,7 +1945,7 @@ BEGIN
   :sql_text := q'[
 WITH x AS (
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       COUNT(*) columns,
+       MAX(c.column_id) columns, 
        &&skip_noncdb.c.con_id,
        c.owner,
        c.table_name,
@@ -1927,6 +1958,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
    &&skip_noncdb.AND t.con_id = c.con_id
    AND t.owner = c.owner
    AND t.table_name = c.table_name
+   AND c.column_id > 255
    AND NOT EXISTS
        (SELECT NULL
         FROM &&cdb_object_prefix.views v
@@ -1936,7 +1968,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
  GROUP BY
        &&skip_noncdb.c.con_id,
        c.owner, c.table_name, t.avg_row_len
-HAVING COUNT(*) > 255
 )
 SELECT x.*
        &&skip_noncdb.,c.name con_name
