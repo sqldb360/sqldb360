@@ -743,10 +743,11 @@ FROM   &&v_object_prefix.datafile df
 WHERE  df.file#=bk.file#
 and    df.unrecoverable_change#!=0
 and    df.unrecoverable_time >
-       (select max(end_time)
+    NVL((select max(end_time)
 	    FROM   &&v_object_prefix.rman_backup_job_details
         where  INPUT_TYPE in ('DB FULL' ,'DB INCR')
 		and    status = 'COMPLETED')
+    ,to_date('01/01/1900','dd/mm/yyyy'))
 ]';
 END;
 /
