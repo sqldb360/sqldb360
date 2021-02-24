@@ -327,7 +327,7 @@ WITH
 totals AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        /* &&section_id..&&report_sequence. */
-       &&skip_ver_le_11.con_id,
+       &&skip_noncdb.con_id,
        sql_id,
        SUM(executions_delta) executions,
        SUM(rows_processed_delta) rows_processed,
@@ -356,7 +356,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
-       &&skip_ver_le_11.con_id,
+       &&skip_noncdb.con_id,
        sql_id
 )
 SELECT * FROM (
@@ -395,7 +395,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        AND t.dbid = &&edb360_dbid.
        &&skip_noncdb.AND t.con_id = s.con_id
 	   &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
-  ORDER BY s.executions DESC
+  ORDER BY s.executions DESC NULLS LAST
  )
    WHERE ROWNUM < 101
 ]';
@@ -415,7 +415,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
  GROUP BY
        sql_id
  ORDER BY
-       SUM(executions_delta) DESC
+       SUM(executions_delta) DESC NULLS LAST
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        NVL(MIN(CASE ROWNUM WHEN 01 THEN sql_id END),'not_sql_id_01') tit_01,
