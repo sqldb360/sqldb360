@@ -13,42 +13,42 @@ DEF skip_all = 'Y';
 BEGIN
   :sql_text_backup := q'[
 WITH hist AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ 
-       event,
---     LPAD(LTRIM(TO_CHAR(p1,'XXXXXXXXXXXXXXXX')),16,0) addr,
-       p2 latch#,
-       COUNT(distinct p1) num_addr,
-       COUNT(*) samples,
-       row_number() OVER (ORDER BY COUNT(*) DESC) rn
-  FROM &&awr_hist_prefix.active_sess_history
- WHERE @filter_predicate@
-   AND event like 'latch%'
-   AND p1text = 'address'
-   AND p2text = 'number'
-GROUP BY event, p2
-),
-total AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
+   SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */  d.*,
+         SUM(samples) over () total_samples
+    FROM (
+          SELECT 
+                 event,
+          --     LPAD(LTRIM(TO_CHAR(p1,'XXXXXXXXXXXXXXXX')),16,0) addr,
+                 p2 latch#,
+                 COUNT(distinct p1) num_addr,
+                 COUNT(*) samples,
+                 row_number() OVER (ORDER BY COUNT(*) DESC) rn
+            FROM &&awr_hist_prefix.active_sess_history
+           WHERE @filter_predicate@
+             AND event like 'latch%'
+             AND p1text = 'address'
+             AND p2text = 'number'
+          GROUP BY event, p2
+         ) d
 )
-SELECT l.type
-       ||': '||REGEXP_SUBSTR(h.event,'[^:]+')||': '||l.display_name||' (#'||h.latch#
+SELECT  
+       &&skip_ver_le_12_1. l.type||': '||
+       REGEXP_SUBSTR(h.event,'[^:]+')||': '||l.display_name||' (#'||h.latch#
        ||CASE WHEN num_addr>1 THEN ', '||num_addr||' addresses' END
        ||')' event_latch,
        h.samples,
-       ROUND(100 * h.samples / t.samples, 1) percent,
+       ROUND(100 * h.samples / h.total_samples, 1) percent,
        NULL dummy_01
   FROM hist h
-       LEFT OUTER JOIN v$latchname l ON h.latch# = l.latch#,
-       total t
- WHERE h.samples >= t.samples / 2000 AND rn <= 14
+       LEFT OUTER JOIN v$latchname l ON h.latch# = l.latch#
+ WHERE h.samples >= h.total_samples / 2000 AND rn <= 14
 UNION
 SELECT 'OTHERS',
        NVL(SUM(h.samples),0) samples,
-       NVL(ROUND(100 * SUM(h.samples) / AVG(t.samples), 1), 0) percent,
+       NVL(ROUND(100 * SUM(h.samples) / AVG(h.total_samples), 1), 0) percent,
        NULL dummy_01
-  FROM hist h,
-       total t
- WHERE h.samples < t.samples / 2000 OR rn > 14
+  FROM hist h
+ WHERE h.samples < h.total_samples / 2000 OR rn > 14
 ORDER BY 2 DESC NULLS LAST
 ]';
 END;
