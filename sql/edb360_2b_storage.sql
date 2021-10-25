@@ -925,28 +925,33 @@ DEF title = 'Tables with one extent and no rows';
 DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
--- requested by David Kurtz
-SELECT  /* LEADING(T) USE_NL(S) */ -- removed hint as per Luis Calvo
-        &&skip_noncdb.t.con_id,
+-- requested by David Kurtz--performance fix 25.10.2021
+WITH s AS (
+SELECT  /*+ MATERIALIZE*/ s.owner, s.segment_name, s.tablespace_name, s.blocks
+FROM    &&cdb_object_prefix.segments s
+WHERE   s.owner not in &&exclusion_list.
+AND     s.owner not in &&exclusion_list2.
+and     s.segment_type = 'TABLE'
+and     s.extents =  1
+and     s.partition_name IS NULL
+)
+SELECT  &&skip_noncdb.t.con_id,
 		t.owner, t.table_name, t.tablespace_name, t.num_rows, t.blocks hwm_blocks, t.last_analyzed, s.blocks seg_blocks
 		&&skip_noncdb.,c.name con_name
 FROM    &&cdb_object_prefix.tables t
         &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = t.con_id
-,       &&cdb_object_prefix.segments s
+,       s
 WHERE   '&&edb360_conf_incl_segments.' = 'Y'
 AND     t.owner not in &&exclusion_list.
 AND     t.owner not in &&exclusion_list2.
-AND     s.segment_type = 'TABLE'
 &&skip_noncdb.AND     t.con_id = s.con_id
 AND     t.owner = s.owner
 AND     t.table_name = s.segment_name
 AND     t.tablespace_name = s.tablespace_name
-AND     s.partition_name IS NULL
 AND     t.segment_created = 'YES'
-AND     (       t.num_rows = 0
-        OR       t.num_rows IS NULL
+AND     (  t.num_rows = 0
+        OR t.num_rows IS NULL
         )
-AND     s.extents =  1
 ORDER BY
         &&skip_noncdb.t.con_id,
         t.owner, t.table_name
