@@ -74,13 +74,13 @@ BEGIN
      AND remarks IS NULL;
 
   -- 1708 - Extracting calling container (only in 12c)
+  -- 2202 - Run Regarless of version.
   BEGIN
     SELECT SYS_CONTEXT('USERENV','CON_NAME')
       INTO container
-      FROM v$instance
-     WHERE version LIKE '12%';
+      FROM DUAL;
   EXCEPTION
-     WHEN NO_DATA_FOUND THEN container := ''; -- not in 12c
+     WHEN OTHERS THEN container := ''; -- not a cdb
   END;
 
   IF num_sqlids = 0 THEN

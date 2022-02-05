@@ -38,137 +38,172 @@ COL edb360_bypass NEW_V edb360_bypass;
 SELECT ' echo timeout ' edb360_bypass FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  >  :edb360_max_seconds
 /
 
-COL hh_mm_ss NEW_V hh_mm_ss NOPRI FOR A8;
-SET VER OFF FEED OFF SERVEROUT ON HEAD OFF PAGES 50000 LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF;
-SPO &&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql;
-DECLARE
-  l_count NUMBER := 0;
-  CURSOR sql_cur IS -- This query should not have any MATERIALIZED hints to avoid ora-32034.
-              WITH ranked_sql AS ( 
-            SELECT /*+  &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
-                   /* &&section_id..&&report_sequence. */
-                   &&skip_noncdb.con_id,
-                   dbid,
-                   sql_id,
-                   MAX(user_id) user_id,
-                   MAX(module) module,
-                   ROUND(COUNT(*) / 360, 6) db_time_hrs,
-                   ROUND(SUM(CASE session_state WHEN 'ON CPU' THEN 1 ELSE 0 END) / 360, 6) cpu_time_hrs,
-                   ROUND(SUM(CASE WHEN session_state = 'WAITING' AND wait_class IN ('User I/O', 'System I/O') THEN 1 ELSE 0 END) / 360, 6) io_time_hrs,
-                   ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rank_num
-              FROM &&awr_object_prefix.active_sess_history h
-             WHERE sql_id IS NOT NULL
-               AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
-               AND dbid = &&edb360_dbid.
-               AND '&&edb360_bypass.' IS NULL
-             GROUP BY
-                   &&skip_noncdb.con_id,
-                   dbid,
-                   sql_id
-            HAVING COUNT(*) > 60 -- >10min
-            ),
-            top_sql AS (
-            SELECT 
-                   &&skip_noncdb.r.con_id,
+INSERT INTO PLAN_TABLE (  DISTRIBUTION     -- WITH query block 
+                       ,  id               -- con_id
+                       ,  statement_id     -- sql_id
+                       ,  TEMP_SPACE       -- db_time_hrs
+                       ,  CPU_COST         -- cpu_time_hrs
+                       ,  IO_COST          -- io_time_hrs
+                       ,  POSITION         -- rank_num
+                       ,  OPERATION        -- command_type
+                       ,  PARENT_ID        -- user_id
+                       ,  OBJECT_NODE      -- module
+                       ) /* &&section_id..&&report_sequence. */
+            SELECT 'top_sql',
+                   r.con_id,
                    r.sql_id,
                    TRIM(TO_CHAR(ROUND(r.db_time_hrs, 2), '99990.00')) db_time_hrs,
                    TRIM(TO_CHAR(ROUND(r.cpu_time_hrs, 2), '99990.00')) cpu_time_hrs,
                    TRIM(TO_CHAR(ROUND(r.io_time_hrs, 2), '99990.00')) io_time_hrs,
                    r.rank_num,
-                   NVL((SELECT a.name FROM audit_actions a WHERE a.action = h.command_type), TO_CHAR(h.command_type)) command_type,
-                   NVL((SELECT u.username FROM &&dva_object_prefix.users u WHERE u.user_id = r.user_id), TO_CHAR(r.user_id)) username,
-                   r.module,
-                   --h.sql_text,
-                   CASE
-                   WHEN h.sql_text IS NULL THEN 'unknown'
-                   ELSE REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(h.sql_text, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;')
-                   END sql_text_1000
-              FROM ranked_sql r,
-                   &&awr_object_prefix.sqltext h
+                   NVL((SELECT a.name FROM audit_actions a WHERE a.action = r.sql_opcode), TO_CHAR(r.sql_opcode)) command_type,
+                   r.user_id , 
+                   r.module
+              FROM (SELECT /*+  &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+                           &&skip_noncdb.con_id,
+                           &&skip_cdb. 0 con_id, 
+                           dbid,
+                           sql_id,
+                           MAX(sql_opcode) sql_opcode,
+                           MAX(user_id) user_id,
+                           MAX(module) module,
+                           ROUND(COUNT(*) / 360, 6) db_time_hrs,
+                           ROUND(SUM(CASE session_state WHEN 'ON CPU' THEN 1 ELSE 0 END) / 360, 6) cpu_time_hrs,
+                           ROUND(SUM(CASE WHEN session_state = 'WAITING' AND wait_class IN ('User I/O', 'System I/O') THEN 1 ELSE 0 END) / 360, 6) io_time_hrs,
+                           ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rank_num
+                      FROM &&cdb_awr_object_prefix.active_sess_history h
+                     WHERE sql_id IS NOT NULL
+                       AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+                       AND dbid = &&edb360_dbid.
+                       AND '&&edb360_bypass.' IS NULL
+                       AND sql_opcode in (1,2,3,6,7,189,74)
+                       AND substr(nvl(module,'-'),1,6) not in ('edb360','sqld36','MMON_S')
+                       AND substr(nvl(action,'-'),1,4) <>'ORA$'
+                     GROUP BY
+                           &&skip_noncdb.con_id,
+                           dbid,
+                           sql_id
+                    HAVING COUNT(*) > 60 -- >10min
+                   ) r
              WHERE r.rank_num <= &&edb360_conf_top_sql.
-               &&skip_noncdb.AND h.con_id(+) = r.con_id
-               AND h.dbid(+) = r.dbid
-               AND h.sql_id(+) = r.sql_id
-            ),
-            not_shared AS (
-            SELECT
-                   &&skip_noncdb.con_id,
-                   sql_id, COUNT(*) child_cursors,
-                   RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS sql_rank
-              FROM &&gv_object_prefix.sql_shared_cursor
-             WHERE sql_id NOT IN (SELECT sql_id FROM top_sql)
-             GROUP BY
-                   &&skip_noncdb.con_id,
-                   sql_id
-            HAVING COUNT(*) > 100
-            ),
-            top_not_shared AS (
-            SELECT 
-                   DISTINCT
-                   ns.sql_rank,
-                   ns.child_cursors,
-                   &&skip_noncdb.ns.con_id,
+/
+
+INSERT INTO PLAN_TABLE (  DISTRIBUTION -- WITH query block 
+                       ,  id           -- con_id
+                       ,  statement_id -- sql_id
+                       ,  POSITION     -- rank_num
+                       ,  CARDINALITY  -- child_cursors
+                       ) /* &&section_id..&&report_sequence. */
+            SELECT 'top_not_shared',
+                   ns.con_id,
                    ns.sql_id,
-                   REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(s.sql_fulltext, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
-              FROM not_shared ns, &&gv_object_prefix.sql s
-             WHERE s.sql_id(+) = ns.sql_id
-               &&skip_noncdb.AND s.con_id(+) = ns.con_id
-               AND ns.sql_rank <= &&edb360_conf_top_cur.
-               AND sql_text is not null
-            ),
-            by_signature AS (
-            SELECT /*+ FULL(ts) FULL(ns) USE_HASH(ts ns h) &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
-                   &&skip_noncdb.h.con_id,
-                   h.force_matching_signature,
-                   h.dbid,
-                   ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
-                   COUNT(DISTINCT h.sql_id) distinct_sql_id,
-                   MIN(h.sql_id) sample_sql_id,
-                   COUNT(*) samples
-              FROM &&awr_object_prefix.active_sess_history h,
-                   top_sql ts,
-                   top_not_shared ns
-             WHERE h.sql_id IS NOT NULL
-               AND h.force_matching_signature IS NOT NULL
-               AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
-               AND h.dbid = &&edb360_dbid.
-               AND h.sql_id = ts.sql_id(+)
-               &&skip_noncdb.AND h.con_id = ts.con_id(+)
-               AND h.sql_id = ns.sql_id(+)
-               &&skip_noncdb.AND h.con_id = ns.con_id(+)
-               AND ts.sql_id(+) IS NULL
-               AND ns.sql_id(+) IS NULL
-               AND '&&edb360_bypass.' IS NULL
-             GROUP BY
-                   &&skip_noncdb.h.con_id,
-                   h.force_matching_signature,
-                   h.dbid
-            HAVING COUNT(*) > 60 -- >10min
-            ),
-            top_signature AS (
-            SELECT 
-                   r.rn,
-                   &&skip_noncdb.r.con_id,
+                   ns.rank_num,
+                   ns.child_cursors
+              FROM (SELECT 
+                           &&skip_noncdb.con_id,
+                           &&skip_cdb. 0 con_id,                   
+                           sql_id, 
+                           COUNT(*) child_cursors,
+                           RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS rank_num
+                      FROM &&gv_object_prefix.sql_shared_cursor
+                     WHERE 1=1 
+            &&skip_noncdb. AND (sql_id,con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM PLAN_TABLE)
+            &&skip_cdb.    AND (sql_id)        not in (SELECT statement_id /* sql_id */                  FROM PLAN_TABLE)
+                     GROUP BY
+                           &&skip_noncdb.con_id,
+                           &&skip_cdb. 0 ,
+                           sql_id
+                    HAVING COUNT(*) > 100) ns
+             WHERE ns.rank_num <= &&edb360_conf_top_cur.
+/
+
+INSERT INTO PLAN_TABLE (  distribution    -- WITH query block 
+                       ,  id              -- con_id
+                       ,  BYTES           -- force_matching_signature
+                       ,  position        -- rn
+                       ,  CARDINALITY     -- distinct_sql_id
+                       ,  statement_id    -- sample_sql_id
+                       ,  OPERATION       -- command_type
+                       ,  temp_space      -- samples
+                       ) /* &&section_id..&&report_sequence. */
+            SELECT 'top_signature',
+                   r.con_id,
                    r.force_matching_signature,
+                   r.rank_num,
                    r.distinct_sql_id,
                    r.sample_sql_id,
-                   r.samples,
-                   CASE
-                   WHEN h.sql_text IS NULL THEN 'unknown'
-                   ELSE REPLACE(REPLACE(REPLACE(REPLACE(DBMS_LOB.SUBSTR(h.sql_text, 1000), CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;')
-                   END sql_text_1000
-              FROM by_signature r,
-                   &&awr_object_prefix.sqltext h
-             WHERE r.rn <= &&edb360_conf_top_sig.
-               &&skip_noncdb.AND h.con_id(+) = r.con_id
-               AND h.dbid(+) = r.dbid
-               AND h.sql_id(+) = r.sample_sql_id
-            )
-            SELECT rank_num,
-                   &&skip_noncdb.con_id,
-                   &&skip_cdb.TO_NUMBER(NULL) con_id,
-                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ts.con_id) pdb_name,
-                   &&skip_cdb.NULL pdb_name,
+                   NVL((SELECT a.name FROM audit_actions a WHERE a.action = r.sql_opcode), TO_CHAR(r.sql_opcode)) command_type,
+                   r.samples
+              FROM (SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+                           &&skip_noncdb. h.con_id,
+                           &&skip_cdb. 0 con_id,
+                           h.force_matching_signature,
+                           h.dbid,
+                           ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rank_num,
+                           COUNT(DISTINCT h.sql_id) distinct_sql_id,
+                           MIN(h.sql_id) sample_sql_id,
+                           MIN(sql_opcode) sql_opcode,
+                           COUNT(*) samples
+                      FROM &&cdb_awr_object_prefix.active_sess_history h
+                     WHERE h.sql_id IS NOT NULL
+                       AND h.force_matching_signature IS NOT NULL
+                       AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+                       AND h.dbid = &&edb360_dbid.
+        &&skip_noncdb. AND (h.sql_id,h.con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM PLAN_TABLE )
+        &&skip_cdb.    AND (h.sql_id)          not in (SELECT statement_id /* sql_id */                  FROM PLAN_TABLE )
+                       AND '&&edb360_bypass.' IS NULL
+                     GROUP BY
+                           &&skip_noncdb.h.con_id,
+                           h.force_matching_signature,
+                           h.dbid) r
+             WHERE r.rank_num <= &&edb360_conf_top_sig.
+               AND r.distinct_sql_id >1
+/
+
+UPDATE PLAN_TABLE pl 
+ SET PARTITION_START=   -- pdb_name
+&&skip_noncdb. (SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = pl.id)
+&&skip_cdb.0
+/
+
+UPDATE PLAN_TABLE pl 
+  SET OBJECT_OWNER=     -- username
+&&skip_noncdb. NVL((SELECT u.username FROM &&CDB_OBJECT_PREFIX.users u WHERE u.user_id = pl.parent_id and u.con_id = pl.id), TO_CHAR(pl.parent_id)) 
+&&skip_cdb. NVL((SELECT u.username FROM &&dva_object_prefix.users u WHERE u.user_id = pl.parent_id), TO_CHAR(pl.parent_id)) 
+/
+
+UPDATE PLAN_TABLE pl
+  SET PROJECTION=       -- sql_text_1000
+     ( SELECT REPLACE(REPLACE(REPLACE(REPLACE(sql_text_1000, CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
+         FROM (SELECT DBMS_LOB.SUBSTR(h.sql_text, 1000)  sql_text_1000
+                 FROM &&cdb_awr_object_prefix.sqltext h
+                WHERE h.sql_id = pl.statement_id
+                  AND h.sql_text IS NOT NULL
+                UNION ALL 
+               SELECT DBMS_LOB.SUBSTR(s.sql_fulltext, 1000)   
+                 FROM &&gv_object_prefix.sqlarea s
+                WHERE s.sql_id = pl.statement_id 
+                  AND s.sql_fulltext IS NOT NULL
+                UNION ALL 
+               SELECT substr(listagg(sql_text,'') within group ( order by piece) over (partition by inst_id &&skip_noncdb.,t.con_id 
+                      ),1 ,1000) 
+                 FROM &&gv_object_prefix.sqltext t 
+                WHERE t.sql_id=pl.statement_id 
+                  AND piece<15
+              )
+   WHERE rownum=1)
+/
+
+COL hh_mm_ss NEW_V hh_mm_ss NOPRI FOR A8;
+SET VER OFF FEED OFF SERVEROUT ON HEAD OFF PAGES 50000 LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF;
+SPO &&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql;
+DECLARE
+  l_count NUMBER := 0;
+  CURSOR sql_cur IS SELECT /* &&section_id..&&report_sequence. */
+                   top_type, 
+                   rank_num,
+                   con_id,
+                   pdb_name,
                    sql_id,
                    db_time_hrs, -- not null means Top as per DB time
                    cpu_time_hrs, -- not null means Top as per DB time
@@ -176,52 +211,31 @@ DECLARE
                    command_type, -- not null means Top as per DB time
                    username, -- not null means Top as per DB time
                    module, -- not null means Top as per DB time
-                   sql_text_1000,
-                   1 top_type, -- as per DB time
-                   0 child_cursors, -- <> 0 means Top as per number of cursors
-                   0 signature, -- <> 0 means Top as per signature
-                   0 distinct_sql_id -- <> 0 means Top as per signature
-              FROM top_sql ts
-             UNION ALL
-            SELECT sql_rank rank_num,
-                   &&skip_noncdb.con_id,
-                   &&skip_cdb.TO_NUMBER(NULL) con_id,
-                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ns.con_id) pdb_name,
-                   &&skip_cdb.NULL pdb_name,
-                   sql_id,
-                   NULL db_time_hrs, -- not null means Top as per DB time
-                   NULL cpu_time_hrs, -- not null means Top as per DB time
-                   NULL io_time_hrs, -- not null means Top as per DB time
-                   NULL command_type, -- not null means Top as per DB time
-                   NULL username, -- not null means Top as per DB time
-                   NULL module, -- not null means Top as per DB time
-                   --sql_text sql_text_1000,
-                   sql_text_1000,
-                   2 top_type, -- as per not shared cursors
-                   child_cursors, -- <> 0 means Top as per number of cursors
-                   0 signature, -- <> 0 means Top as per signature
-                   0 distinct_sql_id -- <> 0 means Top as per signature
-              FROM top_not_shared ns
-             UNION ALL
-            SELECT rn rank_num,
-                   &&skip_noncdb.con_id,
-                   &&skip_cdb.TO_NUMBER(NULL) con_id,
-                   &&skip_noncdb.(SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = ts.con_id) pdb_name,
-                   &&skip_cdb.NULL pdb_name,
-                   sample_sql_id sql_id,
-                   NULL db_time_hrs, -- not null means Top as per DB time
-                   NULL cpu_time_hrs, -- not null means Top as per DB time
-                   NULL io_time_hrs, -- not null means Top as per DB time
-                   NULL command_type, -- not null means Top as per DB time
-                   NULL username, -- not null means Top as per DB time
-                   NULL module, -- not null means Top as per DB time
-                   sql_text_1000,
-                   3 top_type, -- as per force matching signature
-                   0 child_cursors, -- <> 0 means Top as per number of cursors
-                   force_matching_signature signature, -- <> 0 means Top as per signature
-                   distinct_sql_id -- <> 0 means Top as per signature
-              FROM top_signature ts
-              ORDER BY rank_num, top_type, db_time_hrs DESC, con_id;
+                   child_cursors, -- not null means Top as per number of cursors
+                   signature, -- not null means Top as per signature
+                   distinct_sql_id, -- not null means Top as per signature
+                   sql_text_1000
+              FROM (SELECT  PARTITION_START pdb_name 
+                         ,  DISTRIBUTION  top_type
+                         ,  NVL(PROJECTION,NVL(OPERATION,'unknown'))  sql_text_1000
+                         , (CASE DISTRIBUTION WHEN 'top_sql' then 1 WHEN 'top_not_shared' THEN 2 ELSE 3 END) top_type_order
+                         -- Start top_sql results
+                         ,  id            con_id
+                         ,  statement_id  sql_id
+                         ,  TEMP_SPACE    db_time_hrs
+                         ,  CPU_COST      cpu_time_hrs
+                         ,  IO_COST       io_time_hrs
+                         ,  POSITION      rank_num
+                         ,  OPERATION     command_type
+                         ,  OBJECT_OWNER  username
+                         ,  OBJECT_NODE   module
+                         -- Start top_not_shared results
+                         ,  CARDINALITY   child_cursors
+                         -- Start top_signature results
+                         ,  BYTES         signature -- force_matching_signature
+                         ,  CARDINALITY   distinct_sql_id
+                     FROM PLAN_TABLE ) ts
+              ORDER BY rank_num, top_type_order, db_time_hrs DESC, con_id;
   sql_rec sql_cur%ROWTYPE;
   PROCEDURE put_line(p_line IN VARCHAR2) IS
   BEGIN
@@ -259,11 +273,11 @@ BEGIN
     put_line('SPO &&edb360_main_report..html APP;');
     put_line('PRO <li title="pdb:'||sql_rec.pdb_name||' user:'||sql_rec.username||' module:'||sql_rec.module);
     put_line('PRO '||sql_rec.sql_text_1000||'">');
-    IF sql_rec.top_type = 1 THEN
+    IF sql_rec.top_type = 'top_sql' THEN
       put_line('PRO rank:'||sql_rec.rank_num||' '||sql_rec.sql_id||' et:'||sql_rec.db_time_hrs||'h cpu:'||sql_rec.cpu_time_hrs||'h io:'||sql_rec.io_time_hrs||'h type:'||SUBSTR(sql_rec.command_type, 1, 6));
-    ELSIF sql_rec.top_type = 2 THEN
+    ELSIF sql_rec.top_type = 'top_not_shared' THEN
       put_line('PRO rank:'||sql_rec.rank_num||' '||sql_rec.sql_id||' cursors:'||sql_rec.child_cursors);
-    ELSIF sql_rec.top_type = 3 THEN
+    ELSIF sql_rec.top_type = 'top_signature' THEN
       put_line('PRO rank:'||sql_rec.rank_num||' '||sql_rec.sql_id||' signature:'||sql_rec.signature||'('||sql_rec.distinct_sql_id||')');
     END IF;
     put_line('SET HEAD OFF VER OFF FEED OFF ECHO OFF;');
@@ -272,7 +286,7 @@ BEGIN
     put_line('HOS zip -j &&edb360_zip_filename. &&edb360_main_report..html >> &&edb360_log3..txt');
     put_line('EXEC :repo_seq := :repo_seq + 1;');
     put_line('SELECT TO_CHAR(:repo_seq) report_sequence FROM DUAL;');
-    IF '&&db_version.' >= '12' AND sql_rec.pdb_name IS NOT NULL THEN
+    IF '&&is_cdb.' = 'Y'  AND sql_rec.pdb_name IS NOT NULL THEN
       put_line('SPO &&edb360_log..txt APP;');
       put_line('PRO PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
       put_line('PRO PRO changes PDB to '||sql_rec.pdb_name);
@@ -350,7 +364,7 @@ BEGIN
     put_line('HOS zip -j &&edb360_zip_filename. &&edb360_main_report..html >> &&edb360_log3..txt');
   END LOOP;
   CLOSE sql_cur;
-  IF '&&db_version.' >= '12' AND '&&edb360_pdb_name.' <> 'NONE' THEN
+  IF '&&is_cdb.' = 'Y' AND '&&edb360_pdb_name.' <> 'NONE' THEN
     put_line('SPO &&edb360_log..txt APP;');
     put_line('PRO PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
     put_line('PRO PRO changes PDB to &&edb360_pdb_name.');
@@ -384,6 +398,9 @@ BEGIN
     END IF;
   END LOOP;
   CLOSE sql_cur;
+-- This commit is to end the transaction we initiated in this execution
+-- The main goal is to avoid ORA-65023 when switching to another PDB  
+  put_line('commit;');
   IF l_count > 0 THEN
     put_line('UNDEF 1');
     put_line('HOS zip -j &&edb360_zip_filename. &&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql >> &&edb360_log3..txt');
@@ -427,7 +444,7 @@ BEGIN
     put_line('HOS zip -j &&edb360_zip_filename. &&edb360_log3..txt');
     -- actual execution of sql/sqld360.sql
     put_line('@@'||CHR(38)||CHR(38)||'edb360_bypass.sqld360.sql');
-    IF '&&db_version.' >= '12' AND '&&edb360_pdb_name.' NOT IN ('NONE', 'CDB$ROOT', 'PDB$SEED') THEN
+    IF '&&is_cdb.' = 'Y' AND '&&edb360_pdb_name.' NOT IN ('NONE', 'CDB$ROOT', 'PDB$SEED') THEN
       put_line('SPO &&edb360_log..txt APP;');
       put_line('PRO PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~');
       put_line('PRO PRO returns to original PDB');
@@ -440,6 +457,9 @@ BEGIN
   END IF;
 END;
 /
+-- This rollback is to end the transaction we initiated in this execution
+-- The main goal is to avoid ORA-65023 when switching to another PDB
+ROLLBACK;
 SPO OFF;
 HOS zip -j &&edb360_zip_filename. &&edb360_output_directory.99930_&&common_edb360_prefix._top_sql_driver.sql >> &&edb360_log3..txt
 
