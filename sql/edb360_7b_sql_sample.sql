@@ -38,16 +38,16 @@ COL edb360_bypass NEW_V edb360_bypass;
 SELECT ' echo timeout ' edb360_bypass FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  >  :edb360_max_seconds
 /
 
-INSERT INTO PLAN_TABLE (  DISTRIBUTION     -- WITH query block 
+INSERT INTO PLAN_TABLE (  distribution     -- WITH query block 
                        ,  id               -- con_id
                        ,  statement_id     -- sql_id
-                       ,  TEMP_SPACE       -- db_time_hrs
-                       ,  CPU_COST         -- cpu_time_hrs
-                       ,  IO_COST          -- io_time_hrs
-                       ,  POSITION         -- rank_num
-                       ,  OPERATION        -- command_type
-                       ,  PARENT_ID        -- user_id
-                       ,  OBJECT_NODE      -- module
+                       ,  temp_space       -- db_time_hrs
+                       ,  cpu_cost         -- cpu_time_hrs
+                       ,  io_cost          -- io_time_hrs
+                       ,  position         -- rank_num
+                       ,  operation        -- command_type
+                       ,  parent_id        -- user_id
+                       ,  object_node      -- module
                        ) /* &&section_id..&&report_sequence. */
             SELECT 'top_sql',
                    r.con_id,
@@ -88,11 +88,11 @@ INSERT INTO PLAN_TABLE (  DISTRIBUTION     -- WITH query block
              WHERE r.rank_num <= &&edb360_conf_top_sql.
 /
 
-INSERT INTO PLAN_TABLE (  DISTRIBUTION -- WITH query block 
+INSERT INTO PLAN_TABLE (  distribution -- WITH query block 
                        ,  id           -- con_id
                        ,  statement_id -- sql_id
-                       ,  POSITION     -- rank_num
-                       ,  CARDINALITY  -- child_cursors
+                       ,  position     -- rank_num
+                       ,  cardinality  -- child_cursors
                        ) /* &&section_id..&&report_sequence. */
             SELECT 'top_not_shared',
                    ns.con_id,
@@ -107,8 +107,8 @@ INSERT INTO PLAN_TABLE (  DISTRIBUTION -- WITH query block
                            RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS rank_num
                       FROM &&gv_object_prefix.sql_shared_cursor
                      WHERE 1=1 
-            &&skip_noncdb. AND (sql_id,con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM PLAN_TABLE)
-            &&skip_cdb.    AND (sql_id)        not in (SELECT statement_id /* sql_id */                  FROM PLAN_TABLE)
+            &&skip_noncdb. AND (sql_id,con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM plan_table)
+            &&skip_cdb.    AND (sql_id)        not in (SELECT statement_id /* sql_id */                  FROM plan_table)
                      GROUP BY
                            &&skip_noncdb.con_id,
                            &&skip_cdb. 0 ,
@@ -119,11 +119,11 @@ INSERT INTO PLAN_TABLE (  DISTRIBUTION -- WITH query block
 
 INSERT INTO PLAN_TABLE (  distribution    -- WITH query block 
                        ,  id              -- con_id
-                       ,  BYTES           -- force_matching_signature
+                       ,  bytes           -- force_matching_signature
                        ,  position        -- rn
-                       ,  CARDINALITY     -- distinct_sql_id
+                       ,  cardinality     -- distinct_sql_id
                        ,  statement_id    -- sample_sql_id
-                       ,  OPERATION       -- command_type
+                       ,  operation       -- command_type
                        ,  temp_space      -- samples
                        ) /* &&section_id..&&report_sequence. */
             SELECT 'top_signature',
@@ -149,8 +149,8 @@ INSERT INTO PLAN_TABLE (  distribution    -- WITH query block
                        AND h.force_matching_signature IS NOT NULL
                        AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
                        AND h.dbid = &&edb360_dbid.
-        &&skip_noncdb. AND (h.sql_id,h.con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM PLAN_TABLE )
-        &&skip_cdb.    AND (h.sql_id)          not in (SELECT statement_id /* sql_id */                  FROM PLAN_TABLE )
+        &&skip_noncdb. AND (h.sql_id,h.con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM plan_table )
+        &&skip_cdb.    AND (h.sql_id)          not in (SELECT statement_id /* sql_id */                  FROM plan_table )
                        AND '&&edb360_bypass.' IS NULL
                      GROUP BY
                            &&skip_noncdb.h.con_id,
@@ -160,20 +160,20 @@ INSERT INTO PLAN_TABLE (  distribution    -- WITH query block
                AND r.distinct_sql_id >1
 /
 
-UPDATE PLAN_TABLE pl 
- SET PARTITION_START=   -- pdb_name
+UPDATE plan_table pl 
+ SET partition_start=   -- pdb_name
 &&skip_noncdb. (SELECT c.name pdb_name FROM v$containers c WHERE c.con_id = pl.id)
 &&skip_cdb.0
 /
 
-UPDATE PLAN_TABLE pl 
-  SET OBJECT_OWNER=     -- username
-&&skip_noncdb. NVL((SELECT u.username FROM &&CDB_OBJECT_PREFIX.users u WHERE u.user_id = pl.parent_id and u.con_id = pl.id), TO_CHAR(pl.parent_id)) 
+UPDATE plan_table pl 
+  SET object_owner=     -- username
+&&skip_noncdb. NVL((SELECT u.username FROM &&cdb_object_prefix.users u WHERE u.user_id = pl.parent_id AND u.con_id = pl.id), TO_CHAR(pl.parent_id)) 
 &&skip_cdb. NVL((SELECT u.username FROM &&dva_object_prefix.users u WHERE u.user_id = pl.parent_id), TO_CHAR(pl.parent_id)) 
 /
 
-UPDATE PLAN_TABLE pl
-  SET PROJECTION=       -- sql_text_1000
+UPDATE plan_table pl
+  SET projection=       -- sql_text_1000
      ( SELECT REPLACE(REPLACE(REPLACE(REPLACE(sql_text_1000, CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
          FROM (SELECT DBMS_LOB.SUBSTR(h.sql_text, 1000)  sql_text_1000
                  FROM &&cdb_awr_object_prefix.sqltext h
@@ -185,7 +185,7 @@ UPDATE PLAN_TABLE pl
                 WHERE s.sql_id = pl.statement_id 
                   AND s.sql_fulltext IS NOT NULL
                 UNION ALL 
-               SELECT substr(listagg(sql_text,'') within group ( order by piece) over (partition by inst_id &&skip_noncdb.,t.con_id 
+               SELECT SUBSTR(LISTAGG(sql_text,'') WITHIN GROUP ( ORDER BY piece) OVER (PARTITION BY inst_id &&skip_noncdb.,t.con_id 
                       ),1 ,1000) 
                  FROM &&gv_object_prefix.sqltext t 
                 WHERE t.sql_id=pl.statement_id 
@@ -215,26 +215,26 @@ DECLARE
                    signature, -- not null means Top as per signature
                    distinct_sql_id, -- not null means Top as per signature
                    sql_text_1000
-              FROM (SELECT  PARTITION_START pdb_name 
-                         ,  DISTRIBUTION  top_type
-                         ,  NVL(PROJECTION,NVL(OPERATION,'unknown'))  sql_text_1000
-                         , (CASE DISTRIBUTION WHEN 'top_sql' then 1 WHEN 'top_not_shared' THEN 2 ELSE 3 END) top_type_order
-                         -- Start top_sql results
+              FROM (SELECT  partition_start pdb_name 
+                         ,  distribution  top_type
+                         ,  nvl(projection,nvl(operation,'unknown'))  sql_text_1000
+                         , (CASE distribution WHEN 'top_sql' THEN 1 WHEN 'top_not_shared' THEN 2 ELSE 3 END) top_type_order
+                         -- start top_sql results
                          ,  id            con_id
                          ,  statement_id  sql_id
-                         ,  TEMP_SPACE    db_time_hrs
-                         ,  CPU_COST      cpu_time_hrs
-                         ,  IO_COST       io_time_hrs
-                         ,  POSITION      rank_num
-                         ,  OPERATION     command_type
-                         ,  OBJECT_OWNER  username
-                         ,  OBJECT_NODE   module
-                         -- Start top_not_shared results
-                         ,  CARDINALITY   child_cursors
-                         -- Start top_signature results
-                         ,  BYTES         signature -- force_matching_signature
-                         ,  CARDINALITY   distinct_sql_id
-                     FROM PLAN_TABLE ) ts
+                         ,  temp_space    db_time_hrs
+                         ,  cpu_cost      cpu_time_hrs
+                         ,  io_cost       io_time_hrs
+                         ,  position      rank_num
+                         ,  operation     command_type
+                         ,  object_owner  username
+                         ,  object_node   module
+                         -- start top_not_shared results
+                         ,  cardinality   child_cursors
+                         -- start top_signature results
+                         ,  bytes         signature -- force_matching_signature
+                         ,  cardinality   distinct_sql_id
+                     FROM plan_table ) ts
               ORDER BY rank_num, top_type_order, db_time_hrs DESC, con_id;
   sql_rec sql_cur%ROWTYPE;
   PROCEDURE put_line(p_line IN VARCHAR2) IS
