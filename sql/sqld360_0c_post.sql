@@ -63,14 +63,13 @@ HOS zip -mq &&sqld360_main_filename._&&sqld360_file_time. &&sqld360_main_report.
 HOS zip -mq &&sqld360_main_filename._&&sqld360_file_time. 00000_readme_first.txt 
 --HOS unzip -l &&sqld360_main_filename._&&sqld360_file_time.
 
-
 -- This commit is to end the transaction we initiated in this execution
 -- The main goal is to avoid ORA-65023 when switching to another PDB
 COMMIT;
 
 -- here we need to switch back to caller CONTAINER (CDB/PDB)
 -- It will error out in versions before 12c, safe to ignore
-&&skip_noncdb.ALTER SESSION SET CONTAINER=&&sqld360_container.;
+ALTER SESSION SET CONTAINER=&&sqld360_container.;
 
 
 --update plan table with zip file for eDB360 to pull
@@ -78,3 +77,4 @@ UPDATE plan_table SET remarks = '&&sqld360_main_filename._&&sqld360_file_time..z
 COMMIT;
 
 SET TERM ON;
+

@@ -248,13 +248,24 @@ END;
 DEF title = 'SQL Plan Directives - Objects';
 DEF main_table = '&&cdb_view_prefix.SQL_PLAN_DIR_OBJECTS';
 BEGIN
+/*  Bug 20683085 - ANYDATA and XMLTYPE columns do not work with Cross Container object queries (ORA-12805 and ORA-7445 [kprcdt] possible) (Doc ID 20683085.8)
+  dba_sql_plan_dir_objects.notes is xmltype 
+*/
+ if '&&DB_VERSION.' = '12.1.0.2.0' and '&&IS_CDB.' ='Y' then 
   :sql_text := q'[
+SELECT *
+  FROM &&dva_object_prefix.sql_plan_dir_objects
+ ORDER BY 1,2,3,4,5
+]';
+else
+  :sql_text :=
 SELECT x.*
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.sql_plan_dir_objects x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY 1,2,3,4,5
 ]';
+end if;
 END;
 /
 @@&&skip_ver_le_11.edb360_9a_pre_one.sql
