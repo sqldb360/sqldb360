@@ -23,8 +23,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
   FROM &&cdb_object_prefix.tablespace_usage_metrics m,
        &&cdb_object_prefix.tablespaces t
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = t.con_id
- WHERE t.con_id = m.con_id
-   AND t.tablespace_name = m.tablespace_name
+ WHERE t.tablespace_name = m.tablespace_name
+&&skip_noncdb.   AND t.con_id = m.con_id
  ORDER BY
        &&skip_noncdb.t.con_id,
        t.tablespace_name
@@ -554,7 +554,7 @@ SELECT x.*
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
  ORDER BY
        &&skip_noncdb.x.con_id,
-       TO_CHAR(creation_time, 'YYYY-MM')
+       creation_month
 ]';
 END;
 /
@@ -928,6 +928,7 @@ BEGIN
 -- requested by David Kurtz--performance fix 25.10.2021
 WITH s AS (
 SELECT  /*+ MATERIALIZE*/ s.owner, s.segment_name, s.tablespace_name, s.blocks
+&&skip_noncdb.,s.con_id
 FROM    &&cdb_object_prefix.segments s
 WHERE   s.owner not in &&exclusion_list.
 AND     s.owner not in &&exclusion_list2.
@@ -1628,11 +1629,9 @@ Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 From   &&dva_object_prefix.tables t, &&dva_object_prefix.tablespaces s
 Where  t.tablespace_name = s.tablespace_name
 And    t.blocks*s.block_size > 10*1024*1024*1024
-And    partitioned='NO'
-And    owner Not In ('ANONYMOUS','APEX_030200','APEX_040000','APEX_040200','APEX_SSO','APPQOSSYS')
-And    owner Not In ('CTXSYS','DBSNMP','DIP','EXFSYS','FLOWS_FILES','MDSYS','OLAPSYS','ORACLE_OCM','ORDDATA')
-And    owner Not In ('ORDPLUGINS','ORDSYS','OUTLN','OWBSYS','SI_INFORMTN_SCHEMA','SQLTXADMIN','SQLTXPLAIN')
-And    owner Not In ('SYS','SYSMAN','SYSTEM','TRCANLZR','WMSYS','XDB','XS$NULL','PERFSTAT','STDBYPERF','MGDSYS','OJVMSYS')
+And    t.partitioned='NO'
+And    t.owner Not In &&exclusion_list.
+And    t.owner Not In &&exclusion_list2.
 order by blocks desc
 ]';
 END;
