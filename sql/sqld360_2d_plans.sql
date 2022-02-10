@@ -208,7 +208,7 @@ ALTER SESSION SET CURRENT_SCHEMA = &&xplan_user.;
 EXPLAIN PLAN FOR &&xplan_sql.
 /
 SET TERM ON 
-SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY,format=>'ADVANCED &&format_adaptive');
+SELECT plan_table_output FROM TABLE(DBMS_XPLAN.DISPLAY(format=>'ADVANCED &&format_adaptive'));
 ALTER SESSION SET CURRENT_SCHEMA = &&current_user.;
 
 

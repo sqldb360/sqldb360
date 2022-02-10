@@ -23,6 +23,23 @@ HOS rm cpuinfo.sql
 COL system_item FOR A40 HEA 'Covers one database'
 COL system_value HEA ''
 
+col exa_storage new_v exa_storage
+select NULL exa_storage from dual;
+
+SELECT LISTAGG(make_model||' with '||cpu_count||' CPUs '||cv_cellVersion||' in '||cv_flashcachemode||' mode',' | ') within group (order by make_model) over (partition by make_model) exa_storage
+  FROM (
+        SELECT DISTINCT
+            CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/releaseVersion/text()') AS VARCHAR2(20))  cv_cellVersion
+          , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/flashCacheMode/text()') AS VARCHAR2(20))  cv_flashcachemode
+          , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/cpuCount/text()')       AS VARCHAR2(10))  cpu_count
+          , CAST(EXTRACT(XMLTYPE(confval), '/cli-output/cell/makeModel/text()')      AS VARCHAR2(50))  make_model
+        FROM
+            v$cell_config  -- gv isn't needed, all cells should be visible in all instances
+        WHERE
+            conftype = 'CELL'
+       )
+/
+
 DEF title = 'System Under Observation';
 DEF main_table = 'DUAL';
 BEGIN
@@ -68,16 +85,23 @@ SELECT 'Database memory:',
        CASE WHEN mem.target > 0 THEN 'AMM ' ELSE CASE WHEN sga.target > 0 THEN 'ASMM' ELSE 'MANUAL' END END
   FROM mem, sga, pga
  UNION ALL
-&&skip_ver_le_11.SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
-&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END|| 
-&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END|| 
-&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END|| 
-&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%2699%' THEN 'X5-2 ' END|| 
-&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END|| 
-&&skip_ver_le_11.        CASE WHEN '&&processor_model.' LIKE '%8895%' THEN 'X4-8 or X5-8 ' END|| 
-&&skip_ver_le_11.        'with '||cell.cnt||' storage servers' 
-&&skip_ver_le_11.        ELSE 'Unknown' END FROM cell
-&&skip_ver_le_11. UNION ALL
+&&skip_ver_le_11_1. SELECT 'Hardware:', CASE WHEN cell.cnt > 0 THEN 'Engineered System '||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%5675%' THEN 'X2-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2690%' THEN 'X3-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2697%' THEN 'X4-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2699%v3%' THEN 'X-5 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%2699%v4%' THEN 'X-6 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8160%' THEN 'X7-2 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8260%' THEN 'X8-2 ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8358%' THEN 'X9M  ' END|| 
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8870%' THEN 'X3-8 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8895%v2%' THEN 'X4-8 ' END||
+&&skip_ver_le_11_1. CASE WHEN '&&processor_model.' LIKE '%8895%v3%' THEN 'X5-8 ' END||
+&&skip_ver_le_11_1. 'with '||cell.cnt||' storage servers'
+&&skip_ver_le_11_1. ELSE 'Unknown' END FROM cell
+&&skip_ver_le_11_1.  UNION ALL
+SELECT 'Storage:','&&exa_storage.' FROM DUAL WHERE '&&exa_storage.' IS NOT NULL
+ UNION ALL
 SELECT 'Processor:', '&&processor_model.' FROM DUAL
  UNION ALL
 SELECT 'Physical CPUs:', core.cnt||' cores'||CASE WHEN rac.instances > 0 THEN ', on '||rac.db_type END FROM rac, core
