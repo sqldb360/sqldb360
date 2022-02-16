@@ -1,12 +1,7 @@
 Changelog
 =========
 
-v192
-====
-Commit details are in https://github.com/sqldb360/sqldb360/commits/unstable
-
-v191
-====
+Starting v191 all remaining changelog can be followed in the git repository.
 Commit details are in https://github.com/sqldb360/sqldb360/commits/unstable
 
 v183
