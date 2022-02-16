@@ -150,7 +150,6 @@ WITH
 ic_device_stats AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.snap_id,
-       h.dbid,
        h.instance_number,
        h.if_name,
        first_value(s.begin_interval_time) over (PARTITION BY s.dbid,s.snap_id ORDER BY s.snap_id) begin_interval_time,
@@ -180,7 +179,6 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
 ),
 per_instance AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time,
@@ -213,7 +211,6 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
     AND send_buf_or >= 0
     AND send_carrier_lost >= 0
  GROUP BY
-       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time,
@@ -222,7 +219,6 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 ),
 per_cluster AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time,
@@ -240,16 +236,14 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(send_carrier_lost) send_carrier_lost
   FROM per_instance
  GROUP BY
-       dbid,
        snap_id,
        begin_interval_time,
        end_interval_time
 )
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       dbid,
        snap_id
-       ,TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time
-       ,TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time
+       ,TO_CHAR(begin_interval_time, 'YYYY-MM-DD HH24:MI:SS') begin_time
+       ,TO_CHAR(end_interval_time, 'YYYY-MM-DD HH24:MI:SS') end_time
        #column01#
        #column02#
        #column03#
@@ -267,7 +261,6 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        ,0 dummy_15
   FROM per_cluster
  ORDER BY       
-       dbid,
        snap_id
 ]';
 END;

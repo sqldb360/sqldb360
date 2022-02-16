@@ -26,6 +26,11 @@ DEF edb360_conf_work_day_to = '6';
 -- maximum time in hours to allow edb360 to execute (default 24 hrs)
 DEF edb360_conf_max_hours = '24';
 
+-- Miscellaneous settings 
+--DEF skip_esp_and_escp = '--skip--';
+--DEF ash_validation = '--skip--';
+
+-- Line plus settings
 DEF edb360_conf_incl_awr_diff_rpt = 'N';
 DEF edb360_conf_incl_plot_awr ='Y';
 DEF edb360_conf_series_selection ='Y';
