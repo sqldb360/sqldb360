@@ -353,7 +353,7 @@ DEF title = 'Concurrency Wait Latency Histogram';
 DEF abstract = 'Percentage of Waits, taking less (or more) than N milliseconds.<br />'
 DEF vaxis = 'Histogram as Percent of Waits (stacked)';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'wait_class = ''Concurrency''');
-@@&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
+@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'Application Wait Latency Histogram';

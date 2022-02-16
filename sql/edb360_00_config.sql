@@ -108,7 +108,7 @@ DEF edb360_conf_incl_pie  = 'Y';
 DEF edb360_conf_incl_bar  = 'Y';
 
 -- excluding awr reports substantially reduces usability with minimal performance gain
-DEF edb360_conf_incl_perfhub = 'Y';
+DEF edb360_conf_incl_perfhub = 'N'; -- Perfhub no longer works in 12.1 due to end-of-life for flash and it is included in the AWR report in html format anyway. 
 DEF edb360_conf_incl_awr_rpt = 'Y';
 DEF edb360_conf_incl_awr_diff_rpt = 'Y'; 
 DEF edb360_conf_incl_awr_range_rpt = 'N';

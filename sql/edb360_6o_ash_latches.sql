@@ -33,7 +33,10 @@ WITH hist AS (
 )
 SELECT  
        &&skip_ver_le_12_1. l.type||': '||
-       REGEXP_SUBSTR(h.event,'[^:]+')||': '||l.display_name||' (#'||h.latch#
+       REGEXP_SUBSTR(h.event,'[^:]+')||': '||
+&&skip_ver_le_11_2.        l.display_name
+&&skip_ver_ge_12_1.        l.name
+       ||' (#'||h.latch#
        ||CASE WHEN num_addr>1 THEN ', '||num_addr||' addresses' END
        ||')' event_latch,
        h.samples,

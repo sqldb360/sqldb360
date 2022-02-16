@@ -9,8 +9,8 @@ CL COL;
 COL row_num FOR 9999999 HEA '#' PRI;
 
 -- version
-DEF sqld360_vYYNN = 'v202';
-DEF sqld360_vrsn = '&&sqld360_vYYNN. (2020-11-30)';
+DEF sqld360_vYYNN = 'v203';
+DEF sqld360_vrsn = '&&sqld360_vYYNN. (2022-02-16)';
 DEF sqld360_prefix = 'sqld360';
 
 -- parameters

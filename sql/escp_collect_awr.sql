@@ -2,7 +2,7 @@
 --
 -- File name:   escp_collect_awr.sql (2016-09-01)
 --
---              Sizing and Capacity Planing eSCP
+--              Enkitec Sizing and Capacity Planing eSCP
 --
 -- Purpose:     Collect Resources Metrics for an Oracle Database
 --
@@ -31,10 +31,32 @@
 --
 -- Warning:     Requires a license for the Oracle Diagnostics Pack
 --
+-- Modified on April 12th, 2021 to Add Date Range
 ---------------------------------------------------------------------------------------
 --
+-- To support Date Range
+-- range of dates below supersede history days when values are other than YYYY-MM-DD
+-- When not using the Date Range leave the values 'YYYY-MM-DD' active
+-- DEF escp_conf_date_from = 'YYYY-MM-DD';
+-- DEF escp_conf_date_to   = 'YYYY-MM-DD';
+-- There is no validation that the retention includes the Date Range
+-- However there is a join with dba_hist_snapshot, therefore, no data will come out if the range is not part of the retention
+
+-- Always have the escp_conf_date_from and escp_conf_date_to defined with 'YYYY-MM-DD' or a date value
+-- Do not comment the lines
+
+DEF escp_conf_date_from = 'YYYY-MM-DD';
+DEF escp_conf_date_to   = 'YYYY-MM-DD';
+
+-- When using Date Range the escp_max_days will be ignored
+-- Even when ESCP_MAX_DAYS=365 the collection will get from the SYSDATE - history_days
 DEF ESCP_MAX_DAYS = '365';
 DEF ESCP_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS';
+
+-- To support Date Range
+DEF escp_timestamp_format = 'YYYY-MM-DD"T"HH24:MI:SS.FF';
+DEF escp_timestamp_tz_format = 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM';
+-- 
 
 SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
@@ -43,6 +65,46 @@ ALTER SESSION SET NLS_SORT = 'BINARY';
 ALTER SESSION SET NLS_COMP = 'BINARY';
 ALTER SESSION SET NLS_DATE_FORMAT = '&&ESCP_DATE_FORMAT.';
 ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '&&ESCP_DATE_FORMAT.';
+
+-- Get dbid
+COL escp_this_dbid NEW_V escp_this_dbid;
+SELECT 'get_dbid', TO_CHAR(dbid) escp_this_dbid FROM v$database
+/
+
+-- To support Date Range
+-- get collection days escp_collection_days
+DEF escp_collection_days = '&&ESCP_MAX_DAYS.';
+COL escp_collection_days NEW_V escp_collection_days;
+SELECT NVL(TO_CHAR(LEAST(EXTRACT(DAY FROM retention), TO_NUMBER('&&ESCP_MAX_DAYS.'))), '&&ESCP_MAX_DAYS.') escp_collection_days FROM dba_hist_wr_control WHERE dbid = &&escp_this_dbid;
+
+-- To support Date Range
+COL history_days NEW_V history_days;
+-- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range. 
+SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(begin_interval_time) AS DATE)), TO_NUMBER('&&escp_collection_days.'))) history_days FROM dba_hist_snapshot WHERE dbid = &&escp_this_dbid.;
+SELECT TO_CHAR(TO_DATE('&&escp_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&escp_conf_date_from.', 'YYYY-MM-DD') + 1) history_days FROM DUAL WHERE '&&escp_conf_date_from.' != 'YYYY-MM-DD' AND '&&escp_conf_date_to.' != 'YYYY-MM-DD';
+
+COL escp_date_from NEW_V escp_date_from;
+COL escp_date_to   NEW_V escp_date_to;
+SELECT CASE '&&escp_conf_date_from.' WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE - &&history_days., '&&escp_date_format.') ELSE '&&escp_conf_date_from.T00:00:00' END escp_date_from FROM DUAL;
+SELECT CASE '&&escp_conf_date_to.'   WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE, '&&escp_date_format.') ELSE '&&escp_conf_date_to.T23:59:59' END escp_date_to FROM DUAL;
+
+-- snapshot ranges
+COL minimum_snap_id NEW_V minimum_snap_id;
+SELECT NVL(TO_CHAR(MIN(snap_id)), '0') minimum_snap_id FROM dba_hist_snapshot WHERE dbid = &&escp_this_dbid. AND begin_interval_time > TO_DATE('&&escp_date_from.', '&&escp_date_format.');
+SELECT '-1' minimum_snap_id FROM DUAL WHERE TRIM('&&minimum_snap_id.') IS NULL;
+COL maximum_snap_id NEW_V maximum_snap_id;
+SELECT NVL(TO_CHAR(MAX(snap_id)), '&&minimum_snap_id.') maximum_snap_id FROM dba_hist_snapshot WHERE dbid = &&escp_this_dbid. AND end_interval_time < TO_DATE('&&escp_date_to.', '&&escp_date_format.');
+SELECT '-1' maximum_snap_id FROM DUAL WHERE TRIM('&&maximum_snap_id.') IS NULL;
+
+/* Sentences will change
+From: h.snap_id >= &&escp_min_snap_id.
+To: h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+From: h.sample_time >= SYSTIMESTAMP - &&escp_collection_days.
+To: h.sample_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
+*/
+-- all that to support Date Range
+
 
 -- get host name (up to 30, stop before first '.', no special characters)
 DEF escp_host_name_short = '';
@@ -66,26 +128,18 @@ DEF escp_collection_yyyymmdd_hhmi = '';
 COL escp_collection_yyyymmdd_hhmi NEW_V escp_collection_yyyymmdd_hhmi FOR A13;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD_HH24MI') escp_collection_yyyymmdd_hhmi FROM DUAL;
 
--- Get dbid
-COL escp_this_dbid NEW_V escp_this_dbid;
-SELECT 'get_dbid', TO_CHAR(dbid) escp_this_dbid FROM v$database
-/
-
--- get collection days
-DEF escp_collection_days = '&&ESCP_MAX_DAYS.';
-COL escp_collection_days NEW_V escp_collection_days;
-SELECT NVL(TO_CHAR(LEAST(EXTRACT(DAY FROM retention), TO_NUMBER('&&ESCP_MAX_DAYS.'))), '&&ESCP_MAX_DAYS.') escp_collection_days FROM dba_hist_wr_control WHERE dbid = &&escp_this_dbid;
-
 COL escp_this_inst_num NEW_V escp_this_inst_num;
 SELECT 'get_instance_number', TO_CHAR(instance_number) escp_this_inst_num FROM v$instance
 /
 
+/* The min_snap_id substituted by minimum_snap_id
 DEF escp_min_snap_id = '';
 COL escp_min_snap_id NEW_V escp_min_snap_id;
 SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) escp_min_snap_id FROM dba_hist_snapshot WHERE dbid = &&escp_this_dbid. AND CAST(begin_interval_time AS DATE) > SYSDATE - &&escp_collection_days.
 /
 SELECT NVL('&&escp_min_snap_id.','0') escp_min_snap_id FROM DUAL
 /
+*/
 
 DEF;
 
@@ -126,12 +180,23 @@ SELECT 'COLLECT' escp_metric_group,
   FROM v$instance
 /
 
+/*
 -- collection days
 SELECT 'COLLECT'                                  escp_metric_group,
        'DAYS'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
        TO_CHAR(SYSDATE - &&escp_collection_days.) escp_end_date,
        '&&escp_collection_days.'                  escp_value 
+  FROM v$instance
+/
+*/
+-- To support Date Range
+-- collection days
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DAYS'                                     escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       '&&escp_date_to.'                          escp_end_date,
+       '&&history_days.'                          escp_value 
   FROM v$instance
 /
 
@@ -326,10 +391,11 @@ SELECT /*+
        h.sample_time              escp_end_date,
        TO_CHAR(COUNT(*))          escp_value
   FROM dba_hist_active_sess_history h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND (h.session_state = 'ON CPU' OR h.event = 'resmgr:cpu quantum')
-   AND h.sample_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND h.sample_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
  GROUP BY
        h.session_state,
        h.instance_number,
@@ -357,7 +423,7 @@ SELECT /*+
        h.instance_number,
        SUM(h.value) value
   FROM dba_hist_sga h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
  GROUP BY
        h.snap_id,
@@ -374,9 +440,10 @@ SELECT /*+
        s.instance_number,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
        'MEM'                      escp_metric_group,
@@ -410,7 +477,7 @@ SELECT /*+
        h.instance_number,
        h.value
   FROM dba_hist_pgastat h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.name = 'total PGA allocated'
 ),
@@ -425,9 +492,10 @@ SELECT /*+
        s.instance_number,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
        'MEM'                      escp_metric_group,
@@ -461,7 +529,7 @@ SELECT /*+
        h.tablespace_id,
        h.tablespace_size
   FROM dba_hist_tbspc_space_usage h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
 ),
 dba_hist_snapshot_sqf AS (
@@ -474,10 +542,11 @@ SELECT /*+
        s.snap_id,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.instance_number = &&escp_this_inst_num.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
        'DISK'                                         escp_metric_group,
@@ -517,7 +586,7 @@ SELECT /*+
        h.bytes,
        h.members
   FROM dba_hist_log h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
 ),
 dba_hist_snapshot_sqf AS (
@@ -530,10 +599,11 @@ SELECT /*+
        s.snap_id,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.instance_number = &&escp_this_inst_num.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
        'DISK'                            escp_metric_group,
@@ -570,7 +640,7 @@ SELECT /*+
        h.stat_name,
        h.value
   FROM dba_hist_sysstat h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.stat_name IN (
        'physical read total IO requests',
@@ -608,9 +678,10 @@ SELECT /*+
        s.instance_number,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
        CASE h.stat_name
@@ -716,7 +787,7 @@ SELECT /*+
        h.name,
        h.value
   FROM dba_hist_dlm_misc h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.name IN (
        'gcs msgs received',
@@ -734,9 +805,10 @@ SELECT /*+
        s.instance_number,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
        'IC'                       escp_metric_group,
@@ -781,7 +853,7 @@ SELECT /*+
        h.stat_name,
        h.value
   FROM dba_hist_osstat h
- WHERE h.snap_id >= &&escp_min_snap_id.
+ WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.stat_name IN (
        'LOAD', 
@@ -809,9 +881,10 @@ SELECT /*+
        s.instance_number,
        s.end_interval_time
   FROM dba_hist_snapshot s
- WHERE s.snap_id >= &&escp_min_snap_id.
+ WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
-   AND s.end_interval_time >= SYSTIMESTAMP - &&escp_collection_days.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
 )
 SELECT /*+ USE_HASH(h s) */
       'OS'                           escp_metric_group,

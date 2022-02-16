@@ -421,7 +421,7 @@ DEF skip_lch = '';
 DEF title = 'Total SGA Allocated (Gb) per PDB for Cluster';
 DEF abstract = '&&abstract_uom.';
 DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
-EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', '');
 
 @@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -496,7 +496,7 @@ DEF skip_lch = '';
 DEF title = 'Total Shared Pool Allocated (Gb) per PDB for Cluster';
 DEF abstract = '&&abstract_uom.';
 DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
-EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''shared pool''');
 
 @@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -572,7 +572,7 @@ DEF skip_lch = '';
 DEF title = 'Total Large Pool Allocated (Gb) per PDB for Cluster';
 DEF abstract = '&&abstract_uom.';
 DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
-EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''large pool''');
 
 @@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -645,7 +645,7 @@ DEF skip_lch = '';
 DEF title = 'Total Java Pool Allocated (Gb) per PDB for Cluster';
 DEF abstract = '&&abstract_uom.';
 DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
-EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''java pool''');
 
 @@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -719,7 +719,7 @@ DEF skip_lch = '';
 DEF title = 'Streams Pool Allocated (Gb) per PDB for Cluster';
 DEF abstract = '&&abstract_uom.';
 DEF foot = 'Does not include Free SGA Memory Available. For memory pools resize review Memory Statistics reports instead.'
-EXEC :sql_text_backup2 := (REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
+EXEC :sql_text_backup2 := REPLACE(:sql_text_backup, '@instance_number@', 'instance_number');
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@sgastat_criteria@', 'AND pool = ''streams pool''');
 
 @@&&skip_noncdb.&&is_single_instance.&&skip_diagnostics.edb360_9a_pre_one.sql

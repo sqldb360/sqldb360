@@ -22,7 +22,7 @@
 --             
 ---------------------------------------------------------------------------------------
 --
-SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF NUM 20 SQLBL ON BLO . RECSEP OFF;
+SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
 -- get host name (up to 30, stop before first '.', no special characters)
 DEF esp_host_name_short = '';
@@ -909,4 +909,4 @@ SELECT 'collection_host,collection_key,category,data_element,source,instance_num
 /
 
 SPO OFF;
-SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF  NUM 10 SQLBL OFF BLO ON RECSEP WR;
+SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF ARRAY 15 NUM 10 SQLBL OFF BLO ON RECSEP WR;

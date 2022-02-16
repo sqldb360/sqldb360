@@ -258,7 +258,7 @@ SELECT *
  ORDER BY 1,2,3,4,5
 ]';
 else
-  :sql_text :=
+  :sql_text := q'[
 SELECT x.*
        &&skip_noncdb.,c.name con_name
   FROM &&cdb_object_prefix.sql_plan_dir_objects x
