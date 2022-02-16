@@ -26,7 +26,7 @@ SET TERM ON;
 PRO Executing esp_collect_requirements and resources_requirements
 PRO Please wait ...
 
-SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF NUM 20 SQLBL ON BLO . RECSEP OFF;
+SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
 VARIABLE vskip_awr varchar2(20)
 VARIABLE vskip_statspack varchar2(20)
@@ -100,7 +100,7 @@ SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 SET TERM ON;
 
 -- cpu info for linux, aix and solaris. expect some errors
-SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF NUM 20 SQLBL ON BLO . RECSEP OFF;
+SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 SPO hostcommands_driver.sql
 SELECT decode(  platform_id,
                 13,'HOS cat /proc/cpuinfo | grep -i name | sort | uniq | cat - /sys/devices/virtual/dmi/id/product_name >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- Linux x86 64-bit
@@ -125,7 +125,7 @@ HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collec
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip features_use_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_collection_yyyymmdd..zip                          escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip 
 
-SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF  NUM 10 SQLBL OFF BLO ON RECSEP WR;
+SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF ARRAY 15 NUM 10 SQLBL OFF BLO ON RECSEP WR;
 PRO
 PRO Generated escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd..zip
 PRO

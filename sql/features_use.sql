@@ -19,7 +19,7 @@
 --             
 ---------------------------------------------------------------------------------------
 --
-SET TERM OFF ECHO OFF FEED OFF VER OFF HEA ON PAGES 100 COLSEP ' ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF NUM 10 SQLBL ON BLO . RECSEP OFF LONG 8000 LONGC 80;
+SET TERM OFF ECHO OFF FEED OFF VER OFF HEA ON PAGES 100 COLSEP ' ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 10 SQLBL ON BLO . RECSEP OFF LONG 8000 LONGC 80;
 
 -- get host name (up to 30, stop before first '.', no special characters)
 DEF esp_host_name_short = '';
@@ -70,5 +70,5 @@ SELECT * FROM dba_feature_usage_statistics
 /*****************************************************************************************/
 
 SPO OFF;
-SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF  NUM 10 SQLBL OFF BLO ON RECSEP WR;
+SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF ARRAY 15 NUM 10 SQLBL OFF BLO ON RECSEP WR;
 
