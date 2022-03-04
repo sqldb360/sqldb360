@@ -17,7 +17,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        sql_plan_hash_value,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(DISTINCT sql_id) distinct_sql_id,
-       MIN(sql_id) sample_sql_id,
+       MAX(sql_id) sample_sql_id,
        COUNT(*) samples
   FROM &&gv_object_prefix.active_session_history
  WHERE @filter_predicate@
@@ -26,6 +26,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
  GROUP BY
        &&skip_noncdb.con_id,
        sql_plan_hash_value
+HAVING COUNT(DISTINCT sql_id)>1       
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
@@ -36,7 +37,7 @@ SELECT h.sql_plan_hash_value||'('||h.distinct_sql_id||')' plan_hash_value,
        v2.sql_text sample_sql_text
   FROM hist h,
        total t,
-       &&gv_object_prefix.sql v2
+       &&gv_object_prefix.sqlarea v2
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND v2.sql_id(+) = h.sample_sql_id
    &&skip_ver_le_11.AND v2.con_id(+) = h.con_id
@@ -61,60 +62,44 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '1 = 1 /* all 
 @@&&is_single_instance.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 1;
 DEF title = 'ASH Top PHV for Instance 1 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 1');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst1.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 2;
 DEF title = 'ASH Top PHV for Instance 2 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 2');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst2.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 3;
 DEF title = 'ASH Top PHV for Instance 3 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 3');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst3.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 4;
 DEF title = 'ASH Top PHV for Instance 4 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 4');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst4.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 5;
 DEF title = 'ASH Top PHV for Instance 5 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 5');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst5.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 6;
 DEF title = 'ASH Top PHV for Instance 6 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 6');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst6.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 7;
 DEF title = 'ASH Top PHV for Instance 7 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 7');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst7.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 DEF skip_pch = '';
-DEF skip_all = 'Y';
-SELECT NULL skip_all FROM &&gv_object_prefix.instance WHERE inst_id = 8;
 DEF title = 'ASH Top PHV for Instance 8 from MEM';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 8');
-@@&&skip_all.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
+@@&&skip_inst8.&&edb360_skip_ash_mem.edb360_9a_pre_one.sql
 
 /*****************************************************************************************/
 
@@ -130,7 +115,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        dbid,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(DISTINCT sql_id) distinct_sql_id,
-       MIN(sql_id) sample_sql_id,
+       MAX(sql_id) sample_sql_id,
        COUNT(*) samples
   FROM &&awr_object_prefix.active_sess_history h
  WHERE @filter_predicate@
@@ -142,6 +127,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        &&skip_noncdb.con_id,
        sql_plan_hash_value,
        dbid
+HAVING COUNT(DISTINCT sql_id)>1
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
@@ -149,7 +135,10 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(sample
 SELECT h.sql_plan_hash_value||'('||h.distinct_sql_id||')' plan_hash_value,
        h.samples,
        ROUND(100 * h.samples / t.samples, 1) percent,
-       DBMS_LOB.SUBSTR(s.sql_text, 1000) sample_sql_text
+       (CASE WHEN s.sql_text IS NULL 
+        THEN (SELECT g.sql_text FROM &&gv_object_prefix.sql g where g.plan_hash_value = h.sql_plan_hash_value and g.sql_text is not null and rownum=1)
+        ELSE DBMS_LOB.SUBSTR(s.sql_text, 1000) 
+        END ) sample_sql_text
   FROM hist h,
        total t,
        &&awr_object_prefix.sqltext s
