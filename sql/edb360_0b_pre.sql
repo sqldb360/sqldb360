@@ -336,6 +336,15 @@ DEF esp_collection_yyyymmdd = '';
 COL esp_collection_yyyymmdd NEW_V esp_collection_yyyymmdd FOR A8;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
+-- get valid ranges for time buckets for calculations in 4f,4g,4h
+COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
+COLUMN max_wait_time_milli NEW_VALUE max_wait_time_milli
+SELECT MIN(wait_time_milli) min_wait_time_milli
+     , MAX(wait_time_milli)*2 max_wait_time_milli
+  FROM &&awr_object_prefix.event_histogram
+ WHERE dbid = &&edb360_dbid.
+   AND wait_time_milli < 1e9;
+
 -- esp init
 DEF ecr_collection_key = '';
 
