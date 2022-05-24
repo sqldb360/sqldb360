@@ -634,88 +634,127 @@ END;
 
 DEF title = 'Indexes not recently used';
 DEF main_table = '&&cdb_view_prefix.INDEXES';
-DEF abstract = 'Be aware of false positives. Turn index monitoring on for further analysis.<br />';
+DEF abstract = 'Be aware of false positives. If using version < 12.2 turn index monitoring on for further analysis. <br /> Versions >= 12.2 use index usage tracking functionality. <br />';
 BEGIN
+IF '&&db_version.' >= '12.2' THEN
   :sql_text := q'[
-WITH
-objects AS (
-SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.con_id,
-       object_id,
-       owner,
-       object_name
-  FROM &&cdb_object_prefix.objects
- WHERE object_type LIKE 'INDEX%'
-   AND owner NOT IN &&exclusion_list.
-   AND owner NOT IN &&exclusion_list2.
-),
-/*
-ash_mem AS (
-SELECT /*+ &&sq_fact_hints. * /
-       DISTINCT &&skip_noncdb.con_id,
-       current_obj#
-  FROM &&gv_object_prefix.active_session_history
- WHERE sql_plan_operation = 'INDEX'
-   AND current_obj# > 0
-),
-*/
-ash_awr AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
-       /* &&section_id..&&report_sequence. */
-       DISTINCT &&skip_noncdb.h.con_id,
-       h.current_obj#
-  FROM &&cdb_awr_object_prefix.active_sess_history h
- WHERE h.sql_plan_operation = 'INDEX'
-   AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
-   AND h.dbid = &&edb360_dbid.
-   AND h.current_obj# > 0
-),
-/*
-sql_mem AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. * /
-       DISTINCT &&skip_noncdb.con_id,
-       object_owner, object_name
-  FROM &&gv_object_prefix.sql_plan
-WHERE operation = 'INDEX'
-),
-*/
-sql_awr AS (
-SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
-       DISTINCT &&skip_noncdb.con_id,
-       object_owner, object_name
-  FROM &&cdb_awr_object_prefix.sql_plan
- WHERE operation = 'INDEX' AND dbid = &&edb360_dbid.
-)
-SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
-       &&skip_noncdb.i.con_id,
-       i.table_owner,
-       i.table_name,
-       i.index_name
-       &&skip_noncdb.,c.name con_name
-  FROM &&cdb_object_prefix.indexes i
-       &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = i.con_id
- WHERE (i.index_type LIKE 'NORMAL%' OR i.index_type = 'BITMAP' OR i.index_type LIKE 'FUNCTION%')
-   AND i.table_owner NOT IN &&exclusion_list.
-   AND i.table_owner NOT IN &&exclusion_list2.
-   --AND (i.owner, i.index_name) NOT IN ( SELECT o.owner, o.object_name FROM ash_mem a, objects o WHERE o.object_id = a.current_obj# )
-   AND (&&skip_noncdb.i.con_id,
-        i.owner, i.index_name) NOT IN ( SELECT &&skip_noncdb.o.con_id,
-	                                           o.owner, o.object_name
-							            FROM ash_awr a, objects o
-										WHERE o.object_id = a.current_obj#
-										&&skip_noncdb. AND o.con_id = a.con_id
-										)
-   --AND (i.owner, i.index_name) NOT IN ( SELECT object_owner, object_name FROM sql_mem)
-   AND (&&skip_noncdb.i.con_id,
-        i.owner, i.index_name) NOT IN ( SELECT &&skip_noncdb.con_id,
-	                                           object_owner, object_name FROM sql_awr)
- ORDER BY
-       &&skip_noncdb.i.con_id,
-       i.table_owner,
-       i.table_name,
-       i.index_name
+    SELECT /* &&section_id..&&report_sequence. */
+        di.owner,
+        di.index_name,
+        di.index_type,
+        di.table_name,
+        SUM(tm.inserts + tm.updates + tm.deletes) operations
+    FROM
+        &&cdb_object_prefix.indexes           di,
+        &&cdb_object_prefix.tab_modifications tm
+    WHERE
+            di.owner in (select username from dba_users where oracle_maintained = 'N')
+        AND di.table_owner NOT IN &&exclusion_list.
+        AND di.table_owner NOT IN &&exclusion_list2.
+        AND di.owner = tm.table_owner
+        AND di.table_name = tm.table_name
+        AND uniqueness = 'NONUNIQUE'
+        AND NOT EXISTS (
+            SELECT
+                1
+            FROM
+                &&cdb_object_prefix.index_usage iu
+            WHERE
+                    iu.owner = di.owner
+                AND iu.name = di.index_name
+        )
+    GROUP BY
+        di.owner,
+        di.index_name,
+        di.index_type,
+        di.table_name
+    ORDER BY
+        SUM(tm.inserts + tm.updates + tm.deletes) DESC,
+        di.owner,
+        di.table_name,
+        di.index_name
 ]';
-END;
+ELSE
+  :sql_text := q'[
+    WITH
+    objects AS (
+    SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
+           &&skip_noncdb.con_id,
+           object_id,
+           owner,
+           object_name
+      FROM &&cdb_object_prefix.objects
+     WHERE object_type LIKE 'INDEX%'
+       AND owner NOT IN &&exclusion_list.
+       AND owner NOT IN &&exclusion_list2.
+    ),
+    /*
+    ash_mem AS (
+    SELECT /*+ &&sq_fact_hints. * /
+           DISTINCT &&skip_noncdb.con_id,
+           current_obj#
+      FROM &&gv_object_prefix.active_session_history
+     WHERE sql_plan_operation = 'INDEX'
+       AND current_obj# > 0
+    ),
+    */
+    ash_awr AS (
+    SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
+           /* &&section_id..&&report_sequence. */
+           DISTINCT &&skip_noncdb.h.con_id,
+           h.current_obj#
+      FROM &&cdb_awr_object_prefix.active_sess_history h
+     WHERE h.sql_plan_operation = 'INDEX'
+       AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+       AND h.dbid = &&edb360_dbid.
+       AND h.current_obj# > 0
+    ),
+    /*
+    sql_mem AS (
+    SELECT /*+ &&sq_fact_hints. &&ds_hint. * /
+           DISTINCT &&skip_noncdb.con_id,
+           object_owner, object_name
+      FROM &&gv_object_prefix.sql_plan
+    WHERE operation = 'INDEX'
+    ),
+    */
+    sql_awr AS (
+    SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
+           DISTINCT &&skip_noncdb.con_id,
+           object_owner, object_name
+      FROM &&cdb_awr_object_prefix.sql_plan
+     WHERE operation = 'INDEX' AND dbid = &&edb360_dbid.
+    )
+    SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+           &&skip_noncdb.i.con_id,
+           i.table_owner,
+           i.table_name,
+           i.index_name
+           &&skip_noncdb.,c.name con_name
+      FROM &&cdb_object_prefix.indexes i
+           &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = i.con_id
+     WHERE (i.index_type LIKE 'NORMAL%' OR i.index_type = 'BITMAP' OR i.index_type LIKE 'FUNCTION%')
+       AND i.table_owner NOT IN &&exclusion_list.
+       AND i.table_owner NOT IN &&exclusion_list2.
+       --AND (i.owner, i.index_name) NOT IN ( SELECT o.owner, o.object_name FROM ash_mem a, objects o WHERE o.object_id = a.current_obj# )
+       AND (&&skip_noncdb.i.con_id,
+            i.owner, i.index_name) NOT IN ( SELECT &&skip_noncdb.o.con_id,
+    	                                           o.owner, o.object_name
+    							            FROM ash_awr a, objects o
+    										WHERE o.object_id = a.current_obj#
+    										&&skip_noncdb. AND o.con_id = a.con_id
+    										)
+       --AND (i.owner, i.index_name) NOT IN ( SELECT object_owner, object_name FROM sql_mem)
+       AND (&&skip_noncdb.i.con_id,
+            i.owner, i.index_name) NOT IN ( SELECT &&skip_noncdb.con_id,
+    	                                           object_owner, object_name FROM sql_awr)
+     ORDER BY
+           &&skip_noncdb.i.con_id,
+           i.table_owner,
+           i.table_name,
+           i.index_name
+    ]';
+END IF;
 /
 @@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
