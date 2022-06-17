@@ -193,7 +193,7 @@ DEF main_table = '&&v_view_prefix.BACKUP_SET_DETAILS';
 BEGIN
   :sql_text := q'[
   -- requested by David Loinaz
-WITH list AS (SELECT session_stamp,
+WITH list AS (SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ session_stamp,
                CASE WHEN backup_type = 'D' then
                      CASE WHEN CONTROLFILE_INCLUDED = 'YES' then
                         'CONTROLFILE'
@@ -212,7 +212,7 @@ WITH list AS (SELECT session_stamp,
                start_time, completion_time, output_bytes
               FROM &&v_object_prefix.backup_set_details
               ORDER BY 1),
-       bck AS (SELECT session_stamp, backup_type, min(start_time) start_time,
+       bck AS (SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ session_stamp, backup_type, min(start_time) start_time,
                   max(completion_time) completion_time, sum(output_bytes) output_bytes, count(1) CNT
                FROM list
                GROUP BY session_stamp, backup_type
