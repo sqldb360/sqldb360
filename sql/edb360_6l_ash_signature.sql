@@ -27,6 +27,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
  GROUP BY
        &&skip_noncdb.con_id,
        force_matching_signature
+HAVING COUNT(DISTINCT sql_id)>1
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
@@ -149,6 +150,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        &&skip_noncdb.con_id,
        force_matching_signature,
        dbid
+HAVING COUNT(DISTINCT sql_id)>1
 ),
 total AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */ SUM(samples) samples FROM hist
@@ -158,12 +160,15 @@ SELECT h.force_matching_signature||'('||h.distinct_sql_id||')' force_matching_si
        ROUND(100 * h.samples / t.samples, 1) percent,
        --h.min_sql_id,
        --h.max_sql_id,
-       DBMS_LOB.SUBSTR(s.sql_text, 1000) sample_sql_text
+       (CASE WHEN s.sql_text IS NULL 
+        THEN (SELECT g.sql_text FROM &&gv_object_prefix.sqlarea g where g.force_matching_signature = h.force_matching_signature and g.sql_text is not null and rownum=1)
+        ELSE DBMS_LOB.SUBSTR(s.sql_text, 1000) 
+        END )sample_sql_text
   FROM hist h,
        total t,
        &&awr_object_prefix.sqltext s
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
-   AND s.sql_id(+) = h.min_sql_id AND s.dbid(+) = h.dbid
+   AND s.sql_id(+) = h.max_sql_id AND s.dbid(+) = h.dbid 
    &&skip_noncdb.AND s.con_id(+) = h.con_id
  UNION ALL
 SELECT 'Others',

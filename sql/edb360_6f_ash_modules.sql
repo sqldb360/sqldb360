@@ -57,30 +57,29 @@ SELECT 'Others',
 END;
 /
 
-VAR sql2_text_backup varchar2(4000);
+VAR sql2_text_backup CLOB;
 BEGIN
   :sql2_text_backup := q'[
 WITH
 awr as (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
        /* &&section_id..&&report_sequence. */
-       TRIM(CASE WHEN h.module = 'DBMS_SCHEDULER' AND h.action LIKE 'ORA$%' 
+       TRIM(CASE WHEN h.module = 'DBMS_SCHEDULER' AND h.action LIKE 'ORA$%'
                  THEN 'DBMS_SCHEDULER:'||REGEXP_SUBSTR(h.action,'([[:alpha:]\$_]+)')||'*'
                  WHEN h.module in ('DBMS_SCHEDULER','MMON_SLAVE') THEN h.module||':'||h.action
-                 ELSE h.module 
+                 ELSE nvl(h.module,'No Module')
             END) module
-      ,sql_opname
+      ,NVL(sql_opname,'non-SQL oper') sql_opname
       ,instance_number
- FROM &&awr_object_prefix.active_sess_history h
+      ,SUM(1) OVER () total_samples
+ FROM dba_hist_active_sess_history h
 WHERE @filter_predicate@
-   AND h.module IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
 ),
-id_inst as (
-SELECT /*+  &&sq_fact_hints.  */
-       module,
-       sql_opname,
+hist_sql AS (
+SELECT /*+ &&sq_fact_hints. */
+       module,sql_opname,
        MAX(CASE instance_number WHEN 1 THEN '1,' END)||
        MAX(CASE instance_number WHEN 2 THEN '2,' END)||
        MAX(CASE instance_number WHEN 3 THEN '3,' END)||
@@ -90,63 +89,81 @@ SELECT /*+  &&sq_fact_hints.  */
        MAX(CASE instance_number WHEN 7 THEN '7,' END)||
        MAX(CASE instance_number WHEN 8 THEN '8' END) instances,
        COUNT(*) samples
- FROM awr 
+  FROM awr
  GROUP BY
        module,sql_opname
 ),
-hist_sql AS (
-SELECT /*+  &&sq_fact_hints.  */
-       module,sql_opname,
-       COUNT(*) samples
-  FROM awr
- GROUP BY 
-       module,sql_opname
-),
 hist AS (
-SELECT /*+  &&sq_fact_hints.  */
+SELECT /*+ &&sq_fact_hints. */
        module,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
   FROM awr
- GROUP BY
-       module
+ WHERE module <>'No Module'
+ GROUP BY module
+ UNION ALL
+ SELECT
+       module,
+       15 rn,
+       COUNT(*) samples
+  FROM awr
+ WHERE module='No Module'
+ GROUP BY module
 ),
 total AS (
-SELECT /*+  &&sq_fact_hints.  */ SUM(samples) samples FROM hist
+SELECT total_samples FROM AWR WHERE rownum=1
 )
-select module,sql_opname,samples_per_sqlop,module_samples,pct_of_module_samples,pct_total_samples,instances 
+select module,sql_opname,samples_per_sqlop,module_samples,pct_of_module_samples,total_samples,pct_total_samples,instances
  FROM (
        SELECT TRIM(hs.module) module,
-              NVL(hs.sql_opname,'non-SQL oper') sql_opname,
+              hs.sql_opname,
               h.samples module_samples,
               hs.samples samples_per_sqlop,
-              ROUND(100 * hs.samples / t.samples, 1) pct_total_samples,
+              ROUND(100 * hs.samples / total_samples, 1) pct_total_samples,
               ROUND(100 * hs.samples / h.samples, 1) pct_of_module_samples,
-              (SELECT instances 
-                 FROM id_inst i
-                WHERE i.module=hs.module 
-                  AND nvl(i.sql_opname,'-')=nvl(hs.sql_opname,'-')) instances,
-              rn dummy_01
+              instances,
+              total_samples
          FROM hist h, hist_sql hs,
-              total t 
-        WHERE h.samples >= t.samples / 1000 AND h.rn <= 14
+              total
+        WHERE h.rn <= 14
+          AND hs.module<>'No Module'
           AND hs.module=h.module
         UNION ALL
-       SELECT 'Others' module,
-              NVL(hs.sql_opname,'non-SQL oper') sql_opname,
+       SELECT module,
+              sql_opname,
+              sum(hs.samples) over () module_samples,
+              hs.samples samples_per_sqlop,
+              NVL(ROUND(100 * hs.samples / total_samples), 0) pct_total_samples,
+              ROUND(100 * hs.samples / sum(hs.samples) over () , 1) pct_of_module_samples,
+              instances,
+              total_samples total_samples
+         FROM (SELECT 'Other Modules' module,
+                      hs.sql_opname,
+                      NVL(SUM(hs.samples), 0) samples,
+                      max(instances) instances
+                 FROM hist h, hist_sql hs
+                WHERE h.rn > 14
+                  AND hs.module=h.module
+                  AND hs.module<>'No Module'
+                GROUP BY 'Other Modules', hs.sql_opname
+              ) hs ,
+              total 
+        UNION ALL
+       SELECT hs.module,
+              hs.sql_opname,
               NVL(SUM(h.samples), 0) module_samples,
               NVL(SUM(hs.samples), 0) samples_per_sqlop,
-              NVL(ROUND(100 * SUM(hs.samples) / AVG(t.samples), 1), 0) pct_total_samples,
+              NVL(ROUND(100 * SUM(hs.samples) / AVG(total_samples), 1), 0) pct_total_samples,
               ROUND(100 * sum(hs.samples) / NVL(SUM(h.samples),1), 1) pct_of_module_samples,
-              null,
-              null dummy_01
+              max(instances),
+              AVG(total_samples) total_samples
          FROM hist h, hist_sql hs,
-              total t
-        WHERE (h.samples < t.samples / 1000 OR h.rn > 14)
+              total
+        WHERE  hs.module='No Module'
           AND  hs.module=h.module
-         GROUP BY 'Others', NVL(hs.sql_opname,'non-SQL oper')
- ) 
- ORDER BY module_samples DESC, samples_per_sqlop DESC ,module, sql_opname
+         GROUP BY hs.module, hs.sql_opname    
+ )
+ ORDER BY module_samples DESC, module,samples_per_sqlop DESC  ,module, sql_opname
 ]';
 END;
 /
@@ -156,11 +173,10 @@ END;
 SELECT ', between '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS') - 1, 'YYYY-MM-DD HH24:MM:SS')||' and '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MM:SS') between_times FROM DUAL;
 
 DEF skip_pch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'ASH Top Modules and Actions for Cluster for 1 day';
 DEF title_suffix = '&&between_times.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'sample_time BETWEEN TO_TIMESTAMP(''&&tool_sysdate.'', ''YYYYMMDDHH24MISS'') - 1 AND TO_TIMESTAMP(''&&tool_sysdate.'', ''YYYYMMDDHH24MISS'')');
-@@&&skip_all.edb360_9a_pre_one.sql
+@@&&is_single_instance.edb360_9a_pre_one.sql
 
 DEF skip_pch = 'Y';
 DEF title = 'Operations profile of Top Modules for Cluster for 1 day';
@@ -221,11 +237,10 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'instance_numb
 SELECT ', between '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS') - 7, 'YYYY-MM-DD HH24:MM:SS')||' and '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MM:SS')||', and between &&edb360_conf_work_time_from. and &&edb360_conf_work_time_to. hours' between_times FROM DUAL;
 
 DEF skip_pch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'ASH Top Modules and Actions for Cluster for 5 working days';
 DEF title_suffix = '&&between_times.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'sample_time BETWEEN TO_TIMESTAMP(''&&tool_sysdate.'', ''YYYYMMDDHH24MISS'') - 7 AND TO_TIMESTAMP(''&&tool_sysdate.'', ''YYYYMMDDHH24MISS'') AND TO_CHAR(sample_time, ''D'') BETWEEN ''&&edb360_conf_work_day_from.'' AND ''&&edb360_conf_work_day_to.'' AND TO_CHAR(sample_time, ''HH24'') BETWEEN ''&&edb360_conf_work_time_from.'' AND ''&&edb360_conf_work_time_to.''');
-@@&&skip_all.edb360_9a_pre_one.sql
+@@&&is_single_instance.edb360_9a_pre_one.sql
 
 DEF skip_pch = 'Y';
 DEF title = 'Operations profile of Top Modules for Cluster for 5 working days';
@@ -286,11 +301,10 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'instance_numb
 SELECT ', between '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS') - 7, 'YYYY-MM-DD HH24:MM:SS')||' and '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MM:SS') between_times FROM DUAL;
 
 DEF skip_pch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'ASH Top Modules and Actions for Cluster for 7 days';
 DEF title_suffix = '&&between_times.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'sample_time BETWEEN TO_TIMESTAMP(''&&tool_sysdate.'', ''YYYYMMDDHH24MISS'') - 7 AND TO_TIMESTAMP(''&&tool_sysdate.'', ''YYYYMMDDHH24MISS'')');
-@@&&skip_all.edb360_9a_pre_one.sql
+@@&&is_single_instance.edb360_9a_pre_one.sql
 
 DEF skip_pch = 'Y';
 DEF title = 'Operations profile of Top Modules for Cluster for 7';
@@ -351,11 +365,10 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'instance_numb
 SELECT '&&between_dates., and between &&edb360_conf_work_time_from. and &&edb360_conf_work_time_to. hours' between_times FROM DUAL;
 
 DEF skip_pch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'ASH Top Modules and Actions for Cluster for &&hist_work_days. working days';
 DEF title_suffix = '&&between_times.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'TO_CHAR(sample_time, ''D'') BETWEEN ''&&edb360_conf_work_day_from.'' AND ''&&edb360_conf_work_day_to.'' AND TO_CHAR(sample_time, ''HH24'') BETWEEN ''&&edb360_conf_work_time_from.'' AND ''&&edb360_conf_work_time_to.''');
-@@&&skip_all.edb360_9a_pre_one.sql
+@@&&is_single_instance.edb360_9a_pre_one.sql
 
 DEF skip_pch = 'Y';
 DEF title = 'Operations profile of Top Modules for Cluster for &&hist_work_days. working days';
@@ -416,11 +429,10 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'instance_numb
 SELECT '&&between_dates.' between_times FROM DUAL;
 
 DEF skip_pch = '';
-DEF skip_all = '&&is_single_instance.';
 DEF title = 'ASH Top Modules and Actions for Cluster for &&history_days. days of history';
 DEF title_suffix = '&&between_times.';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '1 = 1');
-@@&&skip_all.edb360_9a_pre_one.sql
+@@&&is_single_instance.edb360_9a_pre_one.sql
 
 DEF skip_pch = 'Y';
 DEF title = 'Operations profile of Top Modules for Cluster for &&history_days. days of history';
