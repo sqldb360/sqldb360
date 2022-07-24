@@ -38,6 +38,10 @@ COL edb360_bypass NEW_V edb360_bypass;
 SELECT ' echo timeout ' edb360_bypass FROM DUAL WHERE (DBMS_UTILITY.GET_TIME - :edb360_time0) / 100  >  :edb360_max_seconds
 /
 
+DELETE PLAN_TABLE;
+SET TERM ON FEED ON 
+SPO &&edb360_log..txt APP;
+
 INSERT INTO PLAN_TABLE (  distribution     -- WITH query block 
                        ,  id               -- con_id
                        ,  statement_id     -- sql_id
@@ -106,7 +110,7 @@ INSERT INTO PLAN_TABLE (  distribution -- WITH query block
                            COUNT(*) child_cursors,
                            RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS rank_num
                       FROM &&gv_object_prefix.sql_shared_cursor
-                     WHERE 1=1 
+                     WHERE sql_id is not null
             &&skip_noncdb. AND (sql_id,con_id) not in (SELECT statement_id /* sql_id */, id /* con_id */ FROM plan_table)
             &&skip_cdb.    AND (sql_id)        not in (SELECT statement_id /* sql_id */                  FROM plan_table)
                      GROUP BY
@@ -141,7 +145,7 @@ INSERT INTO PLAN_TABLE (  distribution    -- WITH query block
                            h.dbid,
                            ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rank_num,
                            COUNT(DISTINCT h.sql_id) distinct_sql_id,
-                           MIN(h.sql_id) sample_sql_id,
+                           MAX(h.sql_id) sample_sql_id,
                            MIN(sql_opcode) sql_opcode,
                            COUNT(*) samples
                       FROM &&cdb_awr_object_prefix.active_sess_history h
@@ -172,27 +176,41 @@ UPDATE plan_table pl
 &&skip_cdb. NVL((SELECT u.username FROM &&dva_object_prefix.users u WHERE u.user_id = pl.parent_id), TO_CHAR(pl.parent_id)) 
 /
 
+SET SERVEROUTPUT ON
+begin
+for pl in (SELECT rowid r,statement_id SQL_ID FROM plan_table where statement_id is not null) loop
+begin
 UPDATE plan_table pl
   SET projection=       -- sql_text_1000
      ( SELECT REPLACE(REPLACE(REPLACE(REPLACE(sql_text_1000, CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
          FROM (SELECT DBMS_LOB.SUBSTR(h.sql_text, 1000)  sql_text_1000
                  FROM &&cdb_awr_object_prefix.sqltext h
-                WHERE h.sql_id = pl.statement_id
+                WHERE h.sql_id = pl.sql_id
                   AND h.sql_text IS NOT NULL
-                UNION ALL 
-               SELECT DBMS_LOB.SUBSTR(s.sql_fulltext, 1000)   
+                UNION ALL
+               SELECT DBMS_LOB.SUBSTR(s.sql_fulltext, 1000)
                  FROM &&gv_object_prefix.sqlarea s
-                WHERE s.sql_id = pl.statement_id 
+                WHERE s.sql_id = pl.sql_id
                   AND s.sql_fulltext IS NOT NULL
-                UNION ALL 
-               SELECT SUBSTR(LISTAGG(sql_text,'') WITHIN GROUP ( ORDER BY piece) OVER (PARTITION BY inst_id &&skip_noncdb.,t.con_id 
-                      ),1 ,1000) 
-                 FROM &&gv_object_prefix.sqltext t 
-                WHERE t.sql_id=pl.statement_id 
+                UNION ALL
+               SELECT SUBSTR(LISTAGG(sql_text,'') WITHIN GROUP ( ORDER BY piece) OVER (PARTITION BY inst_id &&skip_noncdb.,t.con_id
+                      ),1 ,1000)
+                 FROM &&gv_object_prefix.sqltext t
+                WHERE t.sql_id=pl.sql_id
                   AND piece<15
               )
    WHERE rownum=1)
+WHERE rowid=pl.r;
+EXCEPTION
+WHEN OTHERS THEN
+ DBMS_OUTPUT.PUT_LINE('SQL_ID: '||PL.SQL_ID||':'||TO_CHAR(SQLCODE)||': '||SUBSTR(SQLERRM, 1, 64));
+end;
+end loop;
+end;
 /
+
+SPO OFF
+SET TERM OFF FEED OFF
 
 COL hh_mm_ss NEW_V hh_mm_ss NOPRI FOR A8;
 SET VER OFF FEED OFF SERVEROUT ON HEAD OFF PAGES 50000 LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF;
@@ -234,8 +252,10 @@ DECLARE
                          -- start top_signature results
                          ,  bytes         signature -- force_matching_signature
                          ,  cardinality   distinct_sql_id
-                     FROM plan_table ) ts
-              ORDER BY rank_num, top_type_order, db_time_hrs DESC, con_id;
+                     FROM plan_table 
+                    WHERE statement_id is not NULL
+                      AND distribution IN ('top_sql','top_not_shared','top_signature')) ts
+              ORDER BY top_type_order,rank_num, db_time_hrs DESC, con_id;
   sql_rec sql_cur%ROWTYPE;
   PROCEDURE put_line(p_line IN VARCHAR2) IS
   BEGIN

@@ -111,6 +111,7 @@ BEGIN
     FOR i IN (SELECT operation, options, object_node, projection
                 FROM plan_table
                WHERE statement_id = 'SQLD360_SQLID'
+                 AND operation is not null 
                ORDER BY id) LOOP
 
        -- check if need to run TCB
