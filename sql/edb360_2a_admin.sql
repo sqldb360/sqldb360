@@ -636,7 +636,7 @@ DEF title = 'Indexes not recently used';
 DEF main_table = '&&cdb_view_prefix.INDEXES';
 DEF abstract = 'Be aware of false positives. If using version < 12.2 turn index monitoring on for further analysis. <br /> Versions >= 12.2 use index usage tracking functionality. <br />';
 BEGIN
-IF '&&db_version.' >= '12.2' THEN
+IF '&&is_ver_ge_12_2' = 'Y' THEN
   :sql_text := q'[
     SELECT /* &&section_id..&&report_sequence. */
         di.owner,
@@ -753,8 +753,9 @@ ELSE
            i.table_owner,
            i.table_name,
            i.index_name
-    ]';
+]';
 END IF;
+END;
 /
 @@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
