@@ -188,6 +188,61 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
+DEF title = 'RMAN Backup Summary';
+DEF main_table = '&&v_view_prefix.BACKUP_SET_DETAILS';
+BEGIN
+  :sql_text := q'[
+  -- requested by David Loinaz
+WITH list AS (SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ session_stamp,
+               CASE WHEN backup_type = 'D' then
+                     CASE WHEN CONTROLFILE_INCLUDED = 'YES' then
+                        'CONTROLFILE'
+                     ELSE
+                        'FULL'
+                     END
+                   WHEN backup_type = 'I' THEN
+                     CASE INCREMENTAL_LEVEL WHEN 0 then
+                        'INC LEVEL 0'
+                     ELSE
+                        'INC LEVEL 1'
+                     END
+                    WHEN backup_type = 'L' then
+                     'ARCHIVELOG'
+               END BACKUP_TYPE,
+               start_time, completion_time, output_bytes
+              FROM &&v_object_prefix.backup_set_details
+              ORDER BY 1),
+       bck AS (SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */ session_stamp, backup_type, min(start_time) start_time,
+                  max(completion_time) completion_time, sum(output_bytes) output_bytes, count(1) CNT
+               FROM list
+               GROUP BY session_stamp, backup_type
+               ORDER BY session_stamp, start_time)
+SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+        session_stamp, backup_type,
+        decode(to_char(start_time, 'd'), 1, 'Sunday', 2, 'Monday',
+                                         3, 'Tuesday', 4, 'Wednesday',
+                                         5, 'Thursday', 6, 'Friday',
+                                         7, 'Saturday') dow,
+        start_time, completion_time, output_bytes,
+        CASE
+          WHEN output_bytes BETWEEN 0 AND 1023 THEN output_bytes ||' Bytes'
+          WHEN output_bytes < POWER(1024,2) THEN ROUND(output_bytes / 1024,2) ||' KB'
+          WHEN output_bytes < POWER(1024,3) THEN ROUND(output_bytes / POWER(1024,2),2) ||' MB'
+          WHEN output_bytes < POWER(1024,4) THEN ROUND(output_bytes / POWER(1024,3),2) ||' GB'
+          WHEN output_bytes < POWER(1024,5) THEN ROUND(output_bytes / POWER(1024,4),2) ||' TB'
+          WHEN output_bytes < POWER(1024,6) THEN ROUND(output_bytes / POWER(1024,5),2) ||' PB'
+          WHEN output_bytes < POWER(1024,7) THEN ROUND(output_bytes / POWER(1024,6),2) ||' EB'
+          WHEN output_bytes < POWER(1024,8) THEN ROUND(output_bytes / POWER(1024,7),2) ||' ZB'
+          WHEN output_bytes < POWER(1024,9) THEN ROUND(output_bytes / POWER(1024,8),2) ||' YB'
+         ELSE
+          'Invalid value for bytes'
+         END "Output Size", cnt "Set Count"
+FROM bck
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
 DEF title = 'Fast Recovery Area';
 DEF main_table = '&&v_view_prefix.RECOVERY_FILE_DEST';
 BEGIN
