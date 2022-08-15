@@ -91,6 +91,7 @@ SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 @@&&skip_awr.sql/resources_requirements_awr.sql
 
 -- STATSPACK collector
+@@&&skip_statspack.sql/escp_collect_statspack.sql
 @@&&skip_statspack.sql/esp_collect_requirements_statspack.sql
 @@&&skip_statspack.sql/resources_requirements_statspack.sql
 
@@ -120,6 +121,7 @@ set feed on echo on
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv
+HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip esp_requirements_*_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.csv
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip res_requirements_*_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip features_use_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
