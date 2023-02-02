@@ -24,7 +24,7 @@ DEF title_suffix = '&&between_times.';
 SELECT sql_id title_name,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC NULLS LAST) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE &&filter_predicate.
    AND sql_id IS NOT NULL
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.

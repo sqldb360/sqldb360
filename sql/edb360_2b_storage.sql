@@ -9,6 +9,7 @@ SPO OFF;
 
 DEF title = 'Tablespace Usage Metrics';
 DEF main_table = '&&cdb_view_prefix.TABLESPACE_USAGE_METRICS';
+DEF foot = 'Bug affecting this output: (-12.2 201020) 24445571  , (all version) 34162936';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -822,21 +823,21 @@ column LIKE_PREDS         heading 'Like|Predicates'
 column NULL_PREDS         heading 'NULL|Predicates'
 
 DEF title = 'Column Usage of 100 Largest Tables';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 
 BEGIN
   :sql_text := q'[
 WITH k as (
 SELECT owner, name, column_position, column_name
 ,      'Partition' partitioning_level
-FROM   &&dva_view_prefix.part_key_columns
+FROM   &&cdb_view_prefix.part_key_columns
 WHERE  object_type = 'TABLE'
 AND    owner NOT IN &&exclusion_list.
 AND    owner NOT IN &&exclusion_list.
 UNION ALL
 SELECT owner, name, column_position, column_name
 ,      'Subpartition'
-FROM   &&dva_view_prefix.subpart_key_columns
+FROM   &&cdb_view_prefix.subpart_key_columns
 WHERE  object_type = 'TABLE'
 AND    owner NOT IN &&exclusion_list.
 AND    owner NOT IN &&exclusion_list.
@@ -850,8 +851,8 @@ SELECT c.owner, c.table_name
 ,      u.LIKE_PREDS
 ,      u.NULL_PREDS
 ,      u.TIMESTAMP
-FROM   &&dva_view_prefix.objects o
-,      &&dva_view_prefix.tab_columns c
+FROM   &&cdb_view_prefix.objects o
+,      &&cdb_view_prefix.tab_columns c
 ,      sys.col_usage$ u
 WHERE  o.object_type = 'TABLE'
 AND    o.owner = c.owner
@@ -879,8 +880,8 @@ SELECT dense_rank() over (order by t.blocks desc, t.owner, t.table_name) ranking
 ,      c.LIKE_PREDS
 ,      c.NULL_PREDS
 ,      c.TIMESTAMP
-FROM   &&dva_view_prefix.tables t
-  LEFT OUTER JOIN &&dva_view_prefix.part_tables p
+FROM   &&cdb_view_prefix.tables t
+  LEFT OUTER JOIN &&cdb_view_prefix.part_tables p
     ON p.owner = t.owner
    AND p.table_name = t.table_name
   LEFT OUTER JOIN c
@@ -1251,14 +1252,14 @@ END;
 --@@edb360_9a_pre_one.sql (redundant with "Largest 200 Objects")
 
 DEF title = 'Temporary Segments in Permanent Tablespaces';
-DEF main_table = '&&dva_view_prefix.SEGMENTS';
+DEF main_table = '&&cdb_view_prefix.SEGMENTS';
 BEGIN
   :sql_text := q'[
 -- http://askdba.org/weblog/2009/07/cleanup-temporary-segments-in-permanent-tablespace/
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 tablespace_name, owner, segment_name,
 ROUND(sum(bytes/POWER(10,6))) mega_bytes
-from &&dva_object_prefix.segments
+from &&cdb_object_prefix.segments
 where '&&edb360_conf_incl_segments.' = 'Y'
 and segment_type = 'TEMPORARY'
 group by tablespace_name, owner, segment_name
@@ -1347,7 +1348,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Consumers of Recycle Bin';
-DEF main_table = '&&dva_view_prefix.RECYCLEBIN';
+DEF main_table = '&&cdb_view_prefix.RECYCLEBIN';
 BEGIN
   :sql_text := q'[
 -- requested by Dimas Chbane
@@ -1460,7 +1461,7 @@ SPO OFF
 HOS zip -mj &&edb360_zip_filename. &&edb360_output_directory.&&one_spool_filename..txt >> &&edb360_log3..txt
 -- update main report
 SPO &&edb360_main_report..html APP;
-PRO <li title="&&dva_view_prefix.TABLES">Tables with actual size greater than estimated
+PRO <li title="&&cdb_view_prefix.TABLES">Tables with actual size greater than estimated
 PRO <a href="&&one_spool_filename..txt">text</a>
 PRO </li>
 SPO OFF;
@@ -1602,7 +1603,7 @@ SPO OFF
 HOS zip -mj &&edb360_zip_filename. &&edb360_output_directory.&&one_spool_filename..txt >> &&edb360_log3..txt
 -- update main report
 SPO &&edb360_main_report..html APP;
-PRO <li title="&&dva_view_prefix.INDEXES">Indexes with actual size greater than estimated
+PRO <li title="&&cdb_view_prefix.INDEXES">Indexes with actual size greater than estimated
 PRO <a href="&&one_spool_filename..txt">text</a>
 PRO </li>
 SPO OFF;
@@ -1614,7 +1615,7 @@ SELECT TO_CHAR(:repo_seq) report_sequence FROM DUAL;
 /****************************************************************************************/
 
 DEF title = 'Tables over 10GB and no partitions';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -1626,7 +1627,7 @@ Select /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
             When t.blocks*s.block_size between 1024*1024*1024*1024 and 1024*1024*1024*1024*1024*1024-1
                  Then to_char(round(t.blocks*s.block_size /1024/1024/1024/1024/1024),'9999') ||' Pb'
        Else To_char(t.blocks*s.block_size) End  display
-From   &&dva_object_prefix.tables t, &&dva_object_prefix.tablespaces s
+From   &&cdb_object_prefix.tables t, &&cdb_object_prefix.tablespaces s
 Where  t.tablespace_name = s.tablespace_name
 And    t.blocks*s.block_size > 10*1024*1024*1024
 And    t.partitioned='NO'
@@ -1644,7 +1645,7 @@ END;
 /*
 DEF title = 'Indexes with actual size greater than estimated';
 DEF abstract = 'Actual and Estimated sizes for Indexes.<br />';
-DEF main_table = '&&dva_view_prefix.INDEXES';
+DEF main_table = '&&cdb_view_prefix.INDEXES';
 VAR random1 VARCHAR2(30);
 VAR random2 VARCHAR2(30);
 EXEC :random1 := DBMS_RANDOM.string('A', 30);
@@ -1670,8 +1671,8 @@ DECLARE
 BEGIN
   IF '&&edb360_conf_incl_metadata.' = 'Y' /*AND '&&db_version.' < '11.2.0.3'* / AND '&&db_version.' >= '11.2.0.4' THEN -- avoids DBMS_METADATA.GET_DDL: Query Against SYS.KU$_INDEX_VIEW Is Slow In 11.2.0.3 as per 1459841.1
     FOR i IN (SELECT idx.owner, idx.index_name
-                FROM &&dva_object_prefix.indexes idx,
-                     &&dva_object_prefix.tables tbl
+                FROM &&cdb_object_prefix.indexes idx,
+                     &&cdb_object_prefix.tables tbl
                WHERE idx.owner NOT IN &&exclusion_list. -- exclude non-application schemas
                  AND idx.owner NOT IN &&exclusion_list2. -- exclude more non-application schemas
                  AND idx.index_type IN ('NORMAL', 'FUNCTION-BASED NORMAL', 'BITMAP', 'NORMAL/REV') -- exclude domain and lob
@@ -1728,7 +1729,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. * /
 segments AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. * /
        owner, segment_name, SUM(bytes) actual_bytes
-  FROM &&dva_object_prefix.segments
+  FROM &&cdb_object_prefix.segments
  WHERE '&&edb360_conf_incl_segments.' = 'Y'
    AND owner NOT IN &&exclusion_list. -- exclude non-application schemas
    AND owner NOT IN &&exclusion_list2. -- exclude more non-application schemas

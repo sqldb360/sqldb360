@@ -172,7 +172,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        MIN(h.action) min_action,
        MAX(h.action) max_action,
        COUNT(DISTINCT h.snap_id||'.'||h.instance_number||'.'||h.session_id||'.'||h.session_serial#) sessions
-  FROM &&cdb_awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE h.session_type = 'FOREGROUND'
    AND h.program not like '%(J%'
    AND h.qc_session_id is null
@@ -200,7 +200,7 @@ SELECT * from (
          DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
     FROM ash s
 	     &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = s.con_id
-	     LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
+	     LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext t
 		 ON t.dbid = &&edb360_dbid.
 		 AND t.sql_id = s.sql_id
 		 &&skip_noncdb.AND t.con_id = s.con_id
@@ -217,7 +217,7 @@ ash AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        NVL(h.sql_id, 'null_sql_id') sql_id
-  FROM &&cdb_awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE h.session_type = 'FOREGROUND'
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
@@ -266,7 +266,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        TO_CHAR(MAX(sample_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
        NVL(h.sql_id, 'null_sql_id') sql_id,
        COUNT(DISTINCT h.instance_number||'.'||h.session_id||'.'||h.session_serial#) sessions
-  FROM &&cdb_awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE h.session_type = 'FOREGROUND'
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
@@ -352,7 +352,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        COUNT(DISTINCT action) actions,
        MIN(action) min_action,
        MAX(action) max_action
-  FROM &&cdb_awr_object_prefix.sqlstat
+  FROM &&cdb_awr_hist_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
@@ -390,7 +390,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.max_action,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
   FROM totals s
-       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
+       LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext t
 	   ON t.sql_id = s.sql_id
        AND t.dbid = &&edb360_dbid.
        &&skip_noncdb.AND t.con_id = s.con_id
@@ -408,7 +408,7 @@ totals AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        /* &&section_id..&&report_sequence. */
        NVL(sql_id, 'null_sql_id') sql_id
-  FROM &&cdb_awr_object_prefix.sqlstat
+  FROM &&cdb_awr_hist_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND '&&skip_diagnostics.' IS NULL
@@ -454,7 +454,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        snap_id,
        NVL(sql_id, 'null_sql_id') sql_id,
        SUM(executions_delta) executions
-  FROM &&cdb_awr_object_prefix.sqlstat
+  FROM &&cdb_awr_hist_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND NVL(sql_id, 'null_sql_id') IN
@@ -497,7 +497,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE t.sql_id WHEN '&&tit_14.' THEN t.executions ELSE 0 END) "&&tit_14.",
        SUM(CASE t.sql_id WHEN '&&tit_15.' THEN t.executions ELSE 0 END) "&&tit_15."
   FROM stat t,
-       &&cdb_awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
    AND t.snap_id = s.snap_id
@@ -543,7 +543,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */
        COUNT(DISTINCT action) actions,
        MIN(action) min_action,
        MAX(action) max_action
-  FROM &&cdb_awr_object_prefix.sqlstat
+  FROM &&cdb_awr_hist_prefix.sqlstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  GROUP BY
@@ -581,7 +581,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.max_action,
        DBMS_LOB.SUBSTR(t.sql_text, 1000) sql_text
   FROM totals s
-       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext t
+       LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext t
        ON t.sql_id = s.sql_id
        AND t.dbid = &&edb360_dbid.
 	   &&skip_ver_le_11.AND t.con_id = s.con_id
@@ -848,7 +848,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        MAX(h.sample_time) max_sample_time,
        COUNT(*) samples,
        RANK() OVER (ORDER BY COUNT(*) DESC NULLS LAST) AS w_rank
-  FROM &&cdb_awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE h.sql_id IS NOT NULL
    AND h.blocking_session IS NOT NULL
    AND h.session_state = 'WAITING'
@@ -875,7 +875,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        h.sql_id b_sql_id,
        COUNT(*) b_samples
        FROM w,
-       &&cdb_awr_object_prefix.active_sess_history h
+       &&cdb_awr_hist_prefix.active_sess_history h
  WHERE w.w_rank < 101
    AND h.dbid = w.dbid
    AND h.session_id = w.blocking_session
@@ -932,11 +932,11 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        DBMS_LOB.SUBSTR(s2.sql_text, 1000) b_sql_text
   FROM w2
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = w2.con_id
-       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s1
+       LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext s1
        ON s1.sql_id = w2.w_sql_id
        AND s1.dbid = w2.dbid
       ,b
-       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s2
+       LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext s2
        ON s2.sql_id = b.b_sql_id
        AND s2.dbid = b.dbid
       ,w3
@@ -983,7 +983,7 @@ WITH w AS ( --waiting sessions
         ,       NVL(event,'CPU+CPU wait')  wait_event
         ,       xid    wait_xid
         ,       blocking_inst_id, blocking_session, blocking_session_serial#
-        FROM    &&cdb_awr_object_prefix.active_Sess_history h
+        FROM    &&cdb_awr_hist_prefix.active_sess_history h
         WHERE   blocking_session_status = 'VALID' --holding a lock
 --add dbid/date/snap_id criteria here
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -1008,7 +1008,7 @@ SELECT /*+ &&sq_fact_hints. */
 ,       h.xid hold_xid
 ,       CASE WHEN w.blocking_inst_id != w.instance_number THEN 'CI' END AS ci --cross-instance
 FROM    w
-        LEFT OUTER JOIN &&cdb_awr_object_prefix.active_Sess_History h --holding session
+        LEFT OUTER JOIN &&cdb_awr_hist_prefix.active_sess_history h --holding session
         ON  h.dbid = w.dbid
         AND h.instance_number = w.blocking_inst_id
         AND h.snap_id = w.snap_id
@@ -1069,7 +1069,7 @@ WITH w AS ( --waiting sessions
         ,       NVL(event,'CPU+CPU wait')  wait_event
         ,       xid    wait_xid
         ,       blocking_inst_id, blocking_session, blocking_session_serial#
-        FROM    &&cdb_awr_object_prefix.active_Sess_history h
+        FROM    &&cdb_awr_hist_prefix.active_sess_history h
         WHERE   blocking_session_status = 'VALID' --holding a lock
 --add dbid/date/snap_id criteria here
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -1096,7 +1096,7 @@ SELECT  /*+ &&sq_fact_hints. */
 ,       h.xid hold_xid
 ,       CASE WHEN w.blocking_inst_id != w.instance_number THEN 'CI' END AS ci --cross-instance
 FROM    w
-        LEFT OUTER JOIN &&cdb_awr_object_prefix.active_Sess_History h --holding session
+        LEFT OUTER JOIN &&cdb_awr_hist_prefix.active_sess_history h --holding session
         ON  h.dbid = w.dbid
         AND h.instance_number = w.blocking_inst_id
         AND h.snap_id = w.snap_id
@@ -1129,7 +1129,7 @@ END;
 --@@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Distributed Transactions awaiting Recovery';
-DEF main_table = '&&cdb_view_prefix.2PC_PENDING';
+DEF main_table = '&&cdb_object_prefix.2PC_PENDING';
 BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
@@ -1146,7 +1146,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Connections for Pending Transactions';
-DEF main_table = '&&cdb_view_prefix.2PC_NEIGHBORS';
+DEF main_table = '&&cdb_object_prefix.2PC_NEIGHBORS';
 BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
@@ -1173,8 +1173,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        s.end_interval_time,
        MAX(r.current_utilization) current_utilization,
        MAX(r.max_utilization) max_utilization
-  FROM &&awr_object_prefix.resource_limit r,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.resource_limit r,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
    AND r.snap_id = s.snap_id
@@ -1221,7 +1221,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Processes Time Series for Cluster';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Processes';
 DEF tit_01 = 'Current Utilization';
 DEF tit_02 = 'Max Utilization';
@@ -1287,7 +1287,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions Time Series for Cluster';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Sessions';
 DEF tit_01 = 'Current Utilization';
 DEF tit_02 = 'Max Utilization';
@@ -1349,6 +1349,7 @@ DEF title = 'Sessions Time Series for Instance 8';
 EXEC :sql_text := REPLACE(:sql_text_backup2, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
+DEF skip_lch = 'Y';
 
 SPO &&edb360_main_report..html APP;
 PRO </ol>

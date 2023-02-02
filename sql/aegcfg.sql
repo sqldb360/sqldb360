@@ -41,3 +41,9 @@ DEF edb360_conf_series_selection ='Y';
 DEF sqld360_conf_incl_awr_diff_rpt = '&&edb360_conf_incl_awr_diff_rpt.';
 DEF sqld360_conf_incl_plot_awr ='&&edb360_conf_incl_plot_awr.';
 DEF sqld360_conf_series_selection ='&&edb360_conf_series_selection.';
+
+-- Multitenant Control
+
+DEF edb360_conf_dd_mode = 'AUTO'
+DEF edb360_conf_con_option = 'A'
+DEF edb360_conf_is_cdb = 'A'

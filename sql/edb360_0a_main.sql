@@ -260,6 +260,7 @@ SPO OFF;
 @@&&skip_diagnostics.&&edb360_5e.sysstat_exa.sql
 @@&&skip_diagnostics.&&edb360_5f.sysstat_current.sql
 @@&&skip_diagnostics.&&edb360_5g.exadata.sql
+@@&&skip_diagnostics.&&skip_noncdb.&&edb360_5w.data_sources.sql
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 

@@ -75,7 +75,7 @@ COL max_sample_time FOR A18 HEA "End Interval";
 COL samples FOR 9999999999 HEA "Samples";
 COL hours FOR 9990.0 HEA "Hours|Hist";
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'Sessions on CPU or RESMGR';
@@ -107,7 +107,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        SUM(CASE session_state WHEN 'ON CPU' THEN 1 ELSE 0 END) on_cpu,
        SUM(CASE event WHEN 'resmgr:cpu quantum' THEN 1 ELSE 0 END) resmgr,
        COUNT(*) on_cpu_and_resmgr
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND instance_number = @instance_number@
@@ -173,7 +173,7 @@ DEF skip_lch = 'Y';
 
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-DEF main_table = '&&awr_hist_prefix.SYSMETRIC_SUMMARY';
+DEF main_table = '&&cdb_awr_hist_prefix.&&CDB_AWR_CON_OPTION.SYSMETRIC_SUMMARY';
 DEF chartype = 'LineChart';
 DEF vbaseline = ''; 
 DEF stacked = '';
@@ -203,10 +203,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        begin_time, 
        end_time, 
        maxval
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name = '@metric_name@'
    AND maxval >= 0
 )
@@ -251,7 +251,7 @@ DEF skip_lch = 'Y';
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 @&&chart_setup_driver.;
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF chartype = 'AreaChart';
 DEF stacked = 'isStacked: true,';
 DEF vaxis = 'Average Active Sessions - AAS (stacked)';
@@ -280,7 +280,7 @@ SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        0 dummy_13,
        0 dummy_14,
        0 dummy_15
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND @filter_predicate@
@@ -373,7 +373,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        event event_name,
        COUNT(*) samples,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC, h.wait_class, event) wrank
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE '&&diagnostics_pack.' = 'Y'
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
@@ -450,7 +450,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        module,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE sql_id||program||module IS NOT NULL
    AND @filter_predicate@
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -472,7 +472,7 @@ SELECT SUBSTR(TRIM(h.sql_id||' '||h.program||' '||
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM hist h,
        total t,
-       &&awr_object_prefix.sqltext s 
+       &&cdb_awr_hist_prefix.sqltext s 
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = h.dbid
    &&skip_ver_le_11.AND s.con_id(+) = h.con_id

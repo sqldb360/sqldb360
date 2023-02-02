@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text_backup := q'[
 SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */ 
@@ -47,7 +47,7 @@ SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        ROUND(SUM(CASE sql_id WHEN '@sql_id_12@' THEN 10 ELSE 0 END) / ROUND(GREATEST(CAST(MAX(sample_time) AS DATE) - CAST(MIN(sample_time) AS DATE), (1/24/3600)) * 24 * 60 * 60), 3) "@sql_id_12@",
        ROUND(SUM(CASE sql_id WHEN '@sql_id_13@' THEN 10 ELSE 0 END) / ROUND(GREATEST(CAST(MAX(sample_time) AS DATE) - CAST(MIN(sample_time) AS DATE), (1/24/3600)) * 24 * 60 * 60), 3) "@sql_id_13@",
        ROUND(SUM(CASE sql_id WHEN '@sql_id_14@' THEN 10 ELSE 0 END) / ROUND(GREATEST(CAST(MAX(sample_time) AS DATE) - CAST(MIN(sample_time) AS DATE), (1/24/3600)) * 24 * 60 * 60), 3) "@sql_id_14@"
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE @filter_predicate@
    AND sql_id IS NOT NULL
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.

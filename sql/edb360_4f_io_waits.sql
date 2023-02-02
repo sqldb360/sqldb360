@@ -20,7 +20,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        m.time_waited,
        ROUND(m.time_waited / 100) seconds_waited
   FROM &&gv_object_prefix.waitclassmetric m,
-       &&gv_object_prefix.system_wait_class c
+       &&gv_object_prefix.&&cdb_awr_con_option.system_wait_class c
  WHERE m.wait_count > 0
    AND c.inst_id = m.inst_id
    AND c.wait_class# = m.wait_class#
@@ -47,7 +47,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id. */
        (wait_count - LAG(wait_count) OVER (PARTITION BY dbid, instance_number, event_id, wait_time_milli ORDER BY snap_id)) * /* wait_count_this_snap */ 
        ((CASE WHEN wait_time_milli > &&min_wait_time_milli. THEN 0.75 ELSE 0.5 END)*LEAST(wait_time_milli,&&max_wait_time_milli.)) /* average wait_time_milli */
        wait_time_milli_total
-  FROM &&awr_object_prefix.event_histogram
+  FROM &&cdb_awr_hist_prefix.event_histogram
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
 ),
@@ -79,7 +79,7 @@ SELECT
        h.wait_time_milli_total,
        (cast(s.end_interval_time as date)-cast(s.begin_interval_time as date)) time_range
   FROM history           h,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = h.snap_id
    AND s.dbid            = h.dbid
    AND s.instance_number = h.instance_number
@@ -103,6 +103,7 @@ SELECT p.snap_id,
   FROM per_snap p,
        event_list e
  WHERE p.event_name=e.event_name
+   AND time_range>0
  GROUP BY snap_id,p.instance_number,p.event_name,p.wait_class,e.rn
 /
 
@@ -111,7 +112,7 @@ col between_times new_v between_times
 SELECT ', between '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS') - 1, 'YYYY-MM-DD HH24:MM:SS')||' and '||TO_CHAR(TO_TIMESTAMP('&&tool_sysdate.', 'YYYYMMDDHH24MISS'), 'YYYY-MM-DD HH24:MM:SS') between_times FROM DUAL;
 DEF title_suffix = '&&between_times.';
 
-DEF main_table = '&&awr_hist_prefix.EVENT_HISTOGRAM';
+DEF main_table = '&&cdb_awr_hist_prefix.EVENT_HISTOGRAM';
 DEF vaxis = 'Average Active Sessions - AAS (stacked)';
 DEF vbaseline = '';
 DEF chartype = 'AreaChart';

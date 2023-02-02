@@ -154,10 +154,10 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        metric_id,
        metric_name,
        XXX(maxval) maxval
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2
+   AND group_id = &&edb360_sysmetric_group.
    AND metric_name LIKE '@filter_predicate@'
  GROUP BY
        snap_id,
@@ -210,7 +210,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 END;
 /
 
-DEF main_table = '&&awr_hist_prefix.SYSMETRIC_SUMMARY';
+DEF main_table = '&&edb360_sysmetric_summary';
 
 DEF title = 'Load Profile - Per Sec';
 EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', '%er Sec%');
@@ -347,7 +347,7 @@ BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&cdb_awr_object_prefix.database_instance
+  FROM &&cdb_awr_hist_prefix.database_instance
  ORDER BY
        &&skip_noncdb.con_id,
        dbid,
@@ -717,7 +717,7 @@ END;
 @@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
 DEF title = 'System Parameters Change Log';
-DEF main_table = '&&awr_object_prefix.PARAMETER';
+DEF main_table = '&&cdb_awr_hist_prefix.parameter';
 BEGIN
   :sql_text := q'[
 WITH
@@ -734,7 +734,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        lag(value) OVER (PARTITION BY dbid,
        &&skip_ver_le_11.con_id,
        instance_number, parameter_hash ORDER BY snap_id) prior_value
-  FROM &&awr_object_prefix.parameter
+  FROM &&cdb_awr_hist_prefix.parameter
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
 )
@@ -753,7 +753,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
 	   &&skip_noncdb.,c.name con_name
   FROM all_parameters x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
-      ,&&awr_object_prefix.snapshot s
+      ,&&cdb_awr_hist_prefix.snapshot s
  WHERE x.value != x.prior_value
    AND s.snap_id = x.snap_id
    AND s.dbid = x.dbid

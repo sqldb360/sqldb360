@@ -42,7 +42,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        con_id,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC NULLS LAST) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE &&filter_predicate.
    AND &&edb360_con_id. < 2
    AND con_id > 1
@@ -57,7 +57,7 @@ SELECT h.rn,
        NVL(p.pdb_name, h.con_id) pdb_name,
        h.samples
   FROM hist h,
-       &&dva_object_prefix.pdbs p
+       &&cdb_object_prefix.pdbs p
  WHERE h.rn <= 14
    AND p.pdb_id(+) = h.con_id
 )

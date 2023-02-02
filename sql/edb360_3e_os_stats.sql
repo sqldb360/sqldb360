@@ -19,7 +19,7 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-DEF main_table = '&&awr_hist_prefix.OSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'OS Load and CPU Cores';
@@ -54,7 +54,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value
-  FROM &&awr_object_prefix.osstat
+  FROM &&cdb_awr_hist_prefix.osstat
  WHERE stat_name IN ('LOAD', 'NUM_CPU_CORES')
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -93,7 +93,7 @@ SELECT u.snap_id,
        0 dummy_14,
        0 dummy_15
   FROM manual_pivot u,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = u.snap_id
    AND s.dbid            = u.dbid
    AND s.instance_number = u.instance_number
@@ -153,7 +153,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
-DEF main_table = '&&awr_hist_prefix.OSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'OS Load and CPU Subscription Threshold';
@@ -188,7 +188,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value
-  FROM &&awr_object_prefix.osstat
+  FROM &&cdb_awr_hist_prefix.osstat
  WHERE stat_name IN ('LOAD', 'NUM_CPU_CORES')
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -228,7 +228,7 @@ SELECT u.snap_id,
        0 dummy_14,
        0 dummy_15
   FROM manual_pivot u,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = u.snap_id
    AND s.dbid            = u.dbid
    AND s.instance_number = u.instance_number
@@ -288,7 +288,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
-DEF main_table = '&&awr_hist_prefix.OSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'Percent over (Busy + Idle)';
@@ -329,7 +329,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value - LAG(value) OVER (PARTITION BY dbid, instance_number, stat_id ORDER BY snap_id) value
-  FROM &&awr_object_prefix.osstat
+  FROM &&cdb_awr_hist_prefix.osstat
  WHERE stat_name IN ('IDLE_TIME', 'BUSY_TIME', 'USER_TIME', 'SYS_TIME', 'IOWAIT_TIME', 'NICE_TIME')
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -372,7 +372,7 @@ SELECT u.snap_id,
        0 dummy_14,
        0 dummy_15
   FROM manual_pivot u,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = u.snap_id
    AND s.dbid            = u.dbid
    AND s.instance_number = u.instance_number
@@ -459,7 +459,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value - LAG(value) OVER (PARTITION BY dbid, instance_number, stat_id ORDER BY snap_id) value
-  FROM &&awr_object_prefix.osstat
+  FROM &&cdb_awr_hist_prefix.osstat
  WHERE stat_name IN ('IDLE_TIME', 'BUSY_TIME')
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -498,7 +498,7 @@ SELECT u.snap_id,
        0 dummy_14,
        0 dummy_15
   FROM manual_pivot u,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = u.snap_id
    AND s.dbid            = u.dbid
    AND s.instance_number = u.instance_number
@@ -527,56 +527,56 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', 'instance_numbe
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 1';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 1 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 1 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '1');
 @@&&skip_inst1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 2';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 2 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 2 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '2');
 @@&&skip_inst2.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 3';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 3 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 3 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '3');
 @@&&skip_inst3.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 4';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 4 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 4 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '4');
 @@&&skip_inst4.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 5';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 5 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 5 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '5');
 @@&&skip_inst5.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 6';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 6 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 6 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '6');
 @@&&skip_inst6.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 7';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 7 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 7 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '7');
 @@&&skip_inst7.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF skip_lch = '';
 DEF title = 'CPU Busy and Idle Times Percent for Instance 8';
-SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&awr_object_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 8 AND snap_id = &&maximum_snap_id.;
+SELECT TO_CHAR(ROUND(100 * SUM(CASE stat_name WHEN 'NUM_CPU_CORES' THEN value ELSE 0 END)/SUM(CASE stat_name WHEN 'NUM_CPUS' THEN value ELSE 0 END))) cores_over_threads FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name IN ('NUM_CPU_CORES', 'NUM_CPUS') AND instance_number = 8 AND snap_id = &&maximum_snap_id.;
 DEF abstract = 'CPU Cores threshold is at &&cores_over_threads.% mark.<br />'
 EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
@@ -608,7 +608,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value - LAG(value) OVER (PARTITION BY dbid, instance_number, stat_id ORDER BY snap_id) value
-  FROM &&awr_object_prefix.osstat
+  FROM &&cdb_awr_hist_prefix.osstat
  WHERE stat_name IN ('USER_TIME', 'SYS_TIME')
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -647,7 +647,7 @@ SELECT u.snap_id,
        0 dummy_14,
        0 dummy_15
   FROM manual_pivot u,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = u.snap_id
    AND s.dbid            = u.dbid
    AND s.instance_number = u.instance_number
@@ -712,7 +712,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 @@&&skip_inst8.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 
-DEF main_table = '&&awr_hist_prefix.OSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'Virtual Memory IN and OUT (GBs)';
@@ -744,7 +744,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value - LAG(value) OVER (PARTITION BY dbid, instance_number, stat_id ORDER BY snap_id) value
-  FROM &&awr_object_prefix.osstat
+  FROM &&cdb_awr_hist_prefix.osstat
  WHERE stat_name IN ('VM_IN_BYTES', 'VM_OUT_BYTES')
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -783,7 +783,7 @@ SELECT u.snap_id,
        0 dummy_14,
        0 dummy_15
   FROM manual_pivot u,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id         = u.snap_id
    AND s.dbid            = u.dbid
    AND s.instance_number = u.instance_number
@@ -855,7 +855,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@instance_number@', '8');
 
 @&&chart_setup_driver;
 
-DEF main_table = '&&awr_hist_prefix.OSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.OSSTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vbaseline = '';
@@ -870,8 +870,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        o.value - LAG(o.value) OVER (PARTITION BY o.dbid, o.instance_number, o.stat_id ORDER BY o.snap_id) value,
        s.begin_interval_time,
        s.end_interval_time
-  FROM &&awr_object_prefix.osstat o,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.osstat o,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE o.stat_name = '@stat_name@'
    AND o.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND o.dbid = &&edb360_dbid.

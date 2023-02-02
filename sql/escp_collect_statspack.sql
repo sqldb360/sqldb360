@@ -47,8 +47,8 @@ DEF escp_conf_date_from = 'YYYY-MM-DD';
 DEF escp_conf_date_to   = 'YYYY-MM-DD';
 
 -- When using Date Range the escp_max_days will be ignored
--- Even when ESCP_MAX_DAYS=365 the collection will get from the SYSDATE - history_days
-DEF ESCP_MAX_DAYS = '365';
+-- Even when ESCP_MAX_DAYS=365 the collection will get from the SYSDATE - escp_history_days
+DEF ESCP_MAX_DAYS = '60';
 DEF ESCP_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS';
 
 -- To support Date Range
@@ -76,27 +76,31 @@ COL escp_collection_days NEW_V escp_collection_days;
 SELECT NVL(TO_CHAR(LEAST(CEIL(sysdate-min(SNAP_TIME)), TO_NUMBER('&&ESCP_MAX_DAYS.'))), '&&ESCP_MAX_DAYS.') escp_collection_days FROM stats$snapshot WHERE dbid = &&escp_this_dbid;
 
 -- To support Date Range
-COL history_days NEW_V history_days;
+COL escp_history_days NEW_V escp_history_days;
 -- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range. 
-SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(snap_time) AS DATE)), TO_NUMBER('&&escp_collection_days.'))) history_days FROM stats$snapshot WHERE dbid = &&escp_this_dbid.;
-SELECT TO_CHAR(TO_DATE('&&escp_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&escp_conf_date_from.', 'YYYY-MM-DD') + 1) history_days FROM DUAL WHERE '&&escp_conf_date_from.' != 'YYYY-MM-DD' AND '&&escp_conf_date_to.' != 'YYYY-MM-DD';
+SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(snap_time) AS DATE)), TO_NUMBER('&&escp_collection_days.'))) escp_history_days FROM stats$snapshot WHERE dbid = &&escp_this_dbid.;
+SELECT TO_CHAR(TO_DATE('&&escp_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&escp_conf_date_from.', 'YYYY-MM-DD') + 1) escp_history_days FROM DUAL WHERE '&&escp_conf_date_from.' != 'YYYY-MM-DD' AND '&&escp_conf_date_to.' != 'YYYY-MM-DD';
+
+select to_number(nvl('&&escp_history_days.','1')) escp_history_days from dual;
 
 COL escp_date_from NEW_V escp_date_from;
 COL escp_date_to   NEW_V escp_date_to;
-SELECT CASE '&&escp_conf_date_from.' WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE - &&history_days., '&&escp_date_format.') ELSE '&&escp_conf_date_from.T00:00:00' END escp_date_from FROM DUAL;
+SELECT CASE '&&escp_conf_date_from.' WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE - &&escp_history_days., '&&escp_date_format.') ELSE '&&escp_conf_date_from.T00:00:00' END escp_date_from FROM DUAL;
 SELECT CASE '&&escp_conf_date_to.'   WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE, '&&escp_date_format.') ELSE '&&escp_conf_date_to.T23:59:59' END escp_date_to FROM DUAL;
 
 -- snapshot ranges
-COL minimum_snap_id NEW_V minimum_snap_id;
-SELECT NVL(TO_CHAR(MIN(snap_id)), '0') minimum_snap_id FROM stats$snapshot WHERE dbid = &&escp_this_dbid. AND snap_time > TO_DATE('&&escp_date_from.', '&&escp_date_format.');
-SELECT '-1' minimum_snap_id FROM DUAL WHERE TRIM('&&minimum_snap_id.') IS NULL;
-COL maximum_snap_id NEW_V maximum_snap_id;
-SELECT NVL(TO_CHAR(MAX(snap_id)), '&&minimum_snap_id.') maximum_snap_id FROM stats$snapshot WHERE dbid = &&escp_this_dbid. AND snap_time < TO_DATE('&&escp_date_to.', '&&escp_date_format.');
-SELECT '-1' maximum_snap_id FROM DUAL WHERE TRIM('&&maximum_snap_id.') IS NULL;
+DEF escp_minimum_snap_id=''
+DEF escp_maximum_snap_id=''
+COL escp_minimum_snap_id NEW_V escp_minimum_snap_id;
+SELECT NVL(TO_CHAR(MIN(snap_id)), '0') escp_minimum_snap_id FROM stats$snapshot WHERE dbid = &&escp_this_dbid. AND snap_time > TO_DATE('&&escp_date_from.', '&&escp_date_format.');
+SELECT '-1' escp_minimum_snap_id FROM DUAL WHERE TRIM('&&escp_minimum_snap_id.') IS NULL;
+COL escp_maximum_snap_id NEW_V escp_maximum_snap_id;
+SELECT NVL(TO_CHAR(MAX(snap_id)), '&&escp_minimum_snap_id.') escp_maximum_snap_id FROM stats$snapshot WHERE dbid = &&escp_this_dbid. AND snap_time < TO_DATE('&&escp_date_to.', '&&escp_date_format.');
+SELECT '-1' escp_maximum_snap_id FROM DUAL WHERE TRIM('&&escp_maximum_snap_id.') IS NULL;
 
 /* Sentences will change
 From: h.snap_id >= &&escp_min_snap_id.
-To: h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+To: h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
 From: h.sample_time >= SYSTIMESTAMP - &&escp_collection_days.
 To: h.sample_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
               AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
@@ -130,7 +134,7 @@ COL escp_this_inst_num NEW_V escp_this_inst_num;
 SELECT 'get_instance_number', TO_CHAR(instance_number) escp_this_inst_num FROM v$instance
 /
 
-/* The min_snap_id substituted by minimum_snap_id
+/* The min_snap_id substituted by escp_minimum_snap_id
 DEF escp_min_snap_id = '';
 COL escp_min_snap_id NEW_V escp_min_snap_id;
 SELECT 'get_min_snap_id', TO_CHAR(MIN(snap_id)) escp_min_snap_id FROM dba_hist_snapshot WHERE dbid = &&escp_this_dbid. AND CAST(begin_interval_time AS DATE) > SYSDATE - &&escp_collection_days.
@@ -142,7 +146,6 @@ SELECT NVL('&&escp_min_snap_id.','0') escp_min_snap_id FROM DUAL
 DEF;
 
 ---------------------------------------------------------------------------------------
-
 SPO escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi..csv;
 
 COL escp_metric_group    FOR A8;
@@ -194,7 +197,7 @@ SELECT 'COLLECT'                                  escp_metric_group,
        'DAYS'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
        '&&escp_date_to.'                          escp_end_date,
-       '&&history_days.'                          escp_value 
+       '&&escp_history_days.'                          escp_value 
   FROM v$instance
 /
 
@@ -401,6 +404,10 @@ aas_on_cpu_per_hr as (
   AND e.dbid            = s.dbid
   AND e.instance_number = s.instance_number
   AND e.name            ='CPU used by this session'
+  AND s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
+  AND s.dbid = &&escp_this_dbid.
+  AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+                      AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
    )
   WHERE last_value IS NOT NULL
   ),
@@ -449,7 +456,7 @@ aas_on_cpurm_per_hr as (
   AND e.dbid            = s.dbid
   AND e.instance_number = s.instance_number
   AND e.event           ='resmgr:cpu quantum'
-  AND s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+  AND s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
   AND s.dbid = &&escp_this_dbid.
   AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
                       AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
@@ -485,7 +492,7 @@ SELECT
        h.instance_number,
        SUM(h.value) value
   FROM stats$sga h
- WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
  GROUP BY
        h.snap_id,
@@ -497,7 +504,7 @@ SELECT
        s.instance_number,
        s.snap_time
   FROM stats$snapshot s
- WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
               AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
@@ -525,7 +532,7 @@ SELECT
        h.instance_number,
        h.value
   FROM stats$pgastat h
- WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.name = 'total PGA allocated'
 ),
@@ -535,7 +542,7 @@ SELECT
        s.instance_number,
        s.snap_time
   FROM stats$snapshot s
- WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
               AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
@@ -563,7 +570,7 @@ SELECT
        s.snap_id,
        s.snap_time
   FROM stats$snapshot s
- WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.instance_number = &&escp_this_inst_num.
    AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
@@ -612,7 +619,7 @@ SELECT
        h.name stat_name,
        h.value
   FROM stats$sysstat h
- WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.name IN (
        'physical read total IO requests',
@@ -645,7 +652,7 @@ SELECT
        s.instance_number,
        s.snap_time
   FROM stats$snapshot s
- WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
               AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
@@ -745,7 +752,7 @@ SELECT
        h.name,
        h.value
   FROM STATS$DLM_MISC h
- WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.name IN (
        'gcs msgs received',
@@ -758,7 +765,7 @@ SELECT
        s.instance_number,
        s.snap_time
   FROM stats$snapshot s
- WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
               AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
@@ -795,7 +802,7 @@ SELECT
        n.stat_name,
        h.value
   FROM stats$osstat h, STATS$OSSTATNAME n
- WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    AND h.OSSTAT_ID=n.OSSTAT_ID
    AND n.stat_name IN (
@@ -819,7 +826,7 @@ SELECT
        s.instance_number,
        s.snap_time
   FROM stats$snapshot s
- WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND s.dbid = &&escp_this_dbid.
    AND s.snap_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
               AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')

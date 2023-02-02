@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text_backup := q'[
 WITH
@@ -17,7 +17,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        user_id,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE @filter_predicate@
    AND user_id IS NOT NULL
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -34,7 +34,7 @@ SELECT NVL(u.username, h.user_id) username,
        NULL dummy_01
   FROM hist h,
        total t,
-       &&dva_object_prefix.users u
+       &&cdb_object_prefix.users u
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND u.user_id(+) = h.user_id
  UNION ALL

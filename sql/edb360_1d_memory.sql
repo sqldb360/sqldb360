@@ -172,7 +172,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'SQL Workarea Histogram';
-DEF main_table = '&&AWR_HIST_PREFIX.SQL_WORKAREA_HSTGRM';
+DEF main_table = '&&cdb_awr_hist_prefix.SQL_WORKAREA_HSTGRM';
 BEGIN
   :sql_text := q'[
 -- requested by Dimas Chbane, expanded by Abel Macias
@@ -189,7 +189,7 @@ totals AS (
         SUM(ONEPASS_EXECUTIONS) onepass ,
         SUM(MULTIPASSES_EXECUTIONS) multipasses,
         SUM(TOTAL_EXECUTIONS) totex
-   FROM &&AWR_HIST_PREFIX.SQL_WORKAREA_HSTGRM
+   FROM &&cdb_awr_hist_prefix.SQL_WORKAREA_HSTGRM
   WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
     AND dbid = &&edb360_dbid.
   GROUP BY
@@ -259,13 +259,13 @@ END;
 @@&&skip_ver_le_10.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Resize Operations Hist';
-DEF main_table = '&&awr_hist_prefix.MEMORY_RESIZE_OPS';
+DEF main_table = '&&cdb_awr_hist_prefix.MEMORY_RESIZE_OPS';
 BEGIN
   :sql_text := q'[
 -- requested by Rodrigo Righetti
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&awr_object_prefix.memory_resize_ops
+  FROM &&cdb_awr_hist_prefix.memory_resize_ops
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  ORDER BY
@@ -278,13 +278,13 @@ END;
 @@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Memory Target Advice Hist';
-DEF main_table = '&&awr_hist_prefix.MEMORY_TARGET_ADVICE';
+DEF main_table = '&&cdb_awr_hist_prefix.MEMORY_TARGET_ADVICE';
 BEGIN
   :sql_text := q'[
 -- requested by Rodrigo Righetti
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&awr_object_prefix.memory_target_advice
+  FROM &&cdb_awr_hist_prefix.memory_target_advice
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
  ORDER BY

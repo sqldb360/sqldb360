@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.sysstat';
+DEF main_table = '&&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vbaseline = '';
@@ -37,7 +37,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE WHEN stat_name = 'physical reads cache' THEN value ELSE 0 END) r_cache,
        SUM(CASE WHEN stat_name = 'physical reads cache prefetch' THEN value ELSE 0 END) r_cache_prefetch,
        SUM(CASE WHEN stat_name = 'physical reads prefetch warmup' THEN value ELSE 0 END) r_prefetch_warmup
-  FROM &&awr_object_prefix.sysstat 
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND instance_number = @instance_number@
@@ -63,9 +63,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        --(h1.reads - h0.reads) - (h1.r_direct - h0.r_direct) - (h1.r_cache - h0.r_cache) r_buffered_multi_block_req,
        (CAST(s1.end_interval_time AS DATE) - CAST(s1.begin_interval_time AS DATE)) * 86400 elapsed_sec
   FROM sysstat_io h0,
-       &&awr_object_prefix.snapshot s0,
+       &&cdb_awr_hist_prefix.snapshot s0,
        sysstat_io h1,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_hist_prefix.snapshot s1
  WHERE s0.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s0.dbid = &&edb360_dbid.
    AND s0.snap_id = h0.snap_id
@@ -108,7 +108,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        ROUND(SUM(bytes) / POWER(2,20), 3) buffer_cache_mb,
        ROUND(SUM(bytes) / &&database_block_size.) buffer_cache_bl
-  FROM &&awr_object_prefix.sgastat 
+  FROM &&cdb_awr_hist_prefix.sgastat 
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND name = 'buffer_cache'

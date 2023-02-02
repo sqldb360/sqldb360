@@ -75,7 +75,7 @@ INSERT INTO PLAN_TABLE (  distribution     -- WITH query block
                            ROUND(SUM(CASE session_state WHEN 'ON CPU' THEN 1 ELSE 0 END) / 360, 6) cpu_time_hrs,
                            ROUND(SUM(CASE WHEN session_state = 'WAITING' AND wait_class IN ('User I/O', 'System I/O') THEN 1 ELSE 0 END) / 360, 6) io_time_hrs,
                            ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rank_num
-                      FROM &&cdb_awr_object_prefix.active_sess_history h
+                      FROM &&cdb_awr_hist_prefix.active_sess_history h
                      WHERE sql_id IS NOT NULL
                        AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
                        AND dbid = &&edb360_dbid.
@@ -148,7 +148,7 @@ INSERT INTO PLAN_TABLE (  distribution    -- WITH query block
                            MAX(h.sql_id) sample_sql_id,
                            MIN(sql_opcode) sql_opcode,
                            COUNT(*) samples
-                      FROM &&cdb_awr_object_prefix.active_sess_history h
+                      FROM &&cdb_awr_hist_prefix.active_sess_history h
                      WHERE h.sql_id IS NOT NULL
                        AND h.force_matching_signature IS NOT NULL
                        AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -173,7 +173,7 @@ UPDATE plan_table pl
 UPDATE plan_table pl 
   SET object_owner=     -- username
 &&skip_noncdb. NVL((SELECT u.username FROM &&cdb_object_prefix.users u WHERE u.user_id = pl.parent_id AND u.con_id = pl.id), TO_CHAR(pl.parent_id)) 
-&&skip_cdb. NVL((SELECT u.username FROM &&dva_object_prefix.users u WHERE u.user_id = pl.parent_id), TO_CHAR(pl.parent_id)) 
+&&skip_cdb. NVL((SELECT u.username FROM &&cdb_object_prefix.users u WHERE u.user_id = pl.parent_id), TO_CHAR(pl.parent_id)) 
 /
 
 SET SERVEROUTPUT ON
@@ -184,7 +184,7 @@ UPDATE plan_table pl
   SET projection=       -- sql_text_1000
      ( SELECT REPLACE(REPLACE(REPLACE(REPLACE(sql_text_1000, CHR(10), ' '), '"', CHR(38)||'#34;'), '>', CHR(38)||'#62;'), '<', CHR(38)||'#60;') sql_text_1000
          FROM (SELECT DBMS_LOB.SUBSTR(h.sql_text, 1000)  sql_text_1000
-                 FROM &&cdb_awr_object_prefix.sqltext h
+                 FROM &&cdb_awr_hist_prefix.sqltext h
                 WHERE h.sql_id = pl.sql_id
                   AND h.sql_text IS NOT NULL
                 UNION ALL

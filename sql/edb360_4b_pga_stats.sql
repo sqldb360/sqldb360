@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.PGASTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.PGASTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'PGA Statistics in GBs';
@@ -66,7 +66,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE name WHEN 'total PGA used for auto workareas'     THEN value ELSE 0 END) tot_pga_used_aut_wa,
        SUM(CASE name WHEN 'total PGA used for manual workareas'   THEN value ELSE 0 END) tot_pga_used_man_wa,
        SUM(CASE name WHEN 'total freeable PGA memory'             THEN value ELSE 0 END) tot_freeable_pga_mem
-  FROM &&awr_object_prefix.pgastat
+  FROM &&cdb_awr_hist_prefix.pgastat
  WHERE name IN
 ('PGA memory freed back to OS'
 ,'aggregate PGA auto target'
@@ -100,7 +100,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        MIN(h.bytes_processed) bytes_processed,
        MIN(h.extra_bytes_rw) extra_bytes_rw
   FROM pgastat_denorm_1 h,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id = h.snap_id
    AND s.dbid = h.dbid
    AND s.instance_number = h.instance_number
@@ -135,8 +135,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.tot_freeable_pga_mem       
   FROM pgastat_denorm_1 h0,
        pgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1,
+       &&cdb_awr_hist_prefix.snapshot s0,
+       &&cdb_awr_hist_prefix.snapshot s1,
        pgastat_denorm_2 min /* to see cumulative use (replace h0 with min on select list above) */
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid

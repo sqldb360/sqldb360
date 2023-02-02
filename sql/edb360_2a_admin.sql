@@ -516,7 +516,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        &&skip_noncdb.h.con_id,
        h.current_obj#,
        MAX(CAST(h.sample_time AS DATE)) sample_date
-  FROM &&cdb_awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE h.current_obj# > 0
    AND h.sql_plan_operation LIKE '%TABLE%'
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -703,7 +703,7 @@ ELSE
            /* &&section_id..&&report_sequence. */
            DISTINCT &&skip_noncdb.h.con_id,
            h.current_obj#
-      FROM &&cdb_awr_object_prefix.active_sess_history h
+      FROM &&cdb_awr_hist_prefix.active_sess_history h
      WHERE h.sql_plan_operation = 'INDEX'
        AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
        AND h.dbid = &&edb360_dbid.
@@ -722,7 +722,7 @@ ELSE
     SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
            DISTINCT &&skip_noncdb.con_id,
            object_owner, object_name
-      FROM &&cdb_awr_object_prefix.sql_plan
+      FROM &&cdb_awr_hist_prefix.sql_plan
      WHERE operation = 'INDEX' AND dbid = &&edb360_dbid.
     )
     SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -1034,7 +1034,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Tables on RECYCLE Buffer Pool';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
@@ -1059,7 +1059,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'Tables to be CACHED in Buffer Cache';
-DEF main_table = '&&dva_view_prefix.TABLES';
+DEF main_table = '&&cdb_view_prefix.TABLES';
 BEGIN
   :sql_text := q'[
 -- requested by Milton Quinteros
@@ -2124,8 +2124,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        h.sql_id,
        ROUND(MAX(h.temp_space_allocated)/POWER(10,9),1) max_temp_space_gb,
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
-  FROM &&cdb_awr_object_prefix.active_sess_history h,
-       &&cdb_awr_object_prefix.sqltext s
+  FROM &&cdb_awr_hist_prefix.active_sess_history h,
+       &&cdb_awr_hist_prefix.sqltext s
  WHERE h.temp_space_allocated > 10*POWER(10,9)
    AND h.sql_id IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -2153,7 +2153,7 @@ END;
 @@&&skip_ver_le_11_1.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'SQL with over 2GB of PGA allocated memory';
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF abstract = '&&abstract_uom.';
 BEGIN
   :sql_text := q'[
@@ -2164,8 +2164,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        h.sql_id,
        ROUND(MAX(h.pga_allocated)/POWER(2,30),1) max_pga_gb,
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
-  FROM &&cdb_awr_object_prefix.active_sess_history h,
-       &&cdb_awr_object_prefix.sqltext s
+  FROM &&cdb_awr_hist_prefix.active_sess_history h,
+       &&cdb_awr_hist_prefix.sqltext s
  WHERE h.pga_allocated > 2*POWER(2,30)
    AND h.sql_id IS NOT NULL
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -2714,13 +2714,13 @@ END;
 -- @@edb360_9a_pre_one.sql
 
 DEF title = 'Workload Repository Control';
-DEF main_table = '&&awr_hist_prefix.WR_CONTROL';
+DEF main_table = '&&cdb_awr_hist_prefix.WR_CONTROL';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
        &&skip_noncdb.,c.name con_name
-  FROM &&awr_object_prefix.wr_control x
+  FROM &&cdb_awr_hist_prefix.wr_control x
        &&skip_noncdb.LEFT OUTER JOIN &&v_object_prefix.containers c ON c.con_id = x.con_id
 &&skip_noncdb.ORDER BY x.con_id
 ]';
@@ -2741,7 +2741,7 @@ END;
 @@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'ASH Retention ';
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text := q'[
 -- from http://jhdba.wordpress.com/tag/purge-wrh-tables/
