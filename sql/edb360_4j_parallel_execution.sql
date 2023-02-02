@@ -61,12 +61,12 @@ END;
 @@&&edb360_skip_px_mem.edb360_9a_pre_one.sql
 
 DEF title = 'System Stats';
-DEF main_table = '&&gv_view_prefix.SYSSTAT';
+DEF main_table = '&&gv_view_prefix.&&CDB_AWR_CON_OPTION.SYSSTAT';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&gv_object_prefix.sysstat
+  FROM &&gv_object_prefix.&&cdb_awr_con_option.sysstat
  ORDER BY 1, UPPER(name)
 ]';
 END;
@@ -140,7 +140,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        s.*,
        n.name
   FROM &&gv_object_prefix.px_sesstat s,
-       &&gv_object_prefix.sysstat n
+       &&gv_object_prefix.&&cdb_awr_con_option.sysstat n
  WHERE s.value > 0
    AND n.inst_id = s.inst_id
    AND n.statistic# = s.statistic#
@@ -176,12 +176,12 @@ END;
 /
 @@edb360_9a_pre_one.sql
 DEF title = 'IO Last Calibration Results';
-DEF main_table = '&&dva_view_prefix.RSRC_IO_CALIBRATE';
+DEF main_table = '&&cdb_view_prefix.RSRC_IO_CALIBRATE';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&dva_object_prefix.rsrc_io_calibrate
+  FROM &&cdb_object_prefix.rsrc_io_calibrate
  ORDER BY
        1, 2
 ]';
@@ -224,7 +224,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 
-DEF main_table = '&&awr_hist_prefix.SYSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.&&CDB_AWR_CON_OPTION.SYSSTAT';
 DEF chartype = 'LineChart';
 DEF vbaseline = '';
 DEF stacked = '';
@@ -242,8 +242,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('@stat_name_01@', '@stat_name_02@', '@stat_name_03@', '@stat_name_04@', '@stat_name_05@', '@stat_name_06@', '@stat_name_07@', '@stat_name_08@', '@stat_name_09@', '@stat_name_10@', '@stat_name_11@', '@stat_name_12@', '@stat_name_13@', '@stat_name_14@', '@stat_name_15@')
@@ -335,7 +335,7 @@ EXEC :sql_text := REPLACE(:sql_text, 'dummy_10', '"'||SUBSTR('&&tit_10.',1,30)||
 @@edb360_9a_pre_one.sql
 
 
-DEF main_table = '&&awr_hist_prefix.SYSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.&&CDB_AWR_CON_OPTION.SYSSTAT';
 DEF chartype = 'LineChart';
 DEF vbaseline = '';
 DEF stacked = '';
@@ -353,8 +353,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('queries parallelized','DML statements parallelized','DDL statements parallelized',
@@ -457,7 +457,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Parallel Max Servers Time Series';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Parallel max servers';
 DEF tit_01 = 'Current Utilization';
 DEF tit_02 = 'Max Utilization';
@@ -489,8 +489,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        s.end_interval_time,
        r.resource_name,
        MAX(r.current_utilization) current_utilization
-  FROM &&awr_object_prefix.resource_limit r,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.resource_limit r,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
    AND r.snap_id = s.snap_id
@@ -537,7 +537,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series1';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Count';
 DEF tit_01 = 'Sessions';
 DEF tit_02 = 'Processes';
@@ -568,8 +568,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        CAST(s.end_interval_time AS DATE) end_time,
        r.resource_name metric_name,
        MAX(r.current_utilization) value
-  FROM &&awr_object_prefix.resource_limit r,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.resource_limit r,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
    AND r.snap_id = s.snap_id
@@ -591,10 +591,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        end_time,
        metric_name,
        ROUND(maxval, 3) value
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name IN ('Active Serial Sessions', 'Active Parallel Sessions')
    AND maxval >= 0
 )
@@ -631,7 +631,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series2';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Count';
 DEF tit_01 = 'Sessions';
 DEF tit_02 = 'Processes';
@@ -662,8 +662,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        CAST(s.end_interval_time AS DATE) end_time,
        r.resource_name metric_name,
        MAX(r.current_utilization) value
-  FROM &&awr_object_prefix.resource_limit r,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.resource_limit r,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
    AND r.snap_id = s.snap_id
@@ -685,10 +685,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        end_time,
        metric_name,
        ROUND(maxval, 3) value
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name IN ('Active Serial Sessions',
                        'Active Parallel Sessions',
                        'PQ QC Session Count',
@@ -730,7 +730,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series3';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Count';
 DEF tit_01 = 'Sessions';
 DEF tit_02 = 'Processes';
@@ -762,8 +762,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        CAST(s.end_interval_time AS DATE) end_time,
        r.resource_name metric_name,
        MAX(r.current_utilization) value
-  FROM &&awr_object_prefix.resource_limit r,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.resource_limit r,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND s.dbid = &&edb360_dbid.
    AND r.snap_id = s.snap_id
@@ -786,10 +786,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        end_time,
        metric_name,
        ROUND(maxval, 3) value
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name IN ('Active Serial Sessions',
                        'Active Parallel Sessions',
                        'PQ QC Session Count',
@@ -807,10 +807,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        end_time,
        metric_name,
        ROUND(average, 3) value
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name IN ('Active Serial Sessions',
                        'Active Parallel Sessions',
                        'PQ QC Session Count',
@@ -852,7 +852,7 @@ DEF vbaseline = '';
 DEF stacked = '';
 DEF skip_lch = '';
 DEF title = 'Sessions, Processes and Parallel Servers - Time Series4';
-DEF main_table = '&&awr_hist_prefix.RESOURCE_LIMIT';
+DEF main_table = '&&cdb_awr_hist_prefix.RESOURCE_LIMIT';
 DEF vaxis = 'Count';
 DEF tit_01 = 'Sessions';
 DEF tit_02 = 'Processes';
@@ -872,7 +872,7 @@ DEF tit_15 = 'Avg Session Count';
 
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
-DEF main_table = '&&awr_hist_prefix.SYSMETRIC_SUMMARY';
+DEF main_table = '&&edb360_SYSMETRIC_SUMMARY';
 DEF chartype = 'LineChart';
 DEF vbaseline = '';
 DEF stacked = '';
@@ -902,10 +902,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        begin_time,
        end_time,
        maxval
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name = '@metric_name@'
    AND maxval >= 0
 )

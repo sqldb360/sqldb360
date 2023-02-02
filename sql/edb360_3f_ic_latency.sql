@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.INTERCONNECT_PINGS';
+DEF main_table = '&&cdb_awr_hist_prefix.INTERCONNECT_PINGS';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'Average Ping Latencies in Milliseconds';
@@ -29,8 +29,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.cnt_8k - LAG(h.cnt_8k)             OVER (PARTITION BY h.dbid, h.instance_number, h.target_instance ORDER BY h.snap_id) cnt_8k,
        h.wait_500b - LAG(h.wait_500b)       OVER (PARTITION BY h.dbid, h.instance_number, h.target_instance ORDER BY h.snap_id) wait_500b,
        h.wait_8k - LAG(h.wait_8k)           OVER (PARTITION BY h.dbid, h.instance_number, h.target_instance ORDER BY h.snap_id) wait_8k
-  FROM &&awr_object_prefix.interconnect_pings h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.interconnect_pings h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.cnt_500b > 100 -- else too small

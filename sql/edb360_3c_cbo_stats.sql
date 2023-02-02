@@ -948,7 +948,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        h.min_blkcnt,
        h.max_blkcnt,
        h.med_blkcnt
-  FROM h, &&dva_object_prefix.objects o
+  FROM h, &&cdb_object_prefix.objects o
  WHERE o.object_id = h.obj#
    AND o.owner NOT IN &&exclusion_list.
    AND o.owner NOT IN &&exclusion_list2.

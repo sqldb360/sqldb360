@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.SYSSTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.&&CDB_AWR_CON_OPTION.SYSSTAT';
 DEF chartype = 'LineChart';
 DEF vbaseline = ''; 
 DEF stacked = '';
@@ -25,8 +25,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('@stat_name_01@', '@stat_name_02@', '@stat_name_03@', '@stat_name_04@', '@stat_name_05@', '@stat_name_06@', '@stat_name_07@', '@stat_name_08@', '@stat_name_09@', '@stat_name_10@', '@stat_name_11@', '@stat_name_12@', '@stat_name_13@', '@stat_name_14@', '@stat_name_15@')
@@ -125,8 +125,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('physical read total bytes', 
@@ -245,8 +245,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('physical read total bytes', 
@@ -365,8 +365,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('physical read total bytes', 
@@ -485,8 +485,8 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        h.stat_name,
        (h.value - LAG(h.value) OVER (PARTITION BY h.dbid, h.instance_number, h.stat_id ORDER BY h.snap_id)) value
        --h.value
-  FROM &&awr_object_prefix.sysstat h,
-       &&awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.stat_name IN ('physical read total bytes', 

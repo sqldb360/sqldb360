@@ -1,0 +1,58 @@
+BEGIN {
+valid["METGROUP"]=1
+valid["BEGIN"]=1
+valid["COLLECT"]=2
+valid["DATABASE"]=12
+valid["INSTANCE"]=2
+valid["CPU"]=2
+valid["DISK"]=2
+valid["IC"]=2
+valid["IOPS"]=2
+valid["MBPS"]=2
+valid["MEM"]=2
+valid["NETW"]=2
+valid["PHYR"]=2
+valid["PHYW"]=2
+valid["OS"]=0
+valid["END"]=1
+validcnt=0
+invalidcnt=0
+unrecogcnt=0
+}
+{
+ c=substr($1,1,8)
+ if (c in valid) 
+  cat[c]++
+ else if (c != "") {
+  unrecogcnt++
+  exit
+ }
+} 
+END { 
+ printf "%s: ",FILENAME
+ if (unrecogcnt != 0 ) {
+  printf "[%s] unrecognizable category found.\n", c 
+  exit 1
+ }
+ cat["OS"]++
+ for (v in valid) 
+  if ( v in cat ) {
+   if (cat[v]>=valid[v]) {
+    validcnt++
+    delete valid[v]
+    delete cat[v]
+   }
+   else
+    invalidcnt++
+  }
+ if (validcnt != 16  ) { 
+  printf "%d Valid Metrics found\n",validcnt
+  for (m in valid) printf "%s Missing Metric\n", m
+ }
+ if (invalidcnt != 0 ) {
+  printf "%d Invalid Metrics found\n",invalidcnt
+  for (i in cat) print i, cat[i]
+ } 
+
+ if (validcnt == 16 && invalidcnt == 0) printf "OK\n"
+}

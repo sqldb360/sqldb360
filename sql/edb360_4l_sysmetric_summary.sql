@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.SYSMETRIC_SUMMARY';
+DEF main_table = '&&edb360_SYSMETRIC_SUMMARY';
 DEF chartype = 'LineChart';
 DEF vbaseline = ''; 
 DEF stacked = '';
@@ -37,10 +37,10 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. */ /* &&section_id..&&report_sequence. */
        begin_time, 
        end_time, 
        maxval
-  FROM &&awr_object_prefix.sysmetric_summary
+  FROM &&edb360_sysmetric_summary
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
-   AND group_id = 2 /* 1 minute intervals */
+   AND group_id = &&edb360_sysmetric_group. /* 1 minute intervals */
    AND metric_name = '@metric_name@'
    AND maxval >= 0
 )

@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text_backup := q'[
 WITH
@@ -17,7 +17,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        current_obj#,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE @filter_predicate@
    AND current_obj# >= 0
    AND wait_class IN ('Application', 'Cluster', 'Concurrency', 'System I/O', 'User I/O')
@@ -39,7 +39,7 @@ SELECT h.current_obj#||
        NULL dummy_01
   FROM hist h,
        total t,
-       &&dva_object_prefix.objects o
+       &&cdb_object_prefix.objects o
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND o.object_id(+) = h.current_obj#
  UNION ALL

@@ -254,7 +254,7 @@ BEGIN
  if '&&DB_VERSION.' = '12.1.0.2.0' and '&&IS_CDB.' ='Y' then 
   :sql_text := q'[
 SELECT *
-  FROM &&dva_object_prefix.sql_plan_dir_objects
+  FROM &&cdb_object_prefix.sql_plan_dir_objects
  ORDER BY 1,2,3,4,5
 ]';
 else

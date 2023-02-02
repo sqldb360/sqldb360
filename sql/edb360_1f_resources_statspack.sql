@@ -1450,7 +1450,7 @@ SELECT /* ignore if it fails to parse */ /* &&section_id..&&report_sequence. */
        ss.dbid dbid,
        ss.instance_number instance_number,
        SUM(CASE WHEN vs.stat_name IN ('DB CPU','background cpu time') THEN ss.value ELSE 0 END) cpu
- FROM &&statspack_user..stats$sys_time_model ss, &&v_object_prefix.sys_time_model vs
+ FROM &&statspack_user..stats$sys_time_model ss, &&v_object_prefix.&&cdb_awr_con_option.sys_time_model vs
  WHERE 1=1
    AND ss.snap_id BETWEEN &&sp_minimum_snap_id. AND &&sp_maximum_snap_id.
    AND vs.stat_name IN ('DB CPU','background cpu time')

@@ -148,6 +148,40 @@ DEF edb360_conf_sqlhc_top = '0';
 DEF edb360_conf_sqld360_top = '8';
 DEF edb360_conf_sqld360_top_tc = '0';
 
+-- Multitenant 
+/* 
+* edb360_conf_dd_mode 
+Allows to run edb360 over different dictionary views depending on their prefix.
+Valid values are DBA_HIST, CDB_HIST, AWR_ROOT, AWR_PDB, AWR_CDB, & AUTO
+AUTO choice is: 
+- DBA_HIST on non-multitenant
+- AWR_ROOT on multitenant executing from CDB$ROOT in 12.2
+- AWR_CDB  on multitenant executing from CDB$ROOT in 18c+
+- AWR_PDB  on multitenant executing from PDB 
+
+* edb360_conf_con_option 
+Allows to add the CON keyword to the name of the view.
+Valid values are N , Y , A
+Example 
+edb360_conf_con_option | View name 
+            N          | cdb_hist_sysstat
+            Y          | cdb_hist_con_sysstat
+"A"uto choice is:
+- N on pre-12.2
+- N on multitenant when executing from CDB$ROOT 
+- N on multitenant when executing from PDB and no PDB snapshots found
+- Y on multitenant when PDB snapshots found
+
+* edb360_conf_is_cdb 
+- A autodetect (Y if DB is multitenant. N otheriwse)
+- N Assume this is not a multitenant database
+- Y Assume this is a multitenant database. 
+
+There is no guarantee that all queries will execute successfully for all values and combinations.
+*/
+DEF edb360_conf_dd_mode = 'AUTO'
+DEF edb360_conf_con_option = 'A'
+DEF edb360_conf_is_cdb = 'A'
 /*********************************** must match repo ************************************/
 
 -- prefix for AWR "dba_hist_" views

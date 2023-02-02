@@ -32,7 +32,7 @@ END;
 @@edb360_9a_pre_one.sql       
 
 DEF title = 'Catproc Release';
-DEF main_table = '&&dva_view_prefix.REGISTRY';
+DEF main_table = '&&cdb_view_prefix.REGISTRY';
 BEGIN
   :sql_text := q'[
 -- from MOS Doc ID: 1577401.1 

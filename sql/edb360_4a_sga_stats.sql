@@ -17,7 +17,7 @@ END;
 /
 @@&&skip_ver_le_11.edb360_9a_pre_one.sql
 
-DEF main_table = '&&awr_hist_prefix.SGASTAT';
+DEF main_table = '&&cdb_awr_hist_prefix.SGASTAT';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vaxis = 'SGA Statistics in GBs';
@@ -54,7 +54,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(CASE pool WHEN 'large pool' THEN bytes ELSE 0 END) large_pool,
        SUM(CASE pool WHEN 'java pool' THEN bytes ELSE 0 END) java_pool,
        SUM(CASE pool WHEN 'streams pool' THEN bytes ELSE 0 END) streams_pool
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND instance_number = @instance_number@
@@ -81,8 +81,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.streams_pool
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_hist_prefix.snapshot s0,
+       &&cdb_awr_hist_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid
    AND h1.instance_number = h0.instance_number
@@ -247,7 +247,7 @@ WITH x AS (
 SELECT &&skip_noncdb.con_id,
        &&skip_cdb.TO_NUMBER(null) con_id,
        SUM(bytes) sga_total
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
 GROUP BY
@@ -328,7 +328,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
        instance_number,
        SUM(bytes) sga_total
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND instance_number = @instance_number@ @sgastat_criteria@
@@ -349,8 +349,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h1.sga_total
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_hist_prefix.snapshot s0,
+       &&cdb_awr_hist_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid
    &&skip_noncdb.and h1.con_id = h0.con_id
@@ -809,7 +809,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        name,
        stddev(bytes) standard_dev
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE pool='shared pool'
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
@@ -868,7 +868,7 @@ SELECT /*+ &&sq_fact_hints. */
        instance_number,
        name,
        stddev(bytes) standard_dev
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE pool='shared pool'
    AND name <>'free memory'
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -970,7 +970,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        dbid,
        instance_number,
        SUM(bytes) allocated
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND pool = 'shared pool'
@@ -990,8 +990,8 @@ SELECT /*+ &&sq_fact_hints. */
        h1.allocated
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_hist_prefix.snapshot s0,
+       &&cdb_awr_hist_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    AND h1.dbid = h0.dbid
    AND h1.instance_number = h0.instance_number
@@ -1147,7 +1147,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        name subpool,
        instance_number,
        SUM(bytes) allocated
-  FROM &&awr_object_prefix.sgastat
+  FROM &&cdb_awr_hist_prefix.sgastat
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND pool = 'shared pool'
@@ -1170,8 +1170,8 @@ SELECT /*+ &&sq_fact_hints. */
        h1.allocated
   FROM sgastat_denorm_1 h0,
        sgastat_denorm_1 h1,
-       &&awr_object_prefix.snapshot s0,
-       &&awr_object_prefix.snapshot s1
+       &&cdb_awr_hist_prefix.snapshot s0,
+       &&cdb_awr_hist_prefix.snapshot s1
  WHERE h1.snap_id = h0.snap_id + 1
    &&skip_noncdb. AND h1.con_id = h0.con_id
    AND h1.dbid = h0.dbid

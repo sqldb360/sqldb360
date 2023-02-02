@@ -26,6 +26,8 @@ PRO Please wait ...
 
 SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
+DEF skip_escp_v1 = '--skip--'
+
 -- get host name (up to 30, stop before first '.', no special characters)
 DEF esp_host_name_short = '';
 COL esp_host_name_short NEW_V esp_host_name_short FOR A30;
@@ -48,13 +50,25 @@ DEF esp_collection_yyyymmdd = '';
 COL esp_collection_yyyymmdd NEW_V esp_collection_yyyymmdd FOR A8;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
--- STATSPACK collector
-@@sql/escp_collect_statspack.sql 
-@@sql/esp_collect_requirements_statspack.sql
-@@sql/resources_requirements_statspack.sql
-
 -- DB Features
 @@sql/features_use.sql
+
+WHENEVER SQLERROR EXIT
+-- Checking the statspack is installed. Abort if it does not exist.
+host touch statspack_installation_test.txt
+HOS zip -qj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip statspack_installation_test.txt
+SPOOL statspack_installation_test.txt APP
+SELECT COUNT(*) FROM stats$snapshot WHERE rownum=1;
+PROMPT success.
+SPOOL OFF
+HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip statspack_installation_test.txt
+WHENEVER SQLERROR CONTINUE
+
+-- STATSPACK collector
+@@sql/escp_collect_statspack.sql 
+@@&&skip_escp_v1.sql/esp_collect_requirements_statspack.sql
+@@&&skip_escp_v1.sql/resources_requirements_statspack.sql
+
 
 SET TERM ON;
 
@@ -64,7 +78,7 @@ SPO hostcommands_driver.sql
 SELECT decode(  platform_id,
                 13,'HOS cat /proc/cpuinfo | grep -i name | sort | uniq | cat - /sys/devices/virtual/dmi/id/product_name >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- Linux x86 64-bit
                 6,'HOS lsconf | grep Processor >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- AIX-Based Systems (64-bit)
-                2,'HOS psrinfo -v >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- Solaris[tm] OE (64-bit)
+                2,'HOS psrinfo -v >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt ; isalist >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt ; prtconf -b >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt',  -- Solaris[tm] OE (64-bit)
                 4,'HOS machinfo >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt' -- HP-UX IA (64-bit)
         ) from v$database, product_component_version
 where 1=1
@@ -75,8 +89,10 @@ SET DEF ON
 @hostcommands_driver.sql
 set feed on echo on
 
+HOS awk -f sql/escpver escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv >> escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
+
 -- zip esp
-HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql
+HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip esp_requirements_*_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.csv

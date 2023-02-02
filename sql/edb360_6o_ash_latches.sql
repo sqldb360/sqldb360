@@ -7,7 +7,7 @@ PRO <h2>&&section_id.. &&section_name.</h2>
 PRO <ol start="&&report_sequence.">
 SPO OFF;
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF skip_all = 'Y';
 
 BEGIN
@@ -23,7 +23,7 @@ WITH hist AS (
                  COUNT(distinct p1) num_addr,
                  COUNT(*) samples,
                  row_number() OVER (ORDER BY COUNT(*) DESC) rn
-            FROM &&awr_hist_prefix.active_sess_history
+            FROM &&cdb_awr_hist_prefix.active_sess_history
            WHERE @filter_predicate@
              AND event like 'latch%'
              AND p1text = 'address'

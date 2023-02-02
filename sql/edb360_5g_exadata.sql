@@ -8,7 +8,7 @@ PRO <ol start="&&report_sequence.">
 SPO OFF;
 
 DEF title = 'FTS with single-block reads';
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text := q'[
 WITH
@@ -16,7 +16,7 @@ ash AS (
 SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        /* &&section_id..&&report_sequence. */
        current_obj#, COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND event = 'cell single block physical read'
@@ -31,7 +31,7 @@ SELECT a.samples,
        CASE a.current_obj# WHEN 0 THEN 'UNDO' ELSE o.object_name END object_name,
        CASE a.current_obj# WHEN 0 THEN NULL ELSE o.subobject_name END subobject_name
   FROM ash a,
-       &&dva_object_prefix.objects o
+       &&cdb_object_prefix.objects o
  WHERE o.object_id(+) = a.current_obj#
  ORDER BY
        a.samples DESC,
@@ -63,7 +63,7 @@ COL commt_perc_iot HEA "Commit|Perc of|IO Time";
 COL lfpw_perc_iot HEA "log file|parallel write|Perc of|IO Time";
 
 DEF title = 'Relevant I/O Time Composition';
-DEF main_table = '&&awr_hist_prefix.SYSTEM_EVENT';
+DEF main_table = '&&cdb_awr_hist_prefix.&&CDB_AWR_CON_OPTION.SYSTEM_EVENT';
 BEGIN
   :sql_text := q'[
 -- requested by Frits Hoogland
@@ -75,7 +75,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value - LAG(value) OVER (PARTITION BY dbid, instance_number, stat_name ORDER BY snap_id) value
-  FROM &&awr_object_prefix.sys_time_model
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sys_time_model
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND stat_name = 'DB time'
@@ -87,7 +87,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        wait_class,
        SUM(time_waited_micro) time_waited_micro
-  FROM &&awr_object_prefix.system_event
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.system_event
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND wait_class IN ('User I/O', 'System I/O', 'Commit')
@@ -113,7 +113,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        event_name,
        time_waited_micro - LAG(time_waited_micro) OVER (PARTITION BY dbid, instance_number, event_name ORDER BY snap_id) time_waited_micro
-  FROM &&awr_object_prefix.system_event
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.system_event
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND event_name IN ('db file scattered read', 'direct path read', 'log file parallel write')
@@ -184,7 +184,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(commt_time) commt_time,
        SUM(lfpw_time) lfpw_time
   FROM time_components t,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id = t.snap_id
    AND s.dbid = t.dbid
    AND s.instance_number = t.instance_number
@@ -243,7 +243,7 @@ END;
 @@&&skip_diagnostics.edb360_9a_pre_one.sql
 
 DEF title = 'Relevant I/O Time Composition';
-DEF main_table = '&&awr_hist_prefix.SYSTEM_EVENT';
+DEF main_table = '&&cdb_awr_hist_prefix.&&CDB_AWR_CON_OPTION.SYSTEM_EVENT';
 DEF chartype = 'LineChart';
 DEF skip_lch = '';
 DEF stacked = '';
@@ -275,7 +275,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        stat_name,
        value - LAG(value) OVER (PARTITION BY dbid, instance_number, stat_name ORDER BY snap_id) value
-  FROM &&awr_object_prefix.sys_time_model
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.sys_time_model
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND stat_name = 'DB time'
@@ -287,7 +287,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        wait_class,
        SUM(time_waited_micro) time_waited_micro
-  FROM &&awr_object_prefix.system_event
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.system_event
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND wait_class IN ('User I/O', 'System I/O', 'Commit')
@@ -313,7 +313,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        instance_number,
        event_name,
        time_waited_micro - LAG(time_waited_micro) OVER (PARTITION BY dbid, instance_number, event_name ORDER BY snap_id) time_waited_micro
-  FROM &&awr_object_prefix.system_event
+  FROM &&cdb_awr_hist_prefix.&&cdb_awr_con_option.system_event
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND event_name IN ('db file scattered read', 'direct path read', 'log file parallel write')
@@ -384,7 +384,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        SUM(commt_time) commt_time,
        SUM(lfpw_time) lfpw_time
   FROM time_components t,
-       &&awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE s.snap_id = t.snap_id
    AND s.dbid = t.dbid
    AND s.instance_number = t.instance_number

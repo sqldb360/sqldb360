@@ -28,6 +28,8 @@ PRO Please wait ...
 
 SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
 
+DEF skip_escp_v1 = '--skip--'
+
 VARIABLE vskip_awr varchar2(20)
 VARIABLE vskip_statspack varchar2(20)
 
@@ -87,13 +89,13 @@ SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
 -- AWR collector
 @@&&skip_awr.sql/escp_collect_awr.sql
-@@&&skip_awr.sql/esp_collect_requirements_awr.sql
-@@&&skip_awr.sql/resources_requirements_awr.sql
+@@&&skip_escp_v1.&&skip_awr.sql/esp_collect_requirements_awr.sql
+@@&&skip_escp_v1.&&skip_awr.sql/resources_requirements_awr.sql
 
 -- STATSPACK collector
 @@&&skip_statspack.sql/escp_collect_statspack.sql
-@@&&skip_statspack.sql/esp_collect_requirements_statspack.sql
-@@&&skip_statspack.sql/resources_requirements_statspack.sql
+@@&&skip_escp_v1.&&skip_statspack.sql/esp_collect_requirements_statspack.sql
+@@&&skip_escp_v1.&&skip_statspack.sql/resources_requirements_statspack.sql
 
 -- DB Features
 @@sql/features_use.sql
@@ -117,8 +119,9 @@ SET DEF ON
 @hostcommands_driver.sql
 set feed on echo on
 
+HOS awk -f sql/escpver escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv >> escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
 -- zip esp
-HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql
+HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv

@@ -27,7 +27,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        sql_id,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC NULLS LAST) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE &&filter_predicate.
    AND sql_id IS NOT NULL
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.

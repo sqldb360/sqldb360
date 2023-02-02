@@ -27,12 +27,12 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'System Wait Class';
-DEF main_table = '&&gv_view_prefix.SYSTEM_WAIT_CLASS';
+DEF main_table = '&&gv_view_prefix.&&CDB_AWR_CON_OPTION.SYSTEM_WAIT_CLASS';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        x.*
-  FROM &&gv_object_prefix.system_wait_class x
+  FROM &&gv_object_prefix.&&cdb_awr_con_option.system_wait_class x
  ORDER BY
        &&skip_noncdb.x.con_id,
 	   x.inst_id,
@@ -350,8 +350,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE) days_ago,
        SUM(h.elapsed_time_total) / SUM(h.executions_total) time_per_exec
-  FROM &&cdb_awr_object_prefix.sqlstat h,
-       &&cdb_awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.sqlstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.executions_total > 0
@@ -436,11 +436,11 @@ SELECT /*+ &&top_level_hints. */
        COUNT(DISTINCT p.plan_hash_value) plans,
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10)) sql_text
   FROM ranked r
-       LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s
+       LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext s
 	   ON s.dbid = r.dbid
 	   AND s.sql_id = r.sql_id
 	   &&skip_noncdb.AND s.con_id = r.con_id
-	   LEFT OUTER JOIN &&cdb_awr_object_prefix.sql_plan p
+	   LEFT OUTER JOIN &&cdb_awr_hist_prefix.sql_plan p
 	   ON p.dbid = r.dbid
 	   AND p.sql_id = r.sql_id
 	   &&skip_noncdb.AND p.con_id = r.con_id
@@ -516,8 +516,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        h.sql_id,
        SYSDATE - CAST(s.end_interval_time AS DATE) days_ago,
        SUM(h.elapsed_time_total) / SUM(h.executions_total) time_per_exec
-  FROM &&cdb_awr_object_prefix.sqlstat h,
-       &&cdb_awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.sqlstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.executions_total > 0
@@ -617,8 +617,8 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        &&skip_ver_le_11_1., ROUND(h.cell_uncompressed_bytes_total  / h.executions_total) unb_per_exec
        &&skip_ver_le_11_1., ROUND(h.io_offload_return_bytes_total  / h.executions_total) orb_per_exec
   FROM ranked r,
-       &&cdb_awr_object_prefix.sqlstat h,
-       &&cdb_awr_object_prefix.snapshot s
+       &&cdb_awr_hist_prefix.sqlstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE r.rank_num <= &&max_num_rows_x.
    AND h.sql_id = r.sql_id
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -679,8 +679,8 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        STDDEV(h.elapsed_time_total / h.executions_total) / AVG(h.elapsed_time_total / h.executions_total) std_dev,
        MAX(h.executions_total) executions_total,
        MEDIAN(h.elapsed_time_total / h.executions_total) * MAX(h.executions_total) total_elapsed_time
-  FROM &&cdb_awr_object_prefix.sqlstat h,
-       &&cdb_awr_object_prefix.snapshot s
+  FROM &&cdb_awr_hist_prefix.sqlstat h,
+       &&cdb_awr_hist_prefix.snapshot s
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.executions_total > 1
@@ -732,7 +732,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        REPLACE(DBMS_LOB.SUBSTR(s.sql_text, 1000), CHR(10)) sql_text
   FROM ranked1 r,
        per_phv p,
-       &&cdb_awr_object_prefix.sqltext s
+       &&cdb_awr_hist_prefix.sqltext s
  WHERE r.rank_num1 <= &&max_num_rows_x. * 5
    AND p.dbid = r.dbid
    &&skip_noncdb.AND p.con_id = r.con_id
@@ -784,7 +784,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        h.sql_plan_hash_value,
        h.dbid,
        COUNT(*) samples
-  FROM &&cdb_awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.
    AND h.sql_id IS NOT NULL
@@ -808,7 +808,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
 	                       ) plan_samples
      , DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM hist h
-    LEFT OUTER JOIN &&cdb_awr_object_prefix.sqltext s
+    LEFT OUTER JOIN &&cdb_awr_hist_prefix.sqltext s
     ON s.sql_id = h.sql_id AND s.dbid = h.dbid
 	&&skip_noncdb.AND h.con_id = s.con_id
 ), hist3 AS (
@@ -947,9 +947,9 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        sm.begin_time,
        sm.end_time,
        ROUND(sm.value / 100, 3) aas --(/ 100 is to convert from cs to sec)
-  FROM &&gv_object_prefix.sysmetric sm
+  FROM &&gv_object_prefix.&&cdb_awr_con_option.sysmetric sm
  WHERE sm.metric_name='CPU Usage Per Sec'
-   AND sm.group_id = 2 -- 1 minute
+   AND sm.group_id = &&edb360_sysmetric_group. -- 1 minute
 ),
 system_cpu_used AS (
 SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
@@ -959,10 +959,10 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        sm.begin_time,
        sm.end_time,
        ROUND((sm.value / 100) * TO_NUMBER(p.value), 3) aas -- (/ 100 is to convert % to fraction)
-  FROM &&gv_object_prefix.sysmetric sm,
+  FROM &&gv_object_prefix.&&cdb_awr_con_option.sysmetric sm,
        &&gv_object_prefix.system_parameter2 p
  WHERE sm.metric_name='Host CPU Utilization (%)'
-   AND sm.group_id = 2 -- 1 minute
+   AND sm.group_id = &&edb360_sysmetric_group. -- 1 minute
    AND sm.inst_id = p.inst_id
    AND p.name = 'cpu_count'
 ),
@@ -975,7 +975,7 @@ SELECT /*+ &&sq_fact_hints. */ /* &&section_id..&&report_sequence. */
        wcm.end_time,
        ROUND(wcm.time_waited/wcm.intsize_csec, 3) aas
   FROM &&gv_object_prefix.waitclassmetric wcm,
-       &&gv_object_prefix.system_wait_class wc
+       &&gv_object_prefix.&&cdb_awr_con_option.system_wait_class wc
  WHERE wcm.inst_id = wc.inst_id
    AND wcm.wait_class_id = wc.wait_class_id
    AND wcm.wait_class# = wc.wait_class#
@@ -1074,7 +1074,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        CASE WHEN wc.wait_class = 'User I/O' THEN
        ROUND(10 * wcm.time_waited  / wcm.wait_count, 3) END avg_io_ms
   FROM &&gv_object_prefix.waitclassmetric wcm,
-       &&gv_object_prefix.system_wait_class wc
+       &&gv_object_prefix.&&cdb_awr_con_option.system_wait_class wc
  WHERE wcm.inst_id = wc.inst_id
    AND wcm.wait_class_id = wc.wait_class_id
    AND wcm.wait_class# = wc.wait_class#
@@ -1121,7 +1121,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'System Metric for past minute';
-DEF main_table = '&&gv_view_prefix.SYSMETRIC';
+DEF main_table = '&&gv_view_prefix.&&CDB_AWR_CON_OPTION.SYSMETRIC';
 BEGIN
   :sql_text := q'[
 -- inspired by Kyle Hailey blogs
@@ -1129,8 +1129,8 @@ BEGIN
 -- http://www.kylehailey.com/oracle-cpu-time/
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&gv_object_prefix.sysmetric
- WHERE group_id = 2 -- 1 minute
+  FROM &&gv_object_prefix.&&cdb_awr_con_option.sysmetric
+ WHERE group_id = &&edb360_sysmetric_group. -- 1 minute
  ORDER BY
        inst_id,
        metric_name
@@ -1140,7 +1140,7 @@ END;
 @@edb360_9a_pre_one.sql
 
 DEF title = 'System Metric Summary for past hour';
-DEF main_table = '&&gv_view_prefix.SYSMETRIC_SUMMARY';
+DEF main_table = '&&gv_view_prefix.&&CDB_AWR_CON_OPTION.SYSMETRIC_SUMMARY';
 BEGIN
   :sql_text := q'[
 -- inspired by Kyle Hailey blogs
@@ -1148,7 +1148,7 @@ BEGIN
 -- http://www.kylehailey.com/oracle-cpu-time/
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        *
-  FROM &&gv_object_prefix.sysmetric_summary
+  FROM &&gv_object_prefix.&&cdb_awr_con_option.sysmetric_summary
  ORDER BY
        inst_id,
        metric_name

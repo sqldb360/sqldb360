@@ -9,7 +9,7 @@ SPO OFF;
 
 @&&chart_setup_driver.;
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 DEF chartype = 'AreaChart';
 DEF stacked = 'isStacked: true,';
 DEF vaxis = 'Average Active Sessions - AAS (stacked)';
@@ -38,7 +38,7 @@ SELECT /*+ &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3. */
        0 dummy_13,
        0 dummy_14,
        0 dummy_15
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
    AND @filter_predicate@

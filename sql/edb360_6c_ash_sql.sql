@@ -97,7 +97,7 @@ EXEC :sql_text := REPLACE(:sql_text_backup, '@filter_predicate@', 'inst_id = 8')
 
 /*****************************************************************************************/
 
-DEF main_table = '&&awr_hist_prefix.ACTIVE_SESS_HISTORY';
+DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text_backup := q'[
 WITH
@@ -108,7 +108,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
        dbid,
        ROW_NUMBER () OVER (ORDER BY COUNT(*) DESC) rn,
        COUNT(*) samples
-  FROM &&awr_object_prefix.active_sess_history h
+  FROM &&cdb_awr_hist_prefix.active_sess_history h
  WHERE @filter_predicate@
    AND sql_id IS NOT NULL
    AND snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
@@ -127,7 +127,7 @@ SELECT DISTINCT
        DBMS_LOB.SUBSTR(s.sql_text, 1000) sql_text
   FROM hist h,
        total t,
-       &&awr_object_prefix.sqltext s
+       &&cdb_awr_hist_prefix.sqltext s
  WHERE h.samples >= t.samples / 1000 AND rn <= 14
    AND s.sql_id(+) = h.sql_id AND s.dbid(+) = h.dbid
  UNION ALL

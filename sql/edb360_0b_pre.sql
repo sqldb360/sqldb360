@@ -1,6 +1,7 @@
-DEF edb360_vYYNN = 'v204';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2022-08-15)';
-DEF edb360_copyright = ' (c) 2022';
+SET TERM ON FEEDBACK ON
+DEF edb360_vYYNN = 'v231';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2023-02-01)';
+DEF edb360_copyright = 'Enkitec (c) 2023';
 
 SET TERM OFF;
 -- watchdog
@@ -13,20 +14,62 @@ EXEC :edb360_max_seconds := &&edb360_conf_max_hours. * 3600;
 COL edb360_bypass NEW_V edb360_bypass;
 SELECT NULL edb360_bypass FROM DUAL;
 
+-- moat has to execute first to avoid override the output of detect_environment
+@@moat369_fc_oracle_version
+
+-- Parameters for detect_environment.sql 
+
+def env_diagnostics_pack = '&&diagnostics_pack.'
+def env_conf_dbid='&&edb360_config_dbid.'
+def env_conf_date_from = '&&edb360_conf_date_from.'; 
+def env_conf_date_to ='&&edb360_conf_date_to.';
+def env_conf_days = '&&edb360_conf_days.';
+def env_conf_dd_mode = '&&edb360_conf_dd_mode.'
+def env_conf_con_option ='&&edb360_conf_con_option.'
+def env_conf_is_cdb = '&&edb360_conf_is_cdb.'
+
+@@detect_environment.sql
+
+-- Output of detect_environment.sql 
+DEFINE is_cdb = '&&ENV_IS_CDB.'
+DEFINE edb360_con_id = '&&ENV_CON_ID.'
+DEFINE edb360_pdb_name = '&&ENV_PDB_NAME.'
+DEFINE cdb_awr_con_option = '&&ENV_AWR_CON_OPTION.'
+DEFINE cdb_awr_hist_prefix = '&&ENV_AWR_HIST_PREFIX.'
+DEFINE cdb_awr_object_prefix = '&&ENV_AWR_OBJECT_PREFIX.'
+DEFINE edb360_dbid = '&&ENV_DBID.'
+DEFINE history_days = '&&ENV_HISTORY_DAYS.'
+DEFINE edb360_date_format = '&&ENV_DATE_FORMAT.'
+DEFINE edb360_date_from = '&&ENV_DATE_FROM.'
+DEFINE edb360_date_to = '&&ENV_DATE_TO.' 
+DEFINE minimum_snap_id = '&&ENV_MINIMUM_SNAP_ID.'
+DEFINE maximum_snap_id = '&&ENV_MAXIMUM_SNAP_ID.'
+-- skip_noncdb and skip_cdb are also defined
+-- end of Output of detect_environment.sql 
+
+-- Dates format
+DEF edb360_timestamp_format = 'YYYY-MM-DD"T"HH24:MI:SS.FF';
+DEF edb360_timestamp_tz_format = 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM';
+
 -- data dictionary views for tool repository. do not change values. this piece must execute after processing configuration scripts
 DEF awr_hist_prefix = 'DBA_HIST_';
-DEF awr_object_prefix = 'dba_hist_';
+DEF awr_object_prefix = 'dba_';
 DEF dva_view_prefix = 'DBA_';
 DEF dva_object_prefix = 'dba_';
 DEF gv_view_prefix = 'GV$';
 DEF gv_object_prefix = 'gv$';
 DEF v_view_prefix = 'V$';
 DEF v_object_prefix = 'v$';
+DEF cdb_view_prefix = 'CDB_';
+DEF cdb_object_prefix = 'cdb_';
+
+-------------------------------
 -- when using a repository change then view prefixes
 COL awr_object_prefix NEW_V awr_object_prefix;
 COL dva_object_prefix NEW_V dva_object_prefix;
 COL gv_object_prefix NEW_V gv_object_prefix;
 COL v_object_prefix NEW_V v_object_prefix;
+
 SELECT CASE WHEN '&&tool_repo_user.' IS NULL THEN '&&awr_object_prefix.' ELSE '&&tool_repo_user..&&tool_prefix_1.' END awr_object_prefix,
        CASE WHEN '&&tool_repo_user.' IS NULL THEN '&&dva_object_prefix.' ELSE '&&tool_repo_user..&&tool_prefix_2.' END dva_object_prefix,
        CASE WHEN '&&tool_repo_user.' IS NULL THEN '&&gv_object_prefix.'  ELSE '&&tool_repo_user..&&tool_prefix_3.' END gv_object_prefix,
@@ -34,42 +77,50 @@ SELECT CASE WHEN '&&tool_repo_user.' IS NULL THEN '&&awr_object_prefix.' ELSE '&
   FROM DUAL
 /
 
-@@moat369_fc_oracle_version
--- get dbid --in a CDB or PDB this will be the DBID of the container
-COL edb360_dbid NEW_V edb360_dbid;
-SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), dbid))) edb360_dbid FROM &&v_object_prefix.database;
+COL awr_object_prefix CLEAR
+COL dva_object_prefix CLEAR
+COL gv_object_prefix CLEAR
+COL v_object_prefix CLEAR
+-------------------------------
 
---dmk 31.1.2019 if in PDB work with DBID of PDB in v$database.CON_DBID if there are PDB specific snapshots
-&&skip_noncdb.SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&edb360_config_dbid.'), v.con_dbid))) edb360_dbid FROM &&v_object_prefix.database v, dba_hist_snapshot s WHERE s.dbid = v.con_dbid AND rownum <= 1;
+/* this object will uncondicionally have CDB prefix when executing on a multitenant DB */
 
--- snaps
-SELECT startup_time, dbid, instance_number, COUNT(*) snaps,
-       MIN(begin_interval_time) min_time, MAX(end_interval_time) max_time,
-       MIN(snap_id) min_snap_id, MAX(snap_id) max_snap_id
-  FROM &&awr_object_prefix.snapshot
- WHERE dbid = &&edb360_dbid.
- GROUP BY
-       startup_time, dbid, instance_number
- ORDER BY
-       startup_time, dbid, instance_number
-/
+COLUMN cdb_view_prefix       NEW_V cdb_view_prefix
+COLUMN cdb_object_prefix     NEW_V cdb_object_prefix
+SELECT CASE WHEN '&&is_cdb' = 'Y' THEN 'CDB_'      ELSE '&&dva_view_prefix'   END cdb_view_prefix
+,      CASE WHEN '&&is_cdb' = 'Y' THEN 'cdb_'      ELSE '&&dva_object_prefix' END cdb_object_prefix
+FROM DUAL;
 
-COL history_days NEW_V history_days;
--- range: takes at least 31 days and at most as many as actual history, with a default of 31. parameter restricts within that range.
-SELECT TO_CHAR(LEAST(CEIL(SYSDATE - CAST(MIN(begin_interval_time) AS DATE)), GREATEST(31, TO_NUMBER(NVL(TRIM('&&edb360_conf_days.'), '31'))))) history_days FROM &&awr_object_prefix.snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&edb360_dbid.;
-SELECT TO_CHAR(TO_DATE('&&edb360_conf_date_to.', 'YYYY-MM-DD') - TO_DATE('&&edb360_conf_date_from.', 'YYYY-MM-DD') + 1) history_days FROM DUAL WHERE '&&edb360_conf_date_from.' != 'YYYY-MM-DD' AND '&&edb360_conf_date_to.' != 'YYYY-MM-DD';
-SELECT '0' history_days FROM DUAL WHERE NVL(TRIM('&&diagnostics_pack.'), 'N') = 'N';
-SET TERM OFF;
+COLUMN cdb_view_prefix       CLEAR
+COLUMN cdb_object_prefix     CLEAR
 
--- Dates format
-DEF edb360_date_format = 'YYYY-MM-DD"T"HH24:MI:SS';
-DEF edb360_timestamp_format = 'YYYY-MM-DD"T"HH24:MI:SS.FF';
-DEF edb360_timestamp_tz_format = 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM';
+/* This objects adapt their prefix depending on circumstances  */
 
-COL edb360_date_from NEW_V edb360_date_from;
-COL edb360_date_to NEW_V edb360_date_to;
-SELECT CASE '&&edb360_conf_date_from.' WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE - &&history_days., '&&edb360_date_format.') ELSE '&&edb360_conf_date_from.T00:00:00' END edb360_date_from FROM DUAL;
-SELECT CASE '&&edb360_conf_date_to.' WHEN 'YYYY-MM-DD' THEN TO_CHAR(SYSDATE, '&&edb360_date_format.') ELSE '&&edb360_conf_date_to.T23:59:59' END edb360_date_to FROM DUAL;
+COLUMN edb360_sysmetric_history new_v edb360_sysmetric_history 
+COLUMN edb360_sysmetric_summary new_v edb360_sysmetric_summary
+COLUMN edb360_sysmetric_group   new_v edb360_sysmetric_group
+SELECT '&&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysmetric_hist' edb360_sysmetric_history
+      ,'&&cdb_awr_hist_prefix.&&cdb_awr_con_option.sysmetric_summ' edb360_sysmetric_summary
+      , 18 edb360_sysmetric_group -- PDB System Metrics Long Duration
+  FROM DUAL WHERE '&&cdb_awr_con_option.' IS NOT NULL
+UNION ALL
+SELECT '&&cdb_awr_hist_prefix.sysmetric_history' edb360_sysmetric_history
+      ,'&&cdb_awr_hist_prefix.sysmetric_summary' edb360_sysmetric_summary
+      , 2 edb360_sysmetric_group -- System Metrics Long Duration
+  FROM DUAL WHERE '&&cdb_awr_con_option.' IS NULL;
+
+COLUMN edb360_sysmetric_history CLEAR 
+COLUMN edb360_sysmetric_summary CLEAR
+COLUMN edb360_sysmetric_group   CLEAR
+
+-- snapshot ranges
+
+COL tool_sysdate NEW_V tool_sysdate;
+SELECT TO_CHAR(NVL(TO_DATE('&&edb360_date_to.', '&&edb360_date_format.'),SYSDATE), 'YYYYMMDDHH24MISS') tool_sysdate FROM DUAL;
+
+COL between_times NEW_V between_times;
+COL between_dates NEW_V between_dates;
+SELECT ', between &&edb360_date_from. and &&edb360_date_to.' between_dates FROM DUAL;
 
 VAR hist_work_days NUMBER;
 VAR hist_days NUMBER;
@@ -207,6 +258,7 @@ COL edb360_6o NEW_V edb360_6o;
 COL edb360_7a NEW_V edb360_7a;
 COL edb360_7b NEW_V edb360_7b;
 COL edb360_7c NEW_V edb360_7c;
+COL edb360_5w NEW_V edb360_5w;
 SELECT CASE '&&edb360_conf_incl_tkprof.' WHEN 'Y'                                       THEN 'edb360_0g_' ELSE ' echo skip ' END edb360_0g FROM DUAL;
 SELECT CASE WHEN '1a' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_1a_' WHEN INSTR(:edb360_sections,',1a,') > 0 THEN 'edb360_1a_' ELSE ' echo skip ' END edb360_1a FROM DUAL;
 SELECT CASE WHEN '1b' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_1b_' WHEN INSTR(:edb360_sections,',1b,') > 0 THEN 'edb360_1b_' ELSE ' echo skip ' END edb360_1b FROM DUAL;
@@ -267,6 +319,7 @@ SELECT CASE WHEN '6o' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_6
 SELECT CASE WHEN '7a' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_7a_' WHEN INSTR(:edb360_sections,',7a,') > 0 THEN 'edb360_7a_' ELSE ' echo skip ' END edb360_7a FROM DUAL;
 SELECT CASE WHEN '7b' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_7b_' WHEN INSTR(:edb360_sections,',7b,') > 0 THEN 'edb360_7b_' ELSE ' echo skip ' END edb360_7b FROM DUAL;
 SELECT CASE WHEN '7c' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_7c_' WHEN INSTR(:edb360_sections,',7c,') > 0 THEN 'edb360_7c_' ELSE ' echo skip ' END edb360_7c FROM DUAL;
+SELECT CASE WHEN '5w' BETWEEN :edb360_sec_from AND :edb360_sec_to THEN 'edb360_5w_' WHEN INSTR(:edb360_sections,',5w,') > 0 THEN 'edb360_5w_' ELSE ' echo skip ' END edb360_5w FROM DUAL;
 
 -- filename prefix
 COL edb360_prefix NEW_V edb360_prefix;
@@ -277,18 +330,6 @@ DEF ecr_collection_key = '';
 
 -- dummy
 DEF skip_script = 'sql/edb360_0f_skip_script.sql ';
-
--- get 12c container
-DEF edb360_con_id = '-1';
-COL edb360_con_id NEW_V edb360_con_id;
--- 0-1:CDB$ROOT 2:PDB$SEED >2:PDB
---SELECT /* ignore if it fails to parse */ con_id edb360_con_id FROM v$instance;
-SELECT /* ignore if it fails to parse */ SYS_CONTEXT('USERENV','CON_ID') edb360_con_id FROM DUAL;
-
--- get 12c PDB name
-COL edb360_pdb_name NEW_V edb360_pdb_name;
-SELECT 'NONE' edb360_pdb_name FROM DUAL;
-SELECT SYS_CONTEXT('USERENV', 'CON_NAME') edb360_pdb_name FROM DUAL;
 
 -- get dbmod
 COL edb360_dbmod NEW_V edb360_dbmod;
@@ -337,13 +378,21 @@ COL esp_collection_yyyymmdd NEW_V esp_collection_yyyymmdd FOR A8;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
 -- get valid ranges for time buckets for calculations in 4f,4g,4h
+-- dba_hist_event_histogram appears to be the only one that produces rows regarless of multitenant or container connection 
+-- Just in case placing the (minimum found in test system)/10 and maximum*2
+
+DEF min_wait_time_milli = 0.00009765625
+DEF max_wait_time_milli = 16777216
 COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
 COLUMN max_wait_time_milli NEW_VALUE max_wait_time_milli
-SELECT MIN(wait_time_milli) min_wait_time_milli
-     , MAX(wait_time_milli)*2 max_wait_time_milli
-  FROM &&awr_object_prefix.event_histogram
- WHERE dbid = &&edb360_dbid.
-   AND wait_time_milli < 1e9;
+SELECT NVL(MIN(wait_time_milli),0.00009765625) min_wait_time_milli
+     , NVL(MAX(wait_time_milli)*2,16777216) max_wait_time_milli
+  FROM dba_hist_event_histogram
+ WHERE wait_time_milli < 1e9;
+
+ --  and dbid = &&edb360_dbid. 
+ -- removed so the query is always successful.
+ -- the objective is to have realistic bounds so any realistic one is enough.
 
 -- esp init
 DEF ecr_collection_key = '';
@@ -431,8 +480,19 @@ BEGIN
 END;
 /
 -- esp collection. note: skip if executing for one section
+-- Using edb360_conf and not the env result because esp needs to find new date range according to its own retention.
+SPOOL sql/escp_edb360_config.sql
+prompt def escp_conf_dbid='&&edb360_config_dbid.'
+prompt def escp_conf_date_from = '&&edb360_conf_date_from.'; 
+prompt def escp_conf_date_to ='&&edb360_conf_date_to.';
+prompt def escp_conf_dd_mode = '&&edb360_conf_dd_mode.'
+prompt def escp_conf_con_option ='&&edb360_conf_con_option.'
+prompt def escp_conf_is_cdb = '&&edb360_conf_is_cdb.'
+SPOOL OFF
+
+@@sql/esp_master.sql
+
 @&&skip_diagnostics.&&skip_extras.&&skip_esp_and_escp.sql/esp_master.sql
-SET TERM OFF;
 
 -- nls (2nd time as esp may change them)
 ALTER SESSION SET NLS_NUMERIC_CHARACTERS = ".,";
@@ -450,65 +510,12 @@ COL row_num NEW_V row_num HEA '#' PRI;
 COL db_version NEW_V db_version;
 SELECT version db_version FROM &&v_object_prefix.instance;
 
-
-COLUMN cdb_awr_hist_prefix   NEW_V cdb_awr_hist_prefix
-COLUMN cdb_awr_object_prefix NEW_V cdb_awr_object_prefix
-COLUMN cdb_view_prefix       NEW_V cdb_view_prefix
-COLUMN cdb_object_prefix     NEW_V cdb_object_prefix
-SELECT CASE WHEN '&&is_cdb' = 'Y' THEN 'CDB_HIST_' ELSE '&&awr_hist_prefix'   END cdb_awr_hist_prefix
-,      CASE WHEN '&&is_cdb' = 'Y' THEN 'cdb_hist_' ELSE '&&awr_object_prefix' END cdb_awr_object_prefix
-,      CASE WHEN '&&is_cdb' = 'Y' THEN 'CDB_'      ELSE '&&dva_view_prefix'   END cdb_view_prefix
-,      CASE WHEN '&&is_cdb' = 'Y' THEN 'cdb_'      ELSE '&&dva_object_prefix' END cdb_object_prefix
-FROM DUAL;
-
--- skip
---DEF skip_10g_column = '';
---COL skip_10g_column NEW_V skip_10g_column;
---DEF skip_10g_script = '';
---COL skip_10g_script NEW_V skip_10g_script;
---SELECT ' -- skip 10g ' skip_10g_column, ' echo skip 10g ' skip_10g_script FROM &&v_object_prefix.instance WHERE version LIKE '10%';
---
---DEF skip_11g_column = '';
---COL skip_11g_column NEW_V skip_11g_column;
---DEF skip_11g_script = '';
---COL skip_11g_script NEW_V skip_11g_script;
---SELECT ' -- skip 11g ' skip_11g_column, ' echo skip 11g ' skip_11g_script FROM &&v_object_prefix.instance WHERE version LIKE '11%';
---
---DEF skip_11r1_column = '';
---COL skip_11r1_column NEW_V skip_11r1_column;
---DEF skip_11r1_script = '';
---COL skip_11r1_script NEW_V skip_11r1_script;
---SELECT ' -- skip 11gR1 ' skip_11r1_column, ' echo skip 11gR1 ' skip_11r1_script FROM &&v_object_prefix.instance WHERE version LIKE '11.1%';
 --
 DEF skip_non_repo_column = '';
 COL skip_non_repo_column NEW_V skip_non_repo_column;
 DEF skip_non_repo_script = '';
 COL skip_non_repo_script NEW_V skip_non_repo_script;
 SELECT ' -- skip non-repository ' skip_non_repo_column, ' echo skip non-repository ' skip_non_repo_script FROM DUAL WHERE '&&tool_repo_user.' IS NOT NULL;
---
---DEF skip_12c_column = '';
---COL skip_12c_column NEW_V skip_12c_column;
---DEF skip_12c_script = '';
---COL skip_12c_script NEW_V skip_12c_script;
---SELECT ' -- skip 12c ' skip_12c_column, ' echo skip 12c ' skip_12c_script FROM &&v_object_prefix.instance WHERE version LIKE '12%';
---
---DEF skip_12r2_column = '';
---COL skip_12r2_column NEW_V skip_12r2_column;
---DEF skip_12r2_script = '';
---COL skip_12r2_script NEW_V skip_12r2_script;
---SELECT ' -- skip 12cR2 ' skip_12r2_column, ' echo skip 12cR2 ' skip_12r2_script FROM &&v_object_prefix.instance WHERE version LIKE '12.2%';
---
---DEF skip_18c_column = '';
---COL skip_18c_column NEW_V skip_18c_column;
---DEF skip_18c_script = '';
---COL skip_18c_script NEW_V skip_18c_script;
---SELECT ' -- skip 18c ' skip_18c_column, ' echo skip 18c ' skip_18c_script FROM &&v_object_prefix.instance WHERE version LIKE '18%';
---
---DEF skip_19c_column = '';
---COL skip_19c_column NEW_V skip_19c_column;
---DEF skip_19c_script = '';
---COL skip_19c_script NEW_V skip_19c_script;
---SELECT ' -- skip 19c ' skip_19c_column, ' echo skip 19c ' skip_19c_script FROM &&v_object_prefix.instance WHERE version LIKE '19%';
 
 -- get average number of CPUs
 COL avg_cpu_count NEW_V avg_cpu_count FOR A6;
@@ -536,7 +543,7 @@ SELECT TO_CHAR(CASE ROUND(AVG(TO_NUMBER(cpus.value))/AVG(TO_NUMBER(cores.value))
 
 -- get number of Hosts
 COL hosts_count NEW_V hosts_count FOR A2;
-SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)))) hosts_count FROM (select count(distinct INSTANCE_NUMBER) value,snap_id FROM &&awr_object_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES' group by snap_id);
+SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)))) hosts_count FROM (select count(distinct INSTANCE_NUMBER) value,snap_id FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES' group by snap_id);
 
 -- get cores_threads_hosts
 COL cores_threads_hosts NEW_V cores_threads_hosts;
@@ -545,20 +552,6 @@ SELECT CASE TO_NUMBER('&&hosts_count.') WHEN 1 THEN 'cores:&&avg_core_count. thr
 -- get block_size
 COL database_block_size NEW_V database_block_size;
 SELECT TRIM(TO_NUMBER(value)) database_block_size FROM &&v_object_prefix.system_parameter2 WHERE name = 'db_block_size';
-
--- snapshot ranges
-SELECT '0' history_days FROM DUAL WHERE TRIM('&&history_days.') IS NULL;
-COL tool_sysdate NEW_V tool_sysdate;
-SELECT TO_CHAR(SYSDATE, 'YYYYMMDDHH24MISS') tool_sysdate FROM DUAL;
-COL between_times NEW_V between_times;
-COL between_dates NEW_V between_dates;
-SELECT ', between &&edb360_date_from. and &&edb360_date_to.' between_dates FROM DUAL;
-COL minimum_snap_id NEW_V minimum_snap_id;
-SELECT NVL(TO_CHAR(MIN(snap_id)), '0') minimum_snap_id FROM &&awr_object_prefix.snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&edb360_dbid. AND begin_interval_time > TO_DATE('&&edb360_date_from.', '&&edb360_date_format.');
-SELECT '-1' minimum_snap_id FROM DUAL WHERE TRIM('&&minimum_snap_id.') IS NULL;
-COL maximum_snap_id NEW_V maximum_snap_id;
-SELECT NVL(TO_CHAR(MAX(snap_id)), '&&minimum_snap_id.') maximum_snap_id FROM &&awr_object_prefix.snapshot WHERE '&&diagnostics_pack.' = 'Y' AND dbid = &&edb360_dbid. AND end_interval_time < TO_DATE('&&edb360_date_to.', '&&edb360_date_format.');
-SELECT '-1' maximum_snap_id FROM DUAL WHERE TRIM('&&maximum_snap_id.') IS NULL;
 
 -- Determine if rac or single instance (null means rac)
 -- and which instances were present in the history (null means instance not present).
@@ -583,7 +576,7 @@ COL is_single_instance NEW_V is_single_instance FOR A1;
 
 WITH hist AS (
 SELECT DISTINCT instance_number
-  FROM &&awr_object_prefix.snapshot
+  FROM &&cdb_awr_hist_prefix.snapshot
 WHERE snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND dbid = &&edb360_dbid.
 )
@@ -657,7 +650,7 @@ DEF siebel_schema = 'NOT_A_SIEBEL_DB';
 DEF siebel_app_ver = '';
 COL siebel_schema NEW_V siebel_schema;
 COL siebel_app_ver NEW_V siebel_app_ver;
-SELECT owner siebel_schema FROM &&dva_object_prefix.tab_columns WHERE table_name = 'S_REPOSITORY' AND column_name = 'ROW_ID' AND data_type = 'VARCHAR2' AND ROWNUM = 1;
+SELECT owner siebel_schema FROM &&cdb_object_prefix.tab_columns WHERE table_name = 'S_REPOSITORY' AND column_name = 'ROW_ID' AND data_type = 'VARCHAR2' AND ROWNUM = 1;
 SELECT /* ignore if it fails to parse */ app_ver siebel_app_ver FROM &&siebel_schema..s_app_ver WHERE ROWNUM = 1;
 
 -- psft
