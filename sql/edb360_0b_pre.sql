@@ -1,7 +1,7 @@
 SET TERM ON FEEDBACK ON
-DEF edb360_vYYNN = 'v231';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2023-02-01)';
-DEF edb360_copyright = 'Enkitec (c) 2023';
+DEF edb360_vYYNN = 'v241';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2023-12-06)';
+DEF edb360_copyright = 'Enkitec (c) 2024';
 
 SET TERM OFF;
 -- watchdog
@@ -389,6 +389,9 @@ SELECT NVL(MIN(wait_time_milli),0.00009765625) min_wait_time_milli
      , NVL(MAX(wait_time_milli)*2,16777216) max_wait_time_milli
   FROM dba_hist_event_histogram
  WHERE wait_time_milli < 1e9;
+
+COLUMN min_wait_time_milli OFF
+COLUMN max_wait_time_milli OFF
 
  --  and dbid = &&edb360_dbid. 
  -- removed so the query is always successful.

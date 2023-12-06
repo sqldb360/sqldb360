@@ -9,7 +9,7 @@ SPO OFF;
 
 DEF title = 'Tablespace Usage Metrics';
 DEF main_table = '&&cdb_view_prefix.TABLESPACE_USAGE_METRICS';
-DEF foot = 'Bug affecting this output: (-12.2 201020) 24445571  , (all version) 34162936';
+DEF foot = 'Bug affecting this output: Doc ID 2749032.1';
 BEGIN
   :sql_text := q'[
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */

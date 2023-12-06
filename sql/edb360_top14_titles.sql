@@ -69,20 +69,20 @@ BEGIN
 END;
 /
 
-SELECT substr('&&tit_02.',1,30) tit_02,
-       substr('&&tit_03.',1,30) tit_03,
-       substr('&&tit_04.',1,30) tit_04,
-       substr('&&tit_05.',1,30) tit_05,
-       substr('&&tit_06.',1,30) tit_06,
-       substr('&&tit_07.',1,30) tit_07,
-       substr('&&tit_08.',1,30) tit_08,
-       substr('&&tit_09.',1,30) tit_09,
-       substr('&&tit_10.',1,30) tit_10,
-       substr('&&tit_11.',1,30) tit_11,
-       substr('&&tit_12.',1,30) tit_12,
-       substr('&&tit_13.',1,30) tit_13,
-       substr('&&tit_14.',1,30) tit_14,
-       substr('&&tit_15.',1,30) tit_15
+SELECT substr('1)&&tit_02.',1,30) tit_02,
+       substr('2)&&tit_03.',1,30) tit_03,
+       substr('3)&&tit_04.',1,30) tit_04,
+       substr('4)&&tit_05.',1,30) tit_05,
+       substr('5)&&tit_06.',1,30) tit_06,
+       substr('6)&&tit_07.',1,30) tit_07,
+       substr('7)&&tit_08.',1,30) tit_08,
+       substr('8)&&tit_09.',1,30) tit_09,
+       substr('9)&&tit_10.',1,30) tit_10,
+       substr('A)&&tit_11.',1,30) tit_11,
+       substr('B)&&tit_12.',1,30) tit_12,
+       substr('C)&&tit_13.',1,30) tit_13,
+       substr('D)&&tit_14.',1,30) tit_14,
+       substr('E)&&tit_15.',1,30) tit_15
   FROM DUAL
 /
 

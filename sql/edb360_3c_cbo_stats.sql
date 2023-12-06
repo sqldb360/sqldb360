@@ -243,6 +243,7 @@ SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
        SUM(DECODE(temporary, 'Y', 1, 0)) temporary,
        SUM(DECODE(status, 'UNUSABLE', 1, 0)) unusable,
        &&skip_ver_le_10.SUM(DECODE(visibility, 'INVISIBLE', 1, 0)) invisible,
+       &&skip_ver_le_18.SUM(DECODE(AUTO,'Y',1,0)) Auto_created,
        SUM(DECODE(logging, 'YES', 0, 1)) not_logging,
        &&skip_ver_le_11_1.SUM(DECODE(flash_cache, 'KEEP', 1, 0)) keep_flash_cache,
        &&skip_ver_le_11_1.SUM(DECODE(cell_flash_cache, 'KEEP', 1, 0)) keep_cell_flash_cache,
@@ -277,7 +278,7 @@ END;
 /
 @@edb360_9a_pre_one.sql
 
-DEF title = 'Ind Summary';
+DEF title = 'Index Stats Summary';
 DEF main_table = '&&cdb_view_prefix.IND_STATISTICS';
 BEGIN
   :sql_text := q'[
@@ -908,6 +909,71 @@ SELECT NULL
 END;
 /
 @@edb360_9a_pre_one.sql
+
+DEF title = 'Default Values for Auto_Index_Config';
+DEF main_table = '&&cdb_awr_object_prefix.AUTO_INDEX_CONFIG';
+BEGIN
+  :sql_text := q'[
+SELECT * FROM &&main_table.
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
+DEF title = 'AUTO_INDEX_EXECUTIONS';
+DEF main_table = '&&cdb_awr_object_prefix.AUTO_INDEX_EXECUTIONS';
+BEGIN
+  :sql_text := q'[
+SELECT * FROM &&main_table.
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
+DEF title = 'AUTO_INDEX_IND_ACTIONS';
+DEF main_table = '&&cdb_awr_object_prefix.AUTO_INDEX_IND_ACTIONS';
+BEGIN
+  :sql_text := q'[
+SELECT * FROM &&main_table.
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
+DEF title = 'AUTO_INDEX_SQL_ACTIONS';
+DEF main_table = '&&cdb_awr_object_prefix.AUTO_INDEX_SQL_ACTIONS';
+BEGIN
+  :sql_text := q'[
+SELECT * FROM &&main_table.
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
+DEF title = 'AUTO_INDEX_STATISTICS';
+DEF main_table = '&&cdb_awr_object_prefix.AUTO_INDEX_STATISTICS';
+BEGIN
+  :sql_text := q'[
+SELECT * FROM &&main_table.
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
+DEF title = 'AUTO_INDEX_VERIFICATIONS';
+DEF main_table = '&&cdb_awr_object_prefix.AUTO_INDEX_VERIFICATIONS';
+BEGIN
+  :sql_text := q'[
+SELECT * FROM &&main_table.
+]';
+END;
+/
+@@edb360_9a_pre_one.sql
+
+
+
+
+
 
 DEF title = 'Objects with many Stats Versions';
 DEF main_table = 'WRI$_OPTSTAT_TAB_HISTORY';

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_statspack.sql (2022-05-18)
+-- File name:   escp_collect_statspack.sql (2023-02-07)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -30,6 +30,7 @@
 --
 -- Warning:     Requires statspack installation
 --
+-- Modified on Feburaryy 2023 to redefine min_instance_host_id
 ---------------------------------------------------------------------------------------
 --
 -- To support Date Range
@@ -143,6 +144,14 @@ SELECT NVL('&&escp_min_snap_id.','0') escp_min_snap_id FROM DUAL
 /
 */
 
+-- To support down to 8i 
+DEF escp_dbuname ='&&escp_dbname_short.';
+COL escp_dbuname NEW_V escp_dbuname
+SELECT db_unique_name escp_dbuname FROM v$database;
+
+DEF escp_platform ='Unknown';
+COL escp_platform NEW_V escp_platform
+SELECT platform_name escp_platform FROM v$database;
 DEF;
 
 ---------------------------------------------------------------------------------------
@@ -181,24 +190,13 @@ SELECT 'COLLECT' escp_metric_group,
   FROM v$instance
 /
 
-/*
--- collection days
-SELECT 'COLLECT'                                  escp_metric_group,
-       'DAYS'                                     escp_metric_acronym,
-       NULL                                       escp_instance_number,
-       TO_CHAR(SYSDATE - &&escp_collection_days.) escp_end_date,
-       '&&escp_collection_days.'                  escp_value 
-  FROM v$instance
-/
-*/
--- To support Date Range
 -- collection days
 SELECT 'COLLECT'                                  escp_metric_group,
        'DAYS'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
        '&&escp_date_to.'                          escp_end_date,
        '&&escp_history_days.'                          escp_value 
-  FROM v$instance
+  FROM DUAL
 /
 
 ---------------------------------------------------------------------------------------
@@ -235,8 +233,8 @@ SELECT 'DATABASE'       escp_metric_group,
        'DB_UNIQUE_NAME' escp_metric_acronym,
        NULL             escp_instance_number,
        NULL             escp_end_date,
-       db_unique_name   escp_value 
-  FROM v$database
+       '&&escp_dbuname.'   escp_value 
+  FROM DUAL
 /
 
 -- database instance_name_min
@@ -293,8 +291,8 @@ SELECT 'DATABASE'    escp_metric_group,
        'PLATFORM'    escp_metric_acronym,
        NULL          escp_instance_number,
        NULL          escp_end_date,
-       platform_name escp_value 
-  FROM v$database
+       '&&escp_platform.' escp_value 
+  FROM DUAL
 /
 
 -- database db_block_size
@@ -308,18 +306,24 @@ SELECT 'DATABASE'           escp_metric_group,
 /
 
 -- database min_instance_host_id
-SELECT 'DATABASE'                    escp_metric_group,
-       'MIN_INST_HOST'               escp_metric_acronym,
-       TO_CHAR(MIN(instance_number)) escp_instance_number,
-       NULL                          escp_end_date,
-       MIN(host_name)                escp_value 
-  FROM STATS$database_instance
+WITH
+all_instances AS (
+SELECT instance_number, MAX(startup_time) max_startup_time
+  FROM stats$database_instance
  WHERE dbid = &&escp_this_dbid.
-   AND instance_number IN (
-SELECT MIN(instance_number) 
-  FROM STATS$database_instance
- WHERE dbid = &&escp_this_dbid.
+ GROUP BY 
+       instance_number
 )
+SELECT 'DATABASE'                      escp_metric_group,
+       'MIN_INST_HOST'                 escp_metric_acronym,
+       TO_CHAR(MIN(h.instance_number)) escp_instance_number,
+       NULL                            escp_end_date,
+       MIN(h.host_name)                escp_value 
+  FROM stats$database_instance h
+      ,all_instances i
+ WHERE dbid = &&escp_this_dbid.
+   AND h.instance_number = i.instance_number
+   and h.startup_time=i.max_startup_time
 /
 
 ---------------------------------------------------------------------------------------
