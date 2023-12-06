@@ -72,7 +72,7 @@ SELECT /*+ &&sq_fact_hints. &&ds_hint. &&ash_hints1. &&ash_hints2. &&ash_hints3.
       ,NVL(sql_opname,'non-SQL oper') sql_opname
       ,instance_number
       ,SUM(1) OVER () total_samples
- FROM dba_hist_active_sess_history h
+ FROM &&cdb_awr_hist_prefix.active_sess_history h
 WHERE @filter_predicate@
    AND h.snap_id BETWEEN &&minimum_snap_id. AND &&maximum_snap_id.
    AND h.dbid = &&edb360_dbid.

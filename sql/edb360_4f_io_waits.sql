@@ -97,8 +97,8 @@ SELECT p.snap_id,
        p.wait_class,
        TO_CHAR(MIN(begin_interval_time), 'YYYY-MM-DD HH24:MI:SS') begin_time,
        TO_CHAR(MIN(end_interval_time), 'YYYY-MM-DD HH24:MI:SS') end_time,
-       1000*min(time_range) time_range,                            -- X1000 to avoid losing meaningful precision
-       1000*sum(p.wait_time_milli_total) wait_time_milli_total,    -- X1000 to avoid losing meaningful precision
+       ceil(1000000*min(time_range)) time_range,                            -- X1000000 to avoid losing meaningful precision
+       ceil(1000000*sum(p.wait_time_milli_total)) wait_time_milli_total,    -- X1000000 to avoid losing meaningful precision
        e.rn
   FROM per_snap p,
        event_list e
@@ -134,9 +134,10 @@ SELECT /* &&section_id..&&report_sequence. */
                partition_id     instance_number,
                partition_start  begin_time,
                partition_stop   end_time ,
-               time/1000        time_range,
-               cost/1000        wait_time_milli_total
-       FROM plan_table)
+               time/1000000        time_range,
+               cost/1000000        wait_time_milli_total
+       FROM plan_table
+      WHERE time>0)
  WHERE @filter_predicate@
 )
 SELECT snap_id,
@@ -323,9 +324,10 @@ SELECT /* &&section_id..&&report_sequence. */
                        partition_id instance_number,
                        partition_start begin_time,
                        partition_stop end_time ,
-                       time/1000 time_range,
-                       cost/1000 wait_time_milli_total
+                       time/1000000 time_range,
+                       cost/1000000 wait_time_milli_total
                  FROM plan_table
+                WHERE time>0
                 )
          WHERE @filter_predicate@
        )

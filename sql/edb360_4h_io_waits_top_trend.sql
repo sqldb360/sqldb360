@@ -403,14 +403,6 @@ DEF tit_13 = '';
 DEF tit_14 = '';
 DEF tit_15 = '';
 
-COLUMN min_wait_time_milli NEW_VALUE min_wait_time_milli
-COLUMN max_wait_time_milli NEW_VALUE max_wait_time_milli
-SELECT MIN(wait_time_milli) min_wait_time_milli
-     , MAX(wait_time_milli)*2 max_wait_time_milli
-  FROM &&cdb_awr_hist_prefix.event_histogram
- WHERE dbid = &&edb360_dbid.
-   AND wait_time_milli < 1e9;
-
 --dmk 1.7.2020 - removed wait_class_id from analytic partition by clause
 --switched to cumulative average waited by number of events counted instead of average of equally weighted averages, 
 --removed group by instance, and sum per instance in final query.

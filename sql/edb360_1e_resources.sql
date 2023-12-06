@@ -1501,6 +1501,7 @@ DEF main_table = '&&cdb_awr_hist_prefix.TBSPC_SPACE_USAGE';
 DEF chartype = 'LineChart';
 DEF stacked = '';
 DEF vbaseline = '';
+DEF foot = 'Bug affecting this output: Doc ID 2749032.1';
 DEF vaxis = 'Tablespace Size in Giga Bytes (GB)';
 DEF tit_01 = 'Total (Perm + Undo + Temp)';
 DEF tit_02 = 'Permanent';

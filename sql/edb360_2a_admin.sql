@@ -2740,33 +2740,35 @@ END;
 /
 @@&&skip_ver_le_10.&&skip_diagnostics.edb360_9a_pre_one.sql
 
+-- This query should be remade to get more useful info
+-- as ASH/snapshots may not be continuos. something like a histogram of dates
 DEF title = 'ASH Retention ';
 DEF main_table = '&&cdb_awr_hist_prefix.ACTIVE_SESS_HISTORY';
 BEGIN
   :sql_text := q'[
 -- from http://jhdba.wordpress.com/tag/purge-wrh-tables/
 SELECT /*+ &&top_level_hints. */ /* &&section_id..&&report_sequence. */
+ c.dbid,
  sysdate - a.sample_time ash,
 sysdate - s.begin_interval_time snap,
 c.RETENTION
-from sys.wrm$_wr_control c,
+from &&cdb_view_prefix.hist_wr_control c
+full outer join 
 (
-SELECT db.dbid,
+SELECT w.dbid,
 min(w.sample_time) sample_time
-from sys.v_$database db,
-sys.Wrh$_active_session_history w
-WHERE w.dbid = db.dbid group by db.dbid
-) a,
+from &&cdb_view_prefix.hist_active_sess_history w
+group by w.dbid
+) a
+on c.dbid = a.dbid
+full outer join 
 (
-SELECT db.dbid,
+SELECT r.dbid,
 min(r.begin_interval_time) begin_interval_time
-from sys.v_$database db,
-sys.wrm$_snapshot r
-WHERE r.dbid = db.dbid
-group by db.dbid
+from &&cdb_view_prefix.hist_snapshot r
+group by r.dbid
 ) s
-WHERE a.dbid = s.dbid
-AND c.dbid = a.dbid
+on c.dbid = s.dbid
 ]';
 END;
 /
