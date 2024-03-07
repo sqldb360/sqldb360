@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   esp_statspack.sql (2022-05-18)
+-- File name:   esp_statspack.sql (2024-01-03)
 --
 -- Purpose:     Collect Database Requirements (CPU, Memory, Disk and IO Perf)
 --
@@ -18,6 +18,7 @@
 --  Notes:      Developed and tested on 12.1.0.2, 12.1.0.1, 11.2.0.4, 11.2.0.3,
 --        10.2.0.4, 9.2.0.8, 9.2.0.1
 --
+-- Modified January 2024 to redefine esp_host_name_short
 ---------------------------------------------------------------------------------------
 --
 SET TERM ON;
@@ -52,6 +53,13 @@ SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
 -- DB Features
 @@sql/features_use.sql
+
+/*
+use escp_host_name_short instead of the calculated esp_host_name_short by esp_master
+This is to use the name of the primary server stored in historic tables than the script executing server
+The name of the script executing server is collected in the END category.
+*/
+DEF esp_host_name_short=&&escp_host_name_short.
 
 WHENEVER SQLERROR EXIT
 -- Checking the statspack is installed. Abort if it does not exist.

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_awr.sql (2023-02-07)
+-- File name:   escp_collect_awr.sql (2024-02-06)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -12,7 +12,7 @@
 --
 --                  view                         resource(s)
 --                  ---------------------------- -----------------
---                  DBA_HIST_ACTIVE_SESS_HISTORY CPU
+--                  DBA_HIST_ACTIVE_SESS_HISTORY CPU 
 --                  DBA_HIST_SGA                 MEM
 --                  DBA_HIST_PGASTAT             MEM
 --                  DBA_HIST_TBSPC_SPACE_USAGE   DISK
@@ -20,6 +20,8 @@
 --                  DBA_HIST_SYSSTAT             IOPS MBPS PHYR PHYW NETW IC
 --                  DBA_HIST_DLM_MISC            IC
 --                  DBA_HIST_OSSTAT              OS
+--                  DBA_HIST_SQLSTAT             IOPS MBPS PHYR PHYW
+--                  V$BACKUP_{A}SYNC_IO          RMAN
 --
 --              Collections from this script are consumed by the ESCP tool.
 --
@@ -31,7 +33,9 @@
 --
 -- Warning:     Requires a license for the Oracle Diagnostics Pack
 --
--- Modified on Feburaryy 2023 to redefine min_instance_host_id
+-- Modified on Febyrary 2024 to collect X metrics
+-- Modified on January 2024 to support 1317265.1, redefine escp_host_name_short, id dbrole
+-- Modified on Feburary 2023 to redefine min_instance_host_id
 -- Modified on January 2023 to adapt to multitenat
 -- Modified on April 12th, 2021 to Add Date Range
 ---------------------------------------------------------------------------------------
@@ -81,13 +85,20 @@ ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '&&ESCP_DATE_FORMAT.';
 
 
 -- get host name (up to 30, stop before first '.', no special characters)
+-- It is possible to collect from standby and that is a different host than the primary stored in the historic tables
 DEF escp_host_name_short = '';
 COL escp_host_name_short NEW_V escp_host_name_short FOR A30;
 SELECT LOWER(SUBSTR(SYS_CONTEXT('USERENV', 'SERVER_HOST'), 1, 30)) escp_host_name_short FROM DUAL;
+SELECT NVL(LOWER(SUBSTR(MIN(host_name), 1, 30)),'&&escp_host_name_short.') escp_host_name_short 
+  FROM &&escp_awr_hist_prefix.database_instance
+ WHERE dbid = &&escp_this_dbid.
+/
 SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.') - 1) escp_host_name_short FROM DUAL;
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
 'abcdefghijklmnopqrstuvwxyz0123456789-_') escp_host_name_short FROM DUAL;
+
+
 
 -- get database name (up to 10, stop before first '.', no special characters)
 COL escp_dbname_short NEW_V escp_dbname_short FOR A10;
@@ -106,11 +117,18 @@ COL escp_this_inst_num NEW_V escp_this_inst_num;
 SELECT 'get_instance_number', TO_CHAR(instance_number) escp_this_inst_num FROM v$instance
 /
 
+-- get primary/standby state
+DEF escp_dbrole=''
+COL escp_dbrole NEW_V escp_dbrole
+SELECT DECODE(DATABASE_ROLE,'PRIMARY','','_s') escp_dbrole from v$database;
+
+@@escp_pre_products.sql
+
 DEF;
 
 ---------------------------------------------------------------------------------------
 
-SPO escp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi..csv;
+SPO escp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&is_cdb.&&escp_dbrole..csv;
 
 COL escp_metric_group    FOR A8;
 COL escp_metric_acronym  FOR A16;
@@ -982,6 +1000,263 @@ SELECT /*+ USE_HASH(h s) */
 /   
 
 ---------------------------------------------------------------------------------------
+
+-- DBA_HIST_ACTIVE_SESS_HISTORY 
+SELECT /*+ 
+       FULL(h.INT$DBA_HIST_ACT_SESS_HISTORY.sn) 
+       FULL(h.INT$DBA_HIST_ACT_SESS_HISTORY.ash) 
+       FULL(h.INT$DBA_HIST_ACT_SESS_HISTORY.evt) 
+       USE_HASH(h.INT$DBA_HIST_ACT_SESS_HISTORY.sn h.INT$DBA_HIST_ACT_SESS_HISTORY.ash h.INT$DBA_HIST_ACT_SESS_HISTORY.evt)
+       FULL(h.sn) 
+       FULL(h.ash) 
+       FULL(h.evt) 
+       USE_HASH(h.sn h.ash h.evt)
+       */
+       'CPU'                      escp_metric_group,
+       CASE h.session_state 
+       WHEN 'ON CPU' THEN 'XCPU' 
+       ELSE 'XRMCPUQ' 
+       END                        escp_metric_acronym,
+       TO_CHAR(h.instance_number) escp_instance_number,
+       h.sample_time              escp_end_date,
+       TO_CHAR(COUNT(*))          escp_value
+  FROM &&escp_awr_hist_prefix.active_sess_history h
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
+   AND h.dbid = &&escp_this_dbid.
+   AND (h.session_state = 'ON CPU' OR h.event = 'resmgr:cpu quantum')
+   AND h.sample_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
+   AND (   (h.module = 'DBMS_SCHEDULER' AND h.action LIKE 'ORA$%') 
+        or (h.module like 'Data Pump%' )
+        or (h.module like 'backup%')
+        or (h.module like 'GoldenGate%')
+        or (h.action in ('GATHER_SCHEMA_STATS_JOB'))
+       )
+ GROUP BY
+       h.session_state,
+       h.instance_number,
+       h.sample_time
+ ORDER BY
+       h.session_state,
+       h.instance_number,
+       h.sample_time
+/
+
+-- DBA_HIST_SGA MEM
+-- DBA_HIST_PGASTAT MEM
+-- DBA_HIST_TBSPC_SPACE_USAGE DISK
+-- DBA_HIST_LOG DISK
+-- DBA_HIST_DLM_MISC IC
+-- DBA_HIST_OSSTAT OS
+--  Not available
+-- DBA_HIST_SYSSTAT IOPS MBPS 
+--  Not available NETW IC in pre-19
+--  Not available for any metric for backups in pre-19
+WITH
+dba_hist_sysstat_sqf AS (
+select /*+ MATERIALIZE */ d.* ,SUM(delta) OVER (partition by stat_name,instance_number order by SNAP_ID) value
+from (
+select snap_id,instance_number
+      ,SUM(PHYSICAL_READ_REQUESTS_TOTAL)  "physical read total IO reqs"
+      ,SUM(PHYSICAL_WRITE_REQUESTS_TOTAL) "physical write total IO reqs"
+      ,SUM(PHYSICAL_READ_BYTES_TOTAL)     "physical read total bytes"
+      ,SUM(PHYSICAL_WRITE_BYTES_TOTAL)    "physical write total bytes"
+      ,SUM(DISK_READS_TOTAL)              "physical reads"
+      ,SUM(DIRECT_WRITES_TOTAL)           "physical writes"
+      ,SUM(0)                             "redo writes" -- not available but necessary value
+      ,SUM(0)                             "redo size"   -- not available but necessary value      
+  from dba_hist_sqlstat h
+ WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
+   AND h.dbid = &&escp_this_dbid.
+   AND (   (h.module = 'DBMS_SCHEDULER' AND h.action LIKE 'ORA$%') 
+        or (h.module like 'Data Pump%' )
+        or (h.module like 'backup%')
+        or (h.module like 'GoldenGate%')
+        or (h.action in ('GATHER_SCHEMA_STATS_JOB'))
+       )
+ GROUP BY snap_id,instance_number
+)
+UNPIVOT(
+ delta
+ for stat_name 
+ in (
+     "physical read total IO reqs"      as 'physical read total IO requests'
+    ,"physical write total IO reqs"     as 'physical write total IO requests'
+    ,"physical read total bytes"        as 'physical read total bytes'
+    ,"physical write total bytes"       as 'physical write total bytes'
+    ,"physical reads"                   as 'physical reads'
+    ,"physical writes"                  as 'physical writes'
+    ,"redo writes"                      as 'redo writes'
+    ,"redo size"                        as 'redo size'
+ )
+) d
+),
+dba_hist_snapshot_sqf AS (
+SELECT /*+ 
+       MATERIALIZE 
+       NO_MERGE 
+       FULL(s.INT$DBA_HIST_SNAPSHOT.WRM$_SNAPSHOT)
+       FULL(s.WRM$_SNAPSHOT)
+       */
+       s.snap_id,
+       s.instance_number,
+       s.end_interval_time
+  FROM &&escp_awr_hist_prefix.snapshot s
+ WHERE s.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
+   AND s.dbid = &&escp_this_dbid.
+   AND s.end_interval_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_format.') 
+              AND TO_TIMESTAMP('&&escp_date_to.','&&escp_timestamp_format.')
+)
+SELECT /*+ USE_HASH(h s) */
+       CASE h.stat_name
+       WHEN 'physical read total IO requests'        THEN 'IOPS'
+       WHEN 'physical write total IO requests'       THEN 'IOPS'
+       WHEN 'redo writes'                            THEN 'IOPS'
+       WHEN 'physical read total bytes'              THEN 'MBPS'
+       WHEN 'physical write total bytes'             THEN 'MBPS'
+       WHEN 'redo size'                              THEN 'MBPS'
+       WHEN 'physical reads'                         THEN 'PHYR'
+       WHEN 'physical reads direct'                  THEN 'PHYR'
+       WHEN 'physical reads cache'                   THEN 'PHYR'
+       WHEN 'physical writes'                        THEN 'PHYW'
+       WHEN 'physical writes direct'                 THEN 'PHYW'
+       WHEN 'physical writes from cache'             THEN 'PHYW'
+       WHEN 'bytes sent via SQL*Net to client'       THEN 'NETW'
+       WHEN 'bytes received via SQL*Net from client' THEN 'NETW'
+       WHEN 'bytes sent via SQL*Net to dblink'       THEN 'NETW'
+       WHEN 'bytes received via SQL*Net from dblink' THEN 'NETW'
+       WHEN 'gc cr blocks received'                  THEN 'IC'
+       WHEN 'gc current blocks received'             THEN 'IC'
+       WHEN 'gc cr blocks served'                    THEN 'IC'
+       WHEN 'gc current blocks served'               THEN 'IC'
+       WHEN 'gcs messages sent'                      THEN 'IC'
+       WHEN 'ges messages sent'                      THEN 'IC'
+       END                                           escp_metric_group,
+       CASE h.stat_name
+       WHEN 'physical read total IO requests'        THEN 'XRREQS'
+       WHEN 'physical write total IO requests'       THEN 'XWREQS'
+       WHEN 'redo writes'                            THEN 'XWREDO'
+       WHEN 'physical read total bytes'              THEN 'XRBYTES'
+       WHEN 'physical write total bytes'             THEN 'XWBYTES'
+       WHEN 'redo size'                              THEN 'XWREDOBYTES'
+       WHEN 'physical reads'                         THEN 'XPHYR'
+       WHEN 'physical reads direct'                  THEN 'XPHYRD'
+       WHEN 'physical reads cache'                   THEN 'XPHYRC'
+       WHEN 'physical writes'                        THEN 'XPHYW'
+       WHEN 'physical writes direct'                 THEN 'XPHYWD'
+       WHEN 'physical writes from cache'             THEN 'XPHYWC'
+       WHEN 'bytes sent via SQL*Net to client'       THEN 'XTOCLIENT'
+       WHEN 'bytes received via SQL*Net from client' THEN 'XFROMCLIENT'
+       WHEN 'bytes sent via SQL*Net to dblink'       THEN 'XTODBLINK'
+       WHEN 'bytes received via SQL*Net from dblink' THEN 'XFROMDBLINK'
+       WHEN 'gc cr blocks received'                  THEN 'XGCCRBR'
+       WHEN 'gc current blocks received'             THEN 'XGCCBLR'
+       WHEN 'gc cr blocks served'                    THEN 'XGCCRBS'
+       WHEN 'gc current blocks served'               THEN 'XGCCBLS'
+       WHEN 'gcs messages sent'                      THEN 'XGCSMS'
+       WHEN 'ges messages sent'                      THEN 'XGESMS'
+       END                                           escp_metric_acronym,
+       TO_CHAR(h.instance_number)                    escp_instance_number,
+       s.end_interval_time                           escp_end_date,
+       TO_CHAR(h.value)                              escp_value
+  FROM dba_hist_sysstat_sqf  h,
+       dba_hist_snapshot_sqf s
+ WHERE s.snap_id         = h.snap_id
+   AND s.instance_number = h.instance_number
+ ORDER BY
+       CASE h.stat_name
+       WHEN 'physical read total IO requests'        THEN 1.1
+       WHEN 'physical write total IO requests'       THEN 1.2
+       WHEN 'redo writes'                            THEN 1.3
+       WHEN 'physical read total bytes'              THEN 2.1
+       WHEN 'physical write total bytes'             THEN 2.2
+       WHEN 'redo size'                              THEN 2.3
+       WHEN 'physical reads'                         THEN 3.1
+       WHEN 'physical reads direct'                  THEN 3.2
+       WHEN 'physical reads cache'                   THEN 3.3
+       WHEN 'physical writes'                        THEN 4.1
+       WHEN 'physical writes direct'                 THEN 4.2
+       WHEN 'physical writes from cache'             THEN 4.3
+       WHEN 'bytes sent via SQL*Net to client'       THEN 5.1
+       WHEN 'bytes received via SQL*Net from client' THEN 5.2
+       WHEN 'bytes sent via SQL*Net to dblink'       THEN 5.3
+       WHEN 'bytes received via SQL*Net from dblink' THEN 5.4
+       WHEN 'gc cr blocks received'                  THEN 6.1
+       WHEN 'gc current blocks received'             THEN 6.2
+       WHEN 'gc cr blocks served'                    THEN 6.3
+       WHEN 'gc current blocks served'               THEN 6.4
+       WHEN 'gcs messages sent'                      THEN 6.5
+       WHEN 'ges messages sent'                      THEN 6.6
+       ELSE 9.9 
+       END,
+       h.instance_number,
+       s.end_interval_time
+/
+
+---------------------------------------------------------------------------------------
+
+with vbackup as
+(select 'TAPE' target,
+&&skip_noncdb.   con_id         ,
+&&skip_cdb. NULL con_id         ,
+  close_time,
+  elapsed_time, 
+  effective_bytes_per_second,
+  io_count
+from v$backup_sync_io 
+union all 
+select 'DISK' target,
+&&skip_noncdb.   con_id         ,
+&&skip_cdb. NULL con_id         ,
+  close_time,
+  elapsed_time, 
+  effective_bytes_per_second,
+  io_count
+from v$backup_sync_io 
+)
+SELECT 'RMAN'                   escp_metric_group,
+       'ELAPSED'                escp_metric_acronym,
+       con_id                   escp_instance_number,
+       close_time               escp_end_date,
+       to_char(elapsed_time)    escp_value
+  FROM vbackup
+ UNION ALL
+SELECT 'RMAN'                   escp_metric_group,
+       'EBPS'                   escp_metric_acronym,
+       con_id                   escp_instance_number,
+       close_time               escp_end_date,
+       to_char(effective_bytes_per_second) escp_value
+  FROM vbackup
+ UNION ALL
+SELECT 'RMAN'                   escp_metric_group,
+       'IOPS'                   escp_metric_acronym,
+       con_id                   escp_instance_number,
+       close_time               escp_end_date,
+       to_char(io_count) escp_value
+  FROM vbackup
+ UNION ALL
+SELECT 'RMAN'                   escp_metric_group,
+       'WBYTES'                 escp_metric_acronym,
+       con_id                   escp_instance_number,
+       close_time               escp_end_date,
+       to_char(io_count) escp_value
+  FROM vbackup  
+ WHERE target='DISK'
+ ORDER BY 2,4
+/
+
+---------------------------------------------------------------------------------------
+SELECT 'PRODUCT'                   escp_metric_group,
+       'PRODUCT'                   escp_metric_acronym,
+       TO_CHAR(nvl2(con_id,decode(con_id,-1,0,con_id),0))   escp_instance_number,
+       LAST_USAGE_DATE          escp_end_date,
+       PRODUCT                  escp_value
+from (
+@@escp_products.sql
+)
+where last_usage_date is not null
+order by 3,last_usage_date
+/
 
 -- collection end
 SELECT 'END'                      escp_metric_group,

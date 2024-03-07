@@ -1,6 +1,6 @@
 SET TERM ON FEEDBACK ON
 DEF edb360_vYYNN = 'v241';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2023-12-06)';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2024-03-07)';
 DEF edb360_copyright = 'Enkitec (c) 2024';
 
 SET TERM OFF;
@@ -144,7 +144,7 @@ SELECT TO_CHAR(:hist_work_days) hist_work_days FROM DUAL;
 -- parameter edb360_sections: report column, or section, or range of columns or range of sections i.e. 3, 3-4, 3a, 3a-4c, 3-4c, 3c-4 (max length of 5)
 VAR edb360_sec_from VARCHAR2(2);
 VAR edb360_sec_to   VARCHAR2(2);
-VAR edb360_sections VARCHAR2(32);
+VAR edb360_sections VARCHAR2(256);
 PRO
 BEGIN
   IF '&&edb360_sections.' IS NULL THEN -- no sections were selected as per config parameter on edb360_00_config.sql or custom file passed

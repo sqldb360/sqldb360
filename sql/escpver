@@ -14,10 +14,14 @@ valid["NETW"]=2
 valid["PHYR"]=2
 valid["PHYW"]=2
 valid["OS"]=0
+valid["PRODUCT"]=0
+valid["RMAN"]=0
 valid["END"]=1
 validcnt=0
 invalidcnt=0
 unrecogcnt=0
+for (c in valid)
+ cat[c]=0
 }
 {
  c=substr($1,1,8)
@@ -34,18 +38,20 @@ END {
   printf "[%s] unrecognizable category found.\n", c 
   exit 1
  }
- cat["OS"]++
+ /* cat["OS"]++ */
  for (v in valid) 
   if ( v in cat ) {
    if (cat[v]>=valid[v]) {
-    validcnt++
-    delete valid[v]
-    delete cat[v]
+    if (cat[v]>0) {
+     validcnt++
+     delete valid[v]
+     delete cat[v]
+    } 
    }
    else
     invalidcnt++
   }
- if (validcnt != 16  ) { 
+ if (validcnt != 18  ) { 
   printf "%d Valid Metrics found\n",validcnt
   for (m in valid) printf "%s Missing Metric\n", m
  }
@@ -54,5 +60,5 @@ END {
   for (i in cat) print i, cat[i]
  } 
 
- if (validcnt == 16 && invalidcnt == 0) printf "OK\n"
+ if (validcnt == 18 && invalidcnt == 0) printf "OK\n"
 }
