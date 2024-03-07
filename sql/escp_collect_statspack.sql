@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_statspack.sql (2023-02-07)
+-- File name:   escp_collect_statspack.sql (2024-01-03)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -26,11 +26,13 @@
 --              # sqlplus / as sysdba
 --              SQL> START sql/escp_master.sql
 --
--- Notes:       Developed and tested on 
+-- Notes:       Developed and tested on 12.2
 --
 -- Warning:     Requires statspack installation
 --
--- Modified on Feburaryy 2023 to redefine min_instance_host_id
+-- Modified on February 2024 to support escp_config.sql
+-- Modified on January 2024 to support 1317265.1, redefine escp_host_name_short, id dbrole
+-- Modified on Feburary 2023 to redefine min_instance_host_id
 ---------------------------------------------------------------------------------------
 --
 -- To support Date Range
@@ -41,17 +43,12 @@
 -- There is no validation that the retention includes the Date Range
 -- However there is a join with dba_hist_snapshot, therefore, no data will come out if the range is not part of the retention
 
--- Always have the escp_conf_date_from and escp_conf_date_to defined with 'YYYY-MM-DD' or a date value
+-- Always have the escp_conf_date_from and escp_conf_date_to defined with 'YYYY-MM-DD' or a date value in escp_config.sql
 -- Do not comment the lines
 
-DEF escp_conf_date_from = 'YYYY-MM-DD';
-DEF escp_conf_date_to   = 'YYYY-MM-DD';
+@@escp_config.sql
 
--- When using Date Range the escp_max_days will be ignored
--- Even when ESCP_MAX_DAYS=365 the collection will get from the SYSDATE - escp_history_days
-DEF ESCP_MAX_DAYS = '60';
-DEF ESCP_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS';
-
+DEFINE ESCP_DATE_FORMAT = '&&ENV_DATE_FORMAT.'
 -- To support Date Range
 DEF escp_timestamp_format = 'YYYY-MM-DD"T"HH24:MI:SS.FF';
 DEF escp_timestamp_tz_format = 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM';
@@ -110,9 +107,15 @@ To: h.sample_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_for
 
 
 -- get host name (up to 30, stop before first '.', no special characters)
+-- It is possible to collect from standby and that is a different host than the primary stored in the historic tables
 DEF escp_host_name_short = '';
 COL escp_host_name_short NEW_V escp_host_name_short FOR A30;
 SELECT LOWER(SUBSTR(SYS_CONTEXT('USERENV', 'SERVER_HOST'), 1, 30)) escp_host_name_short FROM DUAL;
+-- database host_name_min
+SELECT NVL(LOWER(SUBSTR(MIN(host_name), 1, 30)),'&&escp_host_name_short.') escp_host_name_short
+  FROM STATS$database_instance
+ WHERE dbid = &&escp_this_dbid.
+/
 SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.') - 1) escp_host_name_short FROM DUAL;
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
@@ -152,10 +155,17 @@ SELECT db_unique_name escp_dbuname FROM v$database;
 DEF escp_platform ='Unknown';
 COL escp_platform NEW_V escp_platform
 SELECT platform_name escp_platform FROM v$database;
+
+-- get primary/standby state
+DEF escp_dbrole=''
+COL escp_dbrole NEW_V escp_dbrole
+SELECT DECODE(DATABASE_ROLE,'PRIMARY','','_s') escp_dbrole from v$database;
+
+@@escp_pre_products.sql
 DEF;
 
 ---------------------------------------------------------------------------------------
-SPO escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi..csv;
+SPO escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&escp_dbrole..csv;
 
 COL escp_metric_group    FOR A8;
 COL escp_metric_acronym  FOR A16;
@@ -878,6 +888,18 @@ SELECT /*+ USE_HASH(h s) */
        s.snap_time
 /   
 
+---------------------------------------------------------------------------------------
+SELECT 'PRODUCT'                   escp_metric_group,
+       'PRODUCT'                   escp_metric_acronym,
+       TO_CHAR(nvl2(con_id,decode(con_id,-1,0,con_id),0))   escp_instance_number,
+       LAST_USAGE_DATE          escp_end_date,
+       PRODUCT                  escp_value
+from (
+@@escp_products.sql
+)
+where last_usage_date is not null
+order by TO_CHAR(NVL(CON_ID,0)),last_usage_date
+/
 ---------------------------------------------------------------------------------------
 
 -- collection end

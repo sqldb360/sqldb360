@@ -1,14 +1,14 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   esp_master.sql (2016-09-01)
+-- File name:   esp_master.sql (2024-01-03)
 --
 -- Purpose:     Collect Database Requirements (CPU, Memory, Disk and IO Perf)
 --
--- Author:      Carlos Sierra, Rodrigo Righetti
+-- Author:      Carlos Sierra, Rodrigo Righetti, Abel Macias
 --
 -- Usage:       Collects Requirements from AWR and ASH views on databases with the
 --				Oracle Diagnostics Pack license, it also collect from Statspack starting
---				9i databases up to 12c.
+--				9i databases up to 19c.
 --
 --              The output of this script can be used to feed a Sizing and Provisioning
 --              application.
@@ -20,6 +20,8 @@
 --  Notes:      Developed and tested on 12.1.0.2, 12.1.0.1, 11.2.0.4, 11.2.0.3,
 --				10.2.0.4, 9.2.0.8, 9.2.0.1
 --
+-- Modified January 2024 to redefine esp_host_name_short
+-- Modified on 2023 to add escpver
 ---------------------------------------------------------------------------------------
 --
 SET TERM ON;
@@ -99,6 +101,13 @@ SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
 -- DB Features
 @@sql/features_use.sql
+
+/*
+use escp_host_name_short instead of the calculated esp_host_name_short by esp_master
+This is to use the name of the primary server stored in historic tables than the script executing server
+The name of the script executing server is collected in the END category.
+*/
+DEF esp_host_name_short="&&escp_host_name_short."
 
 SET TERM ON;
 

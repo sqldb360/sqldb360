@@ -920,6 +920,29 @@ SELECT MIN(CASE srank WHEN 01 THEN subpool_name &&skip_noncdb.||':'||con_id
            END) subpool_10
   FROM ranked;
 
+COL tit_subpool_01 NEW_V tit_subpool_01;
+COL tit_subpool_02 NEW_V tit_subpool_02;
+COL tit_subpool_03 NEW_V tit_subpool_03;
+COL tit_subpool_04 NEW_V tit_subpool_04;
+COL tit_subpool_05 NEW_V tit_subpool_05;
+COL tit_subpool_06 NEW_V tit_subpool_06;
+COL tit_subpool_07 NEW_V tit_subpool_07;
+COL tit_subpool_08 NEW_V tit_subpool_08;
+COL tit_subpool_09 NEW_V tit_subpool_09;
+COL tit_subpool_10 NEW_V tit_subpool_10;
+
+SELECT  CASE WHEN length('&&subpool_01.')>30 THEN substr('1)'||'&&subpool_01.',1,30) ELSE '&&subpool_01.' END tit_subpool_01,
+        CASE WHEN length('&&subpool_02.')>30 THEN substr('2)'||'&&subpool_02.',1,30) ELSE '&&subpool_02.' END tit_subpool_02,
+        CASE WHEN length('&&subpool_03.')>30 THEN substr('3)'||'&&subpool_03.',1,30) ELSE '&&subpool_03.' END tit_subpool_03,
+        CASE WHEN length('&&subpool_04.')>30 THEN substr('4)'||'&&subpool_04.',1,30) ELSE '&&subpool_04.' END tit_subpool_04,
+        CASE WHEN length('&&subpool_05.')>30 THEN substr('5)'||'&&subpool_05.',1,30) ELSE '&&subpool_05.' END tit_subpool_05,
+        CASE WHEN length('&&subpool_06.')>30 THEN substr('6)'||'&&subpool_06.',1,30) ELSE '&&subpool_06.' END tit_subpool_06,
+        CASE WHEN length('&&subpool_07.')>30 THEN substr('7)'||'&&subpool_07.',1,30) ELSE '&&subpool_07.' END tit_subpool_07,
+        CASE WHEN length('&&subpool_08.')>30 THEN substr('8)'||'&&subpool_08.',1,30) ELSE '&&subpool_08.' END tit_subpool_08,
+        CASE WHEN length('&&subpool_09.')>30 THEN substr('9)'||'&&subpool_09.',1,30) ELSE '&&subpool_09.' END tit_subpool_09,
+        CASE WHEN length('&&subpool_10.')>30 THEN substr('A)'||'&&subpool_10.',1,30) ELSE '&&subpool_10.' END tit_subpool_10        
+  FROM DUAL;
+  
 COL predexpr NEW_V predexpr
 COL predqexpr NEW_V predqexpr
 SELECT 'subpool' &&skip_noncdb.||'||'':''||con_id'
@@ -1197,17 +1220,17 @@ SELECT snap_id,
            '&&subpool_05.','&&subpool_06.','&&subpool_07.','&&subpool_08.','&&subpool_09.','&&subpool_10.',
            'free memory' )
        THEN allocated ELSE 0 END)/POWER(2,20), 3) others,
-                     ROUND(SUM(CASE &&predexpr WHEN '&&subpool_01.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_01.",
-       0 dummy_02, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_02.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_02.",
-       0 dummy_03, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_03.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_03.",
-       0 dummy_04, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_04.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_04.",
-       0 dummy_05, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_05.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_05.",
-       0 dummy_06, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_06.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_06.",
-       0 dummy_07, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_07.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_07.",
-       0 dummy_08, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_08.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_08.",
-       0 dummy_09, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_09.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_09.",
-       0 dummy_10, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_10.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&subpool_10.",
-       0 dummy_11,
+                     ROUND(SUM(CASE &&predexpr WHEN '&&subpool_01.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_01.",
+       0 dummy_02, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_02.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_02.",
+       0 dummy_03, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_03.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_03.",
+       0 dummy_04, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_04.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_04.",
+       0 dummy_05, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_05.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_05.",
+       0 dummy_06, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_06.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_06.",
+       0 dummy_07, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_07.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_07.",
+       0 dummy_08, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_08.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_08.",
+       0 dummy_09, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_09.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_09.",
+       0 dummy_10, --ROUND(SUM(CASE &&predexpr WHEN '&&subpool_10.' THEN allocated ELSE 0 END)/POWER(2,20), 3) "&&tit_subpool_10.",
+        0 dummy_11,
        0 dummy_12,
        0 dummy_13
   FROM sgastat_denorm_2
@@ -1230,21 +1253,19 @@ SELECT snap_id,
 END;
 /
 
-DEF tit_01 = 'Free memory';
-DEF tit_02 = 'Others';
-DEF tit_03 = '&&subpool_01.';
-DEF tit_04 = '&&subpool_02.';
-DEF tit_05 = '&&subpool_03.';
-DEF tit_06 = '&&subpool_04.';
-DEF tit_07 = '&&subpool_05.';
-DEF tit_08 = '&&subpool_06.';
-DEF tit_09 = '&&subpool_07.';
-DEF tit_10 = '&&subpool_08.';
-DEF tit_11 = '&&subpool_09.';
-DEF tit_12 = '&&subpool_10.';
-DEF tit_13 = '';
-DEF tit_14 = '';
-DEF tit_15 = '';
+SELECT 'Free memory' tit_01,
+       'Others' tit_02,
+        '&&tit_subpool_01.' tit_03,
+        '&&tit_subpool_02.' tit_04,
+        '&&tit_subpool_03.' tit_05,
+        '&&tit_subpool_04.' tit_06,
+        '&&tit_subpool_05.' tit_07,
+        '&&tit_subpool_06.' tit_08,
+        '&&tit_subpool_07.' tit_09,
+        '&&tit_subpool_08.' tit_10,
+        '&&tit_subpool_09.' tit_11,
+        '&&tit_subpool_10.' tit_12        
+  FROM DUAL;
 
 
 DEF vaxis = 'Memory in MBs';

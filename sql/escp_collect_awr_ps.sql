@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_awr_ps.sql (2023-11-02)
+-- File name:   escp_collect_awr_ps.sql (2024-02-06)
 --
 --              Enkitec Sizing and Capacity Planing eSCP 
 --
@@ -14,13 +14,7 @@
 --                  view                         resource(s)
 --                  ---------------------------- -----------------
 --                  DBA_HIST_ACTIVE_SESS_HISTORY CPU
---                  DBA_HIST_SGA                 MEM
---                  DBA_HIST_PGASTAT             MEM
---                  DBA_HIST_TBSPC_SPACE_USAGE   DISK
---                  DBA_HIST_LOG                 DISK
---                  DBA_HIST_SYSSTAT             IOPS MBPS PHYR PHYW NETW IC
---                  DBA_HIST_DLM_MISC            IC
---                  DBA_HIST_OSSTAT              OS
+--                  DBA_HIST_SYSSTAT             IOPS MBPS PHYR PHYW
 --
 --              Collections from this script are consumed by the ESCP tool.
 --              Warning: Stats may not be available because its collection is not implemented yet or lack of granularity.
@@ -35,6 +29,7 @@
 --
 -- Warning:     Requires a license for the Oracle Diagnostics Pack
 --
+-- Modified on February 2024 to fix UNPIVOT column name
 -- Modified on November 2023 to collect info at parsing schema level
 -- Modified on Feburary 2023 to redefine min_instance_host_id
 -- Modified on January 2023 to adapt to multitenat
@@ -89,6 +84,10 @@ ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '&&ESCP_DATE_FORMAT.';
 DEF escp_host_name_short = '';
 COL escp_host_name_short NEW_V escp_host_name_short FOR A30;
 SELECT LOWER(SUBSTR(SYS_CONTEXT('USERENV', 'SERVER_HOST'), 1, 30)) escp_host_name_short FROM DUAL;
+SELECT NVL(LOWER(SUBSTR(MIN(host_name), 1, 30)),'&&escp_host_name_short.') escp_host_name_short 
+  FROM &&escp_awr_hist_prefix.database_instance
+ WHERE dbid = &&escp_this_dbid.
+/
 SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.') - 1) escp_host_name_short FROM DUAL;
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
@@ -414,15 +413,15 @@ dba_hist_sysstat_sqf AS (
 select /*+ MATERIALIZE */ d.* ,SUM(delta) OVER (partition by stat_name,instance_number order by SNAP_ID) value
 from (
 select snap_id,instance_number
-      ,SUM(PHYSICAL_READ_REQUESTS_TOTAL)  "physical read total IO requests"
-      ,SUM(PHYSICAL_WRITE_REQUESTS_TOTAL) "physical write total IO requests"
+      ,SUM(PHYSICAL_READ_REQUESTS_TOTAL)  "physical read total IO reqs"
+      ,SUM(PHYSICAL_WRITE_REQUESTS_TOTAL) "physical write total IO reqs"
       ,SUM(PHYSICAL_READ_BYTES_TOTAL)     "physical read total bytes"
       ,SUM(PHYSICAL_WRITE_BYTES_TOTAL)    "physical write total bytes"
       ,SUM(DISK_READS_TOTAL)              "physical reads"
       ,SUM(DIRECT_WRITES_TOTAL)           "physical writes"
       ,SUM(0)                             "redo writes" -- not available but necessary value
       ,SUM(0)                             "redo size"   -- not available but necessary value      
-  from dba_hist_sqlstat h
+  from &&escp_awr_hist_prefix.sqlstat h
  WHERE h.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
    AND h.dbid = &&escp_this_dbid.
    and h.PARSING_SCHEMA_ID = &&escp_user_id.
@@ -432,8 +431,8 @@ UNPIVOT(
  delta
  for stat_name 
  in (
-     "physical read total IO requests"  as 'physical read total IO requests'
-    ,"physical write total IO requests" as 'physical write total IO requests'
+     "physical read total IO reqs"      as 'physical read total IO requests'
+    ,"physical write total IO reqs"     as 'physical write total IO requests'
     ,"physical read total bytes"        as 'physical read total bytes'
     ,"physical write total bytes"       as 'physical write total bytes'
     ,"physical reads"                   as 'physical reads'

@@ -1,10 +1,10 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   features_use.sql (2016-09-01)
+-- File name:   features_use.sql (2024-01-03)
 --
 -- Purpose:     Collect Database Features Use
 --
--- Author:      Carlos Sierra
+-- Author:      Carlos Sierra, Abel Macias
 --
 -- Usage:       Collects V$OPTION and DBA_FEATURE_USAGE_STATISTICS
 --				 
@@ -15,8 +15,9 @@
 --              # sqlplus / as sysdba
 --              SQL> START sql/esp_master.sql
 --
---  Notes:      Developed and tested on 12.1.0.2, 11.2.0.4, 11.2.0.3, 10.2.0.4
---             
+--  Notes:      Developed and tested on 12.1.0.2, 11.2.0.4, 11.2.0.3, 10.2.0.4, 19c
+--  
+-- Modified on January 2024 to support 1317265.1          
 ---------------------------------------------------------------------------------------
 --
 SET TERM OFF ECHO OFF FEED OFF VER OFF HEA ON PAGES 100 COLSEP ' ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 10 SQLBL ON BLO . RECSEP OFF LONG 8000 LONGC 80;
@@ -65,6 +66,14 @@ PRO
 PRO DBA_FEATURE_USAGE_STATISTICS
 PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 SELECT * FROM dba_feature_usage_statistics
+/
+
+/*****************************************************************************************/
+PRO
+PRO Note:1317265.1 product query
+PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+@@escp_products.sql
 /
 
 /*****************************************************************************************/
