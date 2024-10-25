@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_awr.sql (2024-02-06)
+-- File name:   escp_collect_awr.sql (2024-10-24)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -33,7 +33,10 @@
 --
 -- Warning:     Requires a license for the Oracle Diagnostics Pack
 --
--- Modified on Febyrary 2024 to collect X metrics
+-- Modified on October 2024 to add CPUINFO and more COLLECT fields
+--                          to redefine min_instance_host_id as original
+--                          to redefine escp_host_name_short as original
+-- Modified on Feburary 2024 to collect X metrics
 -- Modified on January 2024 to support 1317265.1, redefine escp_host_name_short, id dbrole
 -- Modified on Feburary 2023 to redefine min_instance_host_id
 -- Modified on January 2023 to adapt to multitenat
@@ -42,9 +45,6 @@
 
 
 SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
-
-@@escp_config.sql
-@@escp_edb360_config.sql
 
 -- Parameters for detect_environment.sql 
 
@@ -89,10 +89,7 @@ ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '&&ESCP_DATE_FORMAT.';
 DEF escp_host_name_short = '';
 COL escp_host_name_short NEW_V escp_host_name_short FOR A30;
 SELECT LOWER(SUBSTR(SYS_CONTEXT('USERENV', 'SERVER_HOST'), 1, 30)) escp_host_name_short FROM DUAL;
-SELECT NVL(LOWER(SUBSTR(MIN(host_name), 1, 30)),'&&escp_host_name_short.') escp_host_name_short 
-  FROM &&escp_awr_hist_prefix.database_instance
- WHERE dbid = &&escp_this_dbid.
-/
+
 SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.') - 1) escp_host_name_short FROM DUAL;
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
@@ -122,13 +119,19 @@ DEF escp_dbrole=''
 COL escp_dbrole NEW_V escp_dbrole
 SELECT DECODE(DATABASE_ROLE,'PRIMARY','','_s') escp_dbrole from v$database;
 
-@@escp_pre_products.sql
+DEF escp_aux_stats='(select null pname, null pval1,null pval2 FROM DUAL WHERE 1=0)'
+COL escp_aux_stats NEW_V escp_aux_stats
+SELECT 'SYS.AUX_STATS$'  escp_aux_stats
+FROM  all_tables 
+WHERE table_name='AUX_STATS$';
 
-DEF;
+
+@@escp_pre_products.sql
 
 ---------------------------------------------------------------------------------------
 
-SPO escp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&is_cdb.&&escp_dbrole..csv;
+def escp_tail=&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&is_cdb.&&escp_dbrole..csv
+SPO escp_&&escp_tail.;
 
 COL escp_metric_group    FOR A8;
 COL escp_metric_acronym  FOR A16;
@@ -160,7 +163,7 @@ SELECT 'COLLECT' escp_metric_group,
        NULL      escp_instance_number,
        NULL      escp_end_date,
        USER      escp_value 
-  FROM v$instance
+  FROM DUAL
 /
 
 /*
@@ -179,11 +182,56 @@ SELECT 'COLLECT'                                  escp_metric_group,
        'DAYS'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
        '&&escp_date_to.'                          escp_end_date,
-       '&&escp_history_days.'                          escp_value 
-  FROM v$instance
+       to_char('&&escp_history_days.')                          escp_value 
+  FROM DUAL
+/
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DB_ROLE'                                  escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                       escp_end_date,
+       DATABASE_ROLE                          escp_value 
+  FROM v$database
+/
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DICT'                                     escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                      escp_end_date,
+       '&&escp_awr_hist_prefix.'                          escp_value 
+  FROM DUAL
+/
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'PDB'                                     escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                      escp_end_date,
+       '&&ESCP_PDB_NAME.'                          escp_value 
+  FROM DUAL
 /
 
 ---------------------------------------------------------------------------------------
+-- For a future project, to help estimate RPC from CPUSPEEDNW. 
+---------------------------------------------------------------------------------------
+
+SELECT 'COLLECT'        escp_metric_group,
+       PNAME            escp_metric_acronym,
+       NULL             escp_instance_number,
+       NULL             escp_end_date,
+       NVL(to_char(PVAL1),PVAL2) escp_value 
+  FROM &&escp_aux_stats.
+ WHERE PVAL1 is not null or PVAL2 is not null;
+
+
+---------------------------------------------------------------------------------------
+
+spool off
+HOS touch cpuinfo_append.txt
+HOS cat cpuinfo_append.txt >> escp_&&escp_tail.
+spool escp_&&escp_tail. app;
+
+---------------------------------------------------------------------------------------
+
 
 -- database dbid
 SELECT 'DATABASE'       escp_metric_group,
@@ -293,25 +341,18 @@ SELECT 'DATABASE'           escp_metric_group,
  WHERE name = 'db_block_size'
 /
 
--- database min_instance_host_id
-WITH
-all_instances AS (
-SELECT instance_number, MAX(startup_time) max_startup_time
+-- database min_instance_host_id 
+SELECT 'DATABASE'                    escp_metric_group,
+       'MIN_INST_HOST'               escp_metric_acronym,
+       TO_CHAR(MIN(instance_number)) escp_instance_number,
+       NULL                          escp_end_date,
+       MIN(host_name)                escp_value 
   FROM &&escp_awr_hist_prefix.database_instance
  WHERE dbid = &&escp_this_dbid.
- GROUP BY 
-       instance_number
-)
-SELECT 'DATABASE'                      escp_metric_group,
-       'MIN_INST_HOST'                 escp_metric_acronym,
-       TO_CHAR(MIN(h.instance_number)) escp_instance_number,
-       NULL                            escp_end_date,
-       MIN(h.host_name)                escp_value 
-  FROM &&escp_awr_hist_prefix.database_instance h
-      ,all_instances i
- WHERE dbid = &&escp_this_dbid.
-   AND h.instance_number = i.instance_number
-   and h.startup_time=i.max_startup_time
+   AND instance_number IN (
+SELECT MIN(instance_number) 
+  FROM &&escp_awr_hist_prefix.database_instance
+ WHERE dbid = &&escp_this_dbid.)
 /
 
 
@@ -363,6 +404,35 @@ SELECT 'INSTANCE'                 escp_metric_group,
        h.instance_number
 /
 
+---------------------------------------------------------------------------------------
+-- extra info for instances, if they have data inside the collection.
+WITH
+all_instances AS (
+SELECT instance_number, MAX(startup_time) max_startup_time
+  FROM &&escp_awr_hist_prefix.database_instance
+ WHERE dbid = &&escp_this_dbid.
+ GROUP BY 
+       instance_number
+)
+SELECT 'COLLECT'                                               escp_metric_group,
+       'LAST_ASH'                                              escp_metric_acronym,
+       TO_CHAR(h.instance_number)                              escp_instance_number,
+       (select max(ash.SAMPLE_TIME)
+          from &&escp_awr_hist_prefix.active_sess_history ash
+         where ash.sample_id <=h.LAST_ASH_SAMPLE_ID
+           and ash.instance_number=h.instance_number
+           and ash.dbid = &&escp_this_dbid.
+           and ash.snap_id BETWEEN &&escp_minimum_snap_id. AND &&escp_maximum_snap_id.
+       )                                                       escp_end_date,
+       to_char(LAST_ASH_SAMPLE_ID)                             escp_value
+  FROM all_instances a,
+       &&escp_awr_hist_prefix.database_instance h
+ WHERE h.dbid = &&escp_this_dbid.
+   AND h.instance_number = a.instance_number
+   AND h.startup_time = a.max_startup_time
+ ORDER BY
+       h.instance_number
+/
 ---------------------------------------------------------------------------------------
 
 -- DBA_HIST_ACTIVE_SESS_HISTORY CPU

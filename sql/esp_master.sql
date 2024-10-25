@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   esp_master.sql (2024-01-03)
+-- File name:   esp_master.sql (2024-10-24)
 --
 -- Purpose:     Collect Database Requirements (CPU, Memory, Disk and IO Perf)
 --
@@ -20,6 +20,8 @@
 --  Notes:      Developed and tested on 12.1.0.2, 12.1.0.1, 11.2.0.4, 11.2.0.3,
 --				10.2.0.4, 9.2.0.8, 9.2.0.1
 --
+-- Modified October 2024 added cpuinfo_append , reverse esp_host_name_short
+--                       added support for escp_source
 -- Modified January 2024 to redefine esp_host_name_short
 -- Modified on 2023 to add escpver
 ---------------------------------------------------------------------------------------
@@ -32,22 +34,31 @@ SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRI
 
 DEF skip_escp_v1 = '--skip--'
 
+@@escp_config.sql
+@@escp_edb360_config.sql
+
 VARIABLE vskip_awr varchar2(20)
 VARIABLE vskip_statspack varchar2(20)
 
 -- IF AWR has snapshots for the last 2 hours use it and skip Statspack scripts
 -- IF BOTH AWR AND SNAPSHOT HAVE NO DATA IN THE LAST 2 HOURS, IT WILL RUN BOTH.
+DECLARE
+ l_source varchar2(4);
 BEGIN
+    l_source:='&&escp_source.';
     :vskip_statspack := NULL;
-    :vskip_awr := NULL;
-	BEGIN
-		EXECUTE IMMEDIATE 'SELECT ''--skip--''  FROM DBA_HIST_SNAPSHOT WHERE begin_interval_time >= systimestamp-2/24 AND rownum < 2'
-		INTO :vskip_statspack;
-	EXCEPTION
-		WHEN OTHERS THEN
- 		NULL;
-	END;
-	IF :vskip_statspack IS NULL THEN
+    :vskip_awr := (case when l_source='SP' then '--skip--' else NULL end);
+    IF l_source in ('AUTO','AWR') THEN
+	   BEGIN
+	   	EXECUTE IMMEDIATE 'SELECT ''--skip--''  FROM DBA_HIST_SNAPSHOT WHERE begin_interval_time >= systimestamp-2/24 AND rownum < 2'
+	   	INTO :vskip_statspack;
+	   EXCEPTION
+	   	WHEN OTHERS THEN
+ 	   	NULL;
+	   END;
+	END IF;
+	IF    (l_source='AUTO' and :vskip_statspack IS NULL) 
+	THEN
     	BEGIN
     		EXECUTE IMMEDIATE 'SELECT ''--skip--'' FROM perfstat.stats$snapshot WHERE snap_time >= sysdate-2/24 AND rownum < 2'
     		INTO :vskip_awr ;
@@ -89,8 +100,39 @@ DEF esp_collection_yyyymmdd = '';
 COL esp_collection_yyyymmdd NEW_V esp_collection_yyyymmdd FOR A8;
 SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 
+DEF esp_collection_yyyymmdd_hhmi = '';
+COL esp_collection_yyyymmdd_hhmi NEW_V esp_collection_yyyymmdd_hhmi FOR A13;
+SELECT TO_CHAR(SYSDATE, 'YYYYMMDD_HH24MI') esp_collection_yyyymmdd_hhmi FROM DUAL;
+
+-------------------------------------------------------------------
+-- Checking the statspack is installed. Abort if it does not exist.
+@@&&skip_statspack.sql/esp_sptest.sql
+-------------------------------------------------------------------
+-- cpu info for linux, aix and solaris. expect some errors
+
+SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
+def esp_cpuinfo_file   = 'cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt'
+SPO hostcommands_driver.sql
+SELECT decode(  platform_id,
+                13,'HOS cat /proc/cpuinfo | grep -i name | sort | uniq | cat - /sys/devices/virtual/dmi/id/product_name >> &&esp_cpuinfo_file.', -- Linux x86 64-bit
+                6,'HOS lsconf | grep Processor >> &&esp_cpuinfo_file.', -- AIX-Based Systems (64-bit)
+                2,'HOS psrinfo -v >> &&esp_cpuinfo_file.', -- Solaris[tm] OE (64-bit)
+                4,'HOS machinfo >> &&esp_cpuinfo_file.' -- HP-UX IA (64-bit)
+        ) from v$database, product_component_version
+where 1=1
+and to_number(substr(product_component_version.version,1,2)) > 9
+and lower(product_component_version.product) like 'oracle%';
+
+select 'HOS python sql/parse_cpuinfo.py &&esp_cpuinfo_file. > cpuinfo_append.txt'
+from dual;
+SPO OFF
+SET DEF ON
+@hostcommands_driver.sql
+
+-------------------------------------------------------------------
+
 -- AWR collector
-@@&&skip_awr.sql/escp_collect_awr.sql
+@@&&skip_awr.sql/escp_collect_awr.sql 
 @@&&skip_escp_v1.&&skip_awr.sql/esp_collect_requirements_awr.sql
 @@&&skip_escp_v1.&&skip_awr.sql/resources_requirements_awr.sql
 
@@ -102,35 +144,9 @@ SELECT TO_CHAR(SYSDATE, 'YYYYMMDD') esp_collection_yyyymmdd FROM DUAL;
 -- DB Features
 @@sql/features_use.sql
 
-/*
-use escp_host_name_short instead of the calculated esp_host_name_short by esp_master
-This is to use the name of the primary server stored in historic tables than the script executing server
-The name of the script executing server is collected in the END category.
-*/
-DEF esp_host_name_short="&&escp_host_name_short."
-
-SET TERM ON;
-
--- cpu info for linux, aix and solaris. expect some errors
-SET TERM OFF ECHO OFF FEED OFF VER OFF HEA OFF PAGES 0 COLSEP ', ' LIN 32767 TRIMS ON TRIM ON TI OFF TIMI OFF ARRAY 100 NUM 20 SQLBL ON BLO . RECSEP OFF;
-SPO hostcommands_driver.sql
-SELECT decode(  platform_id,
-                13,'HOS cat /proc/cpuinfo | grep -i name | sort | uniq | cat - /sys/devices/virtual/dmi/id/product_name >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- Linux x86 64-bit
-                6,'HOS lsconf | grep Processor >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- AIX-Based Systems (64-bit)
-                2,'HOS psrinfo -v >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt', -- Solaris[tm] OE (64-bit)
-                4,'HOS machinfo >> cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..txt' -- HP-UX IA (64-bit)
-        ) from v$database, product_component_version
-where 1=1
-and to_number(substr(product_component_version.version,1,2)) > 9
-and lower(product_component_version.product) like 'oracle%';
-SPO OFF
-SET DEF ON
-@hostcommands_driver.sql
-set feed on echo on
-
 HOS awk -f sql/escpver escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv >> escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
 -- zip esp
-HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
+HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip hostcommands_driver.sql cpuinfo_append.txt escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd..rpt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip cpuinfo_model_name_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd._*.txt
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv
 HOS zip -qmj escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd_hhmi..zip escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&esp_collection_yyyymmdd._*.csv
@@ -143,3 +159,7 @@ SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF 
 PRO
 PRO Generated escp_output_&&esp_host_name_short._&&esp_dbname_short._&&esp_collection_yyyymmdd..zip
 PRO
+PRO Note: Ignore "zip error: Nothing to do! " and "SP2-0310" Messages.
+
+
+

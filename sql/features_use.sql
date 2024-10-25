@@ -78,6 +78,11 @@ PRO ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 /*****************************************************************************************/
 
+PRO
+PRO DEFs
+PRO ~~~~
+DEF;
+
 SPO OFF;
 SET TERM ON ECHO OFF FEED ON VER ON HEA ON PAGES 14 COLSEP ' ' LIN 80 TRIMS OFF TRIM ON TI OFF TIMI OFF ARRAY 15 NUM 10 SQLBL OFF BLO ON RECSEP WR;
 

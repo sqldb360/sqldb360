@@ -544,7 +544,7 @@ SELECT TO_CHAR(CASE ROUND(AVG(TO_NUMBER(cpus.value))/AVG(TO_NUMBER(cores.value))
 
 -- get number of Hosts
 COL hosts_count NEW_V hosts_count FOR A2;
-SELECT TO_CHAR(ROUND(AVG(TO_NUMBER(value)))) hosts_count FROM (select count(distinct INSTANCE_NUMBER) value,snap_id FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES' group by snap_id);
+SELECT NVL(TO_CHAR(ROUND(AVG(TO_NUMBER(value)))),'1') hosts_count FROM (select count(distinct INSTANCE_NUMBER) value,snap_id FROM &&cdb_awr_hist_prefix.osstat WHERE stat_name = 'NUM_CPU_CORES' group by snap_id);
 
 -- get cores_threads_hosts
 COL cores_threads_hosts NEW_V cores_threads_hosts;
