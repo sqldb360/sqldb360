@@ -1,3 +1,19 @@
+
+/*
+escp_source
+Choose data source 
+Valid values are AUTO, AWR, SP
+- AWR   looks for KPI data on Automatic Workload Repository (Needs Diagnostic Pack License)
+- SP    Looks for KPI data on Statspack (Doc ID 94224.1) (No license needed)
+
+AUTO choice is:
+- AWR If AWR has snapshots for the last 2 hours, otherwise SP
+- If both AWR and snapshot have no data in the last 2 hours, collects BOTH.
+
+*/
+
+DEF escp_source = 'AUTO'
+
 -- range of dates below supersede history days when values are other than YYYY-MM-DD
 -- When not using the Date Range leave the values 'YYYY-MM-DD' active
 -- DEF escp_conf_date_from = 'YYYY-MM-DD';

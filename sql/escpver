@@ -4,6 +4,7 @@ valid["BEGIN"]=1
 valid["COLLECT"]=2
 valid["DATABASE"]=12
 valid["INSTANCE"]=2
+valid["CPUINFO"]=4
 valid["CPU"]=2
 valid["DISK"]=2
 valid["IC"]=2

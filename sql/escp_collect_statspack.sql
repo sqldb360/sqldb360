@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_statspack.sql (2024-01-03)
+-- File name:   escp_collect_statspack.sql (2024-10-24)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -30,25 +30,16 @@
 --
 -- Warning:     Requires statspack installation
 --
+-- Modified on October 2024 to add CPUINFO and more COLLECT fields
+--                          to redefine min_instance_host_id as original
+--                          to redefine escp_host_name_short as original
+--                          to execute from esp_master.sql
 -- Modified on February 2024 to support escp_config.sql
 -- Modified on January 2024 to support 1317265.1, redefine escp_host_name_short, id dbrole
 -- Modified on Feburary 2023 to redefine min_instance_host_id
 ---------------------------------------------------------------------------------------
---
--- To support Date Range
--- range of dates below supersede history days when values are other than YYYY-MM-DD
--- When not using the Date Range leave the values 'YYYY-MM-DD' active
--- DEF escp_conf_date_from = 'YYYY-MM-DD';
--- DEF escp_conf_date_to   = 'YYYY-MM-DD';
--- There is no validation that the retention includes the Date Range
--- However there is a join with dba_hist_snapshot, therefore, no data will come out if the range is not part of the retention
 
--- Always have the escp_conf_date_from and escp_conf_date_to defined with 'YYYY-MM-DD' or a date value in escp_config.sql
--- Do not comment the lines
-
-@@escp_config.sql
-
-DEFINE ESCP_DATE_FORMAT = '&&ENV_DATE_FORMAT.'
+DEFINE ESCP_DATE_FORMAT = 'YYYY-MM-DD"T"HH24:MI:SS';
 -- To support Date Range
 DEF escp_timestamp_format = 'YYYY-MM-DD"T"HH24:MI:SS.FF';
 DEF escp_timestamp_tz_format = 'YYYY-MM-DD"T"HH24:MI:SS.FFTZH:TZM';
@@ -64,7 +55,7 @@ ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '&&ESCP_DATE_FORMAT.';
 
 -- Get dbid
 COL escp_this_dbid NEW_V escp_this_dbid;
-SELECT 'get_dbid', TO_CHAR(dbid) escp_this_dbid FROM v$database
+SELECT TRIM(TO_CHAR(NVL(TO_NUMBER('&&escp_conf_dbid.'), dbid))) escp_this_dbid FROM v$database
 /
 
 -- To support Date Range
@@ -111,15 +102,13 @@ To: h.sample_time BETWEEN TO_TIMESTAMP('&&escp_date_from.','&&escp_timestamp_for
 DEF escp_host_name_short = '';
 COL escp_host_name_short NEW_V escp_host_name_short FOR A30;
 SELECT LOWER(SUBSTR(SYS_CONTEXT('USERENV', 'SERVER_HOST'), 1, 30)) escp_host_name_short FROM DUAL;
--- database host_name_min
-SELECT NVL(LOWER(SUBSTR(MIN(host_name), 1, 30)),'&&escp_host_name_short.') escp_host_name_short
-  FROM STATS$database_instance
- WHERE dbid = &&escp_this_dbid.
-/
+
 SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.') - 1) escp_host_name_short FROM DUAL;
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
 'abcdefghijklmnopqrstuvwxyz0123456789-_') escp_host_name_short FROM DUAL;
+
+
 
 -- get database name (up to 10, stop before first '.', no special characters)
 COL escp_dbname_short NEW_V escp_dbname_short FOR A10;
@@ -161,11 +150,39 @@ DEF escp_dbrole=''
 COL escp_dbrole NEW_V escp_dbrole
 SELECT DECODE(DATABASE_ROLE,'PRIMARY','','_s') escp_dbrole from v$database;
 
+-- get container info
+DEF env_is_cdb = 'N'
+COL env_is_cdb NEW_V env_is_cdb;
+
+DEF env_con_id = '-1';
+COL env_con_id NEW_V env_con_id;
+
+DEF env_pdb_name = 'NONE'
+COL env_pdb_name NEW_V env_pdb_name;
+
+SELECT /* ignore if it fails to parse */ 
+       'Y' env_is_cdb
+      ,SYS_CONTEXT('USERENV','CON_ID') env_con_id 
+      ,SYS_CONTEXT('USERENV', 'CON_NAME') env_pdb_name 
+  FROM v$pdbs 
+fetch first row only;
+
+DEF escp_aux_stats='(select null pname, null pval1,null pval2 FROM DUAL WHERE 1=0)'
+COL escp_aux_stats NEW_V escp_aux_stats
+SELECT 'SYS.AUX_STATS$'  escp_aux_stats
+FROM  all_tables 
+WHERE table_name='AUX_STATS$';
+
+DEFINE is_cdb = '&&ENV_IS_CDB.'
+DEFINE escp_con_id = '&&ENV_CON_ID.'
+DEFINE escp_pdb_name = '&&ENV_PDB_NAME.'
+
 @@escp_pre_products.sql
 DEF;
 
 ---------------------------------------------------------------------------------------
-SPO escp_sp_&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&escp_dbrole..csv;
+def escp_tail=&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&is_cdb.&&escp_dbrole..csv
+SPO escp_&&escp_tail.;
 
 COL escp_metric_group    FOR A8;
 COL escp_metric_acronym  FOR A16;
@@ -205,9 +222,53 @@ SELECT 'COLLECT'                                  escp_metric_group,
        'DAYS'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
        '&&escp_date_to.'                          escp_end_date,
-       '&&escp_history_days.'                          escp_value 
+       to_char('&&escp_history_days.')            escp_value 
   FROM DUAL
 /
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DB_ROLE'                                  escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                       escp_end_date,
+       DATABASE_ROLE                              escp_value 
+  FROM v$database
+/
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DICT'                                     escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                       escp_end_date,
+       'STATS$'                                   escp_value 
+  FROM DUAL
+/
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'PDB'                                      escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                       escp_end_date,
+       '&&ESCP_PDB_NAME.'                         escp_value 
+  FROM DUAL
+/
+
+---------------------------------------------------------------------------------------
+-- For a future project, to help estimate RPC from CPUSPEEDNW. 
+---------------------------------------------------------------------------------------
+
+SELECT 'COLLECT'        escp_metric_group,
+       PNAME            escp_metric_acronym,
+       NULL             escp_instance_number,
+       NULL             escp_end_date,
+       NVL(to_char(PVAL1),PVAL2) escp_value 
+  FROM &&escp_aux_stats.
+ WHERE PVAL1 is not null or PVAL2 is not null;
+
+
+---------------------------------------------------------------------------------------
+
+spool off
+HOS touch cpuinfo_append.txt
+HOS cat cpuinfo_append.txt >> escp_&&escp_tail.
+spool escp_&&escp_tail. app;
 
 ---------------------------------------------------------------------------------------
 
@@ -316,25 +377,19 @@ SELECT 'DATABASE'           escp_metric_group,
 /
 
 -- database min_instance_host_id
-WITH
-all_instances AS (
-SELECT instance_number, MAX(startup_time) max_startup_time
-  FROM stats$database_instance
- WHERE dbid = &&escp_this_dbid.
- GROUP BY 
-       instance_number
-)
 SELECT 'DATABASE'                      escp_metric_group,
        'MIN_INST_HOST'                 escp_metric_acronym,
-       TO_CHAR(MIN(h.instance_number)) escp_instance_number,
+       TO_CHAR(MIN(instance_number)) escp_instance_number,
        NULL                            escp_end_date,
-       MIN(h.host_name)                escp_value 
-  FROM stats$database_instance h
-      ,all_instances i
+       MIN(host_name)                escp_value 
+  FROM stats$database_instance 
  WHERE dbid = &&escp_this_dbid.
-   AND h.instance_number = i.instance_number
-   and h.startup_time=i.max_startup_time
+   AND instance_number IN (
+SELECT MIN(instance_number) 
+  FROM stats$database_instance 
+ WHERE dbid = &&escp_this_dbid.)
 /
+
 
 ---------------------------------------------------------------------------------------
 
