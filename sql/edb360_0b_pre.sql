@@ -1,6 +1,6 @@
 SET TERM ON FEEDBACK ON
-DEF edb360_vYYNN = 'v241';
-DEF edb360_vrsn = '&&edb360_vYYNN. (2024-03-07)';
+DEF edb360_vYYNN = 'v242';
+DEF edb360_vrsn = '&&edb360_vYYNN. (2024-10-28)';
 DEF edb360_copyright = 'Enkitec (c) 2024';
 
 SET TERM OFF;
