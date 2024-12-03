@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_statspack.sql (2024-10-24)
+-- File name:   escp_collect_statspack.sql (2024-11-25)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -30,6 +30,7 @@
 --
 -- Warning:     Requires statspack installation
 --
+-- Modified on November 2025 to place con_id on END
 -- Modified on October 2024 to add CPUINFO and more COLLECT fields
 --                          to redefine min_instance_host_id as original
 --                          to redefine escp_host_name_short as original
@@ -960,7 +961,7 @@ order by TO_CHAR(NVL(CON_ID,0)),last_usage_date
 -- collection end
 SELECT 'END'                      escp_metric_group,
        d.name                     escp_metric_acronym,
-       TO_CHAR(i.instance_number) escp_instance_number,
+       to_char('&&escp_con_id.')  escp_instance_number,
        SYSDATE                    escp_end_date,
        i.host_name                escp_value 
   FROM v$instance i, 
