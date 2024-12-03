@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_awr.sql (2024-10-24)
+-- File name:   escp_collect_awr.sql (2024-11-25)
 --
 --              Enkitec Sizing and Capacity Planing eSCP
 --
@@ -33,6 +33,7 @@
 --
 -- Warning:     Requires a license for the Oracle Diagnostics Pack
 --
+-- Modified on November 2025 to place con_id on END
 -- Modified on October 2024 to add CPUINFO and more COLLECT fields
 --                          to redefine min_instance_host_id as original
 --                          to redefine escp_host_name_short as original
@@ -94,8 +95,6 @@ SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
 'abcdefghijklmnopqrstuvwxyz0123456789-_') escp_host_name_short FROM DUAL;
-
-
 
 -- get database name (up to 10, stop before first '.', no special characters)
 COL escp_dbname_short NEW_V escp_dbname_short FOR A10;
@@ -182,7 +181,7 @@ SELECT 'COLLECT'                                  escp_metric_group,
        'DAYS'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
        '&&escp_date_to.'                          escp_end_date,
-       to_char('&&escp_history_days.')                          escp_value 
+       to_char('&&escp_history_days.')            escp_value 
   FROM DUAL
 /
 
@@ -190,23 +189,23 @@ SELECT 'COLLECT'                                  escp_metric_group,
        'DB_ROLE'                                  escp_metric_acronym,
        NULL                                       escp_instance_number,
        NULL                                       escp_end_date,
-       DATABASE_ROLE                          escp_value 
+       DATABASE_ROLE                              escp_value 
   FROM v$database
 /
 
 SELECT 'COLLECT'                                  escp_metric_group,
        'DICT'                                     escp_metric_acronym,
        NULL                                       escp_instance_number,
-       NULL                                      escp_end_date,
-       '&&escp_awr_hist_prefix.'                          escp_value 
+       NULL                                       escp_end_date,
+       '&&escp_awr_hist_prefix.'                  escp_value 
   FROM DUAL
 /
 
-SELECT 'COLLECT'                                  escp_metric_group,
+SELECT 'COLLECT'                                 escp_metric_group,
        'PDB'                                     escp_metric_acronym,
-       NULL                                       escp_instance_number,
+       to_char('&&escp_con_id.')                 escp_instance_number,
        NULL                                      escp_end_date,
-       '&&ESCP_PDB_NAME.'                          escp_value 
+       '&&ESCP_PDB_NAME.'                        escp_value 
   FROM DUAL
 /
 
@@ -1331,7 +1330,7 @@ order by 3,last_usage_date
 -- collection end
 SELECT 'END'                      escp_metric_group,
        d.name                     escp_metric_acronym,
-       TO_CHAR(i.instance_number) escp_instance_number,
+       to_char('&&escp_con_id.')  escp_instance_number,
        SYSDATE                    escp_end_date,
        i.host_name                escp_value 
   FROM v$instance i, 

@@ -1,6 +1,6 @@
 ----------------------------------------------------------------------------------------
 --
--- File name:   escp_collect_awr_ps.sql (2024-02-06)
+-- File name:   escp_collect_awr_ps.sql (2024-11-25)
 --
 --              Enkitec Sizing and Capacity Planing eSCP 
 --
@@ -28,7 +28,10 @@
 -- Notes:       Developed and tested on 19.16
 --
 -- Warning:     Requires a license for the Oracle Diagnostics Pack
---
+-- Modified on November 2025 to place con_id on END
+--                           to add CPUINFO and more COLLECT fields
+--                           to redefine min_instance_host_id as original
+--                           to redefine escp_host_name_short as original
 -- Modified on February 2024 to fix UNPIVOT column name
 -- Modified on November 2023 to collect info at parsing schema level
 -- Modified on Feburary 2023 to redefine min_instance_host_id
@@ -84,10 +87,7 @@ ALTER SESSION SET NLS_TIMESTAMP_FORMAT = '&&ESCP_DATE_FORMAT.';
 DEF escp_host_name_short = '';
 COL escp_host_name_short NEW_V escp_host_name_short FOR A30;
 SELECT LOWER(SUBSTR(SYS_CONTEXT('USERENV', 'SERVER_HOST'), 1, 30)) escp_host_name_short FROM DUAL;
-SELECT NVL(LOWER(SUBSTR(MIN(host_name), 1, 30)),'&&escp_host_name_short.') escp_host_name_short 
-  FROM &&escp_awr_hist_prefix.database_instance
- WHERE dbid = &&escp_this_dbid.
-/
+
 SELECT SUBSTR('&&escp_host_name_short.', 1, INSTR('&&escp_host_name_short..', '.') - 1) escp_host_name_short FROM DUAL;
 SELECT TRANSLATE('&&escp_host_name_short.',
 'abcdefghijklmnopqrstuvwxyz0123456789-_ ''`~!@#$%&*()=+[]{}\|;:",.<>/?'||CHR(0)||CHR(9)||CHR(10)||CHR(13)||CHR(38),
@@ -117,11 +117,12 @@ DEF escp_user_id = 0
 COL escp_user_id NEW_V escp_user_id
 SELECT user_id escp_user_id FROM &&escp_dd_prefix.USERS WHERE username='&&escp_parsing_schema.';
 
-DEF;
+@@escp_pre_products.sql
 
 ---------------------------------------------------------------------------------------
 
-SPO escp_&&escp_host_name_short._&&escp_dbname_short._&&escp_parsing_schema._&&escp_collection_yyyymmdd_hhmi..csv;
+def escp_tail=&&escp_host_name_short._&&escp_dbname_short._&&escp_collection_yyyymmdd_hhmi.&&is_cdb.&&escp_dbrole..csv
+SPO escp_&&escp_tail.;
 
 COL escp_metric_group    FOR A8;
 COL escp_metric_acronym  FOR A16;
@@ -175,6 +176,51 @@ SELECT 'COLLECT'                                  escp_metric_group,
        '&&escp_history_days.'                          escp_value 
   FROM v$instance
 /
+
+---------------------------------------------------------------------------------------
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DB_ROLE'                                  escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                       escp_end_date,
+       DATABASE_ROLE                              escp_value 
+  FROM v$database
+/
+
+SELECT 'COLLECT'                                  escp_metric_group,
+       'DICT'                                     escp_metric_acronym,
+       NULL                                       escp_instance_number,
+       NULL                                       escp_end_date,
+       '&&escp_awr_hist_prefix.'                  escp_value 
+  FROM DUAL
+/
+
+SELECT 'COLLECT'                                 escp_metric_group,
+       'PDB'                                     escp_metric_acronym,
+       to_char('&&escp_con_id.')                 escp_instance_number,
+       NULL                                      escp_end_date,
+       '&&ESCP_PDB_NAME.'                        escp_value 
+  FROM DUAL
+/
+
+---------------------------------------------------------------------------------------
+-- For a future project, to help estimate RPC from CPUSPEEDNW. 
+---------------------------------------------------------------------------------------
+
+SELECT 'COLLECT'        escp_metric_group,
+       PNAME            escp_metric_acronym,
+       NULL             escp_instance_number,
+       NULL             escp_end_date,
+       NVL(to_char(PVAL1),PVAL2) escp_value 
+  FROM &&escp_aux_stats.
+ WHERE PVAL1 is not null or PVAL2 is not null;
+
+
+---------------------------------------------------------------------------------------
+
+spool off
+HOS touch cpuinfo_append.txt
+HOS cat cpuinfo_append.txt >> escp_&&escp_tail.
+spool escp_&&escp_tail. app;
 
 ---------------------------------------------------------------------------------------
 
@@ -282,27 +328,19 @@ SELECT 'DATABASE'           escp_metric_group,
  WHERE name = 'db_block_size'
 /
 
--- database min_instance_host_id
-WITH
-all_instances AS (
-SELECT instance_number, MAX(startup_time) max_startup_time
+-- database min_instance_host_id 
+SELECT 'DATABASE'                    escp_metric_group,
+       'MIN_INST_HOST'               escp_metric_acronym,
+       TO_CHAR(MIN(instance_number)) escp_instance_number,
+       NULL                          escp_end_date,
+       MIN(host_name)                escp_value 
   FROM &&escp_awr_hist_prefix.database_instance
  WHERE dbid = &&escp_this_dbid.
- GROUP BY 
-       instance_number
-)
-SELECT 'DATABASE'                      escp_metric_group,
-       'MIN_INST_HOST'                 escp_metric_acronym,
-       TO_CHAR(MIN(h.instance_number)) escp_instance_number,
-       NULL                            escp_end_date,
-       MIN(h.host_name)                escp_value 
-  FROM &&escp_awr_hist_prefix.database_instance h
-      ,all_instances i
- WHERE dbid = &&escp_this_dbid.
-   AND h.instance_number = i.instance_number
-   and h.startup_time=i.max_startup_time
+   AND instance_number IN (
+SELECT MIN(instance_number) 
+  FROM &&escp_awr_hist_prefix.database_instance
+ WHERE dbid = &&escp_this_dbid.)
 /
-
 
 ---------------------------------------------------------------------------------------
 
@@ -549,13 +587,24 @@ SELECT /*+ USE_HASH(h s) */
 
 -- DBA_HIST_OSSTAT OS
 -- Not available
-
+---------------------------------------------------------------------------------------
+SELECT 'PRODUCT'                   escp_metric_group,
+       'PRODUCT'                   escp_metric_acronym,
+       TO_CHAR(nvl2(con_id,decode(con_id,-1,0,con_id),0))   escp_instance_number,
+       LAST_USAGE_DATE          escp_end_date,
+       PRODUCT                  escp_value
+from (
+@@escp_products.sql
+)
+where last_usage_date is not null
+order by 3,last_usage_date
+/
 ---------------------------------------------------------------------------------------
 
 -- collection end
 SELECT 'END'                      escp_metric_group,
        d.name                     escp_metric_acronym,
-       TO_CHAR(i.instance_number) escp_instance_number,
+       to_char('&&escp_con_id.')  escp_instance_number,
        SYSDATE                    escp_end_date,
        i.host_name                escp_value 
   FROM v$instance i, 
